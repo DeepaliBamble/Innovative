@@ -1,0 +1,608 @@
+@font-face {
+  font-family: 'icomoon';
+  src:  url('fonts/icomoon995b.eot?fg717e');
+  src:  url('fonts/icomoon995b.eot?fg717e#iefix') format('embedded-opentype'),
+    url('fonts/icomoon995b.ttf?fg717e') format('truetype'),
+    url('fonts/icomoon995b.woff?fg717e') format('woff'),
+    url('fonts/icomoon995b.svg?fg717e#icomoon') format('svg');
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+
+/* icomoon-ext: small extension font that will contain YouTube + Pinterest glyphs.
+   Build using `npm run build:icons` inside icon/icomoon (adds fonts/icomoon-ext.*).
+   This is an optional extension so we don't touch the original font bundle; when the
+   extended font exists it'll be referenced via font-family below. */
+@font-face {
+  font-family: 'icomoon-ext';
+  src: url('fonts/icomoon-ext.eot');
+  src: url('fonts/icomoon-ext.eot#iefix') format('embedded-opentype'),
+       url('fonts/icomoon-ext.woff2') format('woff2'),
+       url('fonts/icomoon-ext.woff') format('woff'),
+       url('fonts/icomoon-ext.ttf') format('truetype'),
+       url('fonts/icomoon-ext.svg#icomoon-ext') format('svg');
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+
+[class^="icon-"], [class*=" icon-"] {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'icomoon' !important;
+  speak: never;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-unlike:before {
+  content: "\e99d";
+}
+.icon-like:before {
+  content: "\e99e";
+}
+.icon-show-password:before {
+  content: "\e969";
+}
+.icon-phone-case:before {
+  content: "\e968";
+}
+.icon-respriatory:before {
+  content: "\e96a";
+  color: #5f615e;
+}
+.icon-rice:before {
+  content: "\e96b";
+  color: #5f615e;
+}
+.icon-safety:before {
+  content: "\e96c";
+  color: #5f615e;
+}
+.icon-seafood:before {
+  content: "\e96d";
+  color: #5f615e;
+}
+.icon-seasonal:before {
+  content: "\e96e";
+  color: #5f615e;
+}
+.icon-seat-cover:before {
+  content: "\e96f";
+  color: #5f615e;
+}
+.icon-sexual-health:before {
+  content: "\e970";
+  color: #5f615e;
+}
+.icon-steering-wheel:before {
+  content: "\e971";
+  color: #5f615e;
+}
+.icon-storage-device:before {
+  content: "\e972";
+  color: #5f615e;
+}
+.icon-stylus-pen:before {
+  content: "\e973";
+  color: #5f615e;
+}
+.icon-supplement:before {
+  content: "\e974";
+  color: #5f615e;
+}
+.icon-tool-equipment:before {
+  content: "\e975";
+  color: #5f615e;
+}
+.icon-vegetable:before {
+  content: "\e976";
+  color: #5f615e;
+}
+.icon-vitamin:before {
+  content: "\e977";
+  color: #5f615e;
+}
+.icon-webcam:before {
+  content: "\e978";
+  color: #5f615e;
+}
+.icon-wheel-tire:before {
+  content: "\e979";
+  color: #5f615e;
+}
+.icon-wiper:before {
+  content: "\e97a";
+  color: #5f615e;
+}
+.icon-adapter:before {
+  content: "\e97b";
+  color: #5f615e;
+}
+.icon-allergy:before {
+  content: "\e97c";
+  color: #5f615e;
+}
+.icon-audio:before {
+  content: "\e97d";
+  color: #5f615e;
+}
+.icon-canned:before {
+  content: "\e97e";
+  color: #5f615e;
+}
+.icon-car-brake:before {
+  content: "\e97f";
+  color: #5f615e;
+}
+.icon-car-charger:before {
+  content: "\e980";
+  color: #5f615e;
+}
+.icon-car-oil:before {
+  content: "\e981";
+  color: #5f615e;
+}
+.icon-cleaning-kit:before {
+  content: "\e982";
+  color: #5f615e;
+}
+.icon-cleaning-wing:before {
+  content: "\e983";
+  color: #5f615e;
+}
+.icon-charger:before {
+  content: "\e984";
+  color: #5f615e;
+}
+.icon-dash-cam:before {
+  content: "\e985";
+  color: #5f615e;
+}
+.icon-dental:before {
+  content: "\e986";
+  color: #5f615e;
+}
+.icon-dermatology:before {
+  content: "\e987";
+  color: #5f615e;
+}
+.icon-diabetes:before {
+  content: "\e988";
+  color: #5f615e;
+}
+.icon-disgestive:before {
+  content: "\e989";
+  color: #5f615e;
+}
+.icon-dry:before {
+  content: "\e98a";
+  color: #5f615e;
+}
+.icon-engine:before {
+  content: "\e98b";
+  color: #5f615e;
+}
+.icon-first-aid:before {
+  content: "\e98c";
+  color: #5f615e;
+}
+.icon-fresh:before {
+  content: "\e98d";
+  color: #5f615e;
+}
+.icon-grain:before {
+  content: "\e98e";
+  color: #5f615e;
+}
+.icon-headphone:before {
+  content: "\e98f";
+  color: #5f615e;
+}
+.icon-lighting:before {
+  content: "\e990";
+  color: #5f615e;
+}
+.icon-medical-device:before {
+  content: "\e991";
+  color: #5f615e;
+}
+.icon-microphone:before {
+  content: "\e992";
+  color: #5f615e;
+}
+.icon-mouse:before {
+  content: "\e993";
+  color: #5f615e;
+}
+.icon-mushroom:before {
+  content: "\e994";
+  color: #5f615e;
+}
+.icon-network:before {
+  content: "\e995";
+  color: #5f615e;
+}
+.icon-noodles:before {
+  content: "\e996";
+  color: #5f615e;
+}
+.icon-nut:before {
+  content: "\e997";
+  color: #5f615e;
+}
+.icon-pain:before {
+  content: "\e998";
+  color: #5f615e;
+}
+.icon-personal-care:before {
+  content: "\e999";
+  color: #5f615e;
+}
+.icon-ponk:before {
+  content: "\e99a";
+  color: #5f615e;
+}
+.icon-poultry:before {
+  content: "\e99b";
+  color: #5f615e;
+}
+.icon-power-strip:before {
+  content: "\e99c";
+  color: #5f615e;
+}
+.icon-instagram-logo:before {
+  content: "\e90b";
+}
+.icon-trash:before {
+  content: "\e967";
+}
+.icon-fish:before {
+  content: "\e95f";
+}
+.icon-reptitle:before {
+  content: "\e960";
+}
+.icon-spider:before {
+  content: "\e961";
+}
+.icon-toy:before {
+  content: "\e962";
+}
+.icon-best-choice:before {
+  content: "\e963";
+}
+.icon-bird:before {
+  content: "\e964";
+}
+.icon-cat:before {
+  content: "\e965";
+}
+.icon-dog:before {
+  content: "\e966";
+}
+.icon-star:before {
+  content: "\e932";
+}
+.icon-CaretUpDown:before {
+  content: "\e921";
+}
+.icon-sidebar:before {
+  content: "\e939";
+}
+.icon-list:before {
+  content: "\e918";
+}
+.icon-note-pencil:before {
+  content: "\e919";
+}
+.icon-phone-ring:before {
+  content: "\e91a";
+}
+.icon-ques:before {
+  content: "\e91b";
+}
+.icon-quote-2:before {
+  content: "\e91c";
+}
+.icon-return-free:before {
+  content: "\e91d";
+}
+.icon-ruler:before {
+  content: "\e91e";
+}
+.icon-setting:before {
+  content: "\e91f";
+}
+.icon-share:before {
+  content: "\e920";
+}
+.icon-sign-out:before {
+  content: "\e922";
+}
+.icon-swatches:before {
+  content: "\e923";
+}
+.icon-truck:before {
+  content: "\e924";
+}
+.icon-truck-delivery:before {
+  content: "\e925";
+}
+.icon-video:before {
+  content: "\e926";
+}
+.icon-view:before {
+  content: "\e927";
+}
+.icon-address-book:before {
+  content: "\e928";
+}
+.icon-box-arrow-down:before {
+  content: "\e929";
+}
+.icon-box-arrow-up:before {
+  content: "\e92a";
+}
+.icon-calender-blank:before {
+  content: "\e92b";
+}
+.icon-certified:before {
+  content: "\e92c";
+}
+.icon-circle-four:before {
+  content: "\e92d";
+}
+.icon-clock-cd:before {
+  content: "\e92e";
+}
+.icon-chat:before {
+  content: "\e92f";
+}
+.icon-check-1:before {
+  content: "\e930";
+}
+.icon-check-fat:before {
+  content: "\e931";
+}
+.icon-document-search:before {
+  content: "\e933";
+}
+.icon-download:before {
+  content: "\e934";
+}
+.icon-eco:before {
+  content: "\e935";
+}
+.icon-envelope:before {
+  content: "\e936";
+}
+.icon-filter:before {
+  content: "\e937";
+}
+.icon-fire-2:before {
+  content: "\e938";
+}
+.icon-global:before {
+  content: "\e93a";
+}
+.icon-grid-2:before {
+  content: "\e93b";
+}
+.icon-grid-3:before {
+  content: "\e93c";
+}
+.icon-grid-4:before {
+  content: "\e93d";
+}
+.icon-grid-5:before {
+  content: "\e93e";
+}
+.icon-grid-6:before {
+  content: "\e93f";
+}
+.icon-gift:before {
+  content: "\e940";
+}
+.icon-gift-2:before {
+  content: "\e941";
+}
+.icon-image-dou:before {
+  content: "\e942";
+}
+.icon-life-time:before {
+  content: "\e943";
+}
+.icon-calender:before {
+  content: "\e944";
+}
+.icon-camera:before {
+  content: "\e945";
+}
+.icon-caret-circle-right:before {
+  content: "\e946";
+}
+.icon-close:before {
+  content: "\e947";
+}
+.icon-compare:before {
+  content: "\e948";
+}
+.icon-diamond:before {
+  content: "\e949";
+}
+.icon-drop:before {
+  content: "\e94a";
+}
+.icon-head-phone:before {
+  content: "\e94b";
+}
+.icon-headset:before {
+  content: "\e94c";
+}
+.icon-minus:before {
+  content: "\e94d";
+}
+.icon-mobile:before {
+  content: "\e94e";
+}
+.icon-package:before {
+  content: "\e94f";
+}
+.icon-plus:before {
+  content: "\e950";
+}
+.icon-shirt:before {
+  content: "\e951";
+}
+.icon-sneaker:before {
+  content: "\e952";
+}
+.icon-tv:before {
+  content: "\e953";
+}
+.icon-thunder-2:before {
+  content: "\e954";
+}
+.icon-volley-ball:before {
+  content: "\e955";
+}
+.icon-alarm:before {
+  content: "\e956";
+}
+.icon-arm-chair:before {
+  content: "\e957";
+}
+.icon-arrow-left:before {
+  content: "\e958";
+}
+.icon-arrow-top-right:before {
+  content: "\e959";
+}
+.icon-bag:before {
+  content: "\e95a";
+}
+.icon-barbell:before {
+  content: "\e95b";
+}
+.icon-block-quote:before {
+  content: "\e95c";
+}
+.icon-boat:before {
+  content: "\e95d";
+}
+.icon-book:before {
+  content: "\e95e";
+}
+.icon-storefront:before {
+  content: "\e917";
+}
+.icon-caret-left:before {
+  content: "\e900";
+}
+.icon-caret-right:before {
+  content: "\e901";
+}
+.icon-caret-up:before {
+  content: "\e902";
+}
+.icon-check-circle:before {
+  content: "\e903";
+}
+.icon-envelope-simple:before {
+  content: "\e904";
+}
+.icon-fb:before {
+  content: "\e905";
+}
+.icon-fire .path1:before {
+  content: "\e906";
+  color: rgb(254, 189, 85);
+}
+.icon-fire .path2:before {
+  content: "\e907";
+  margin-left: -1em;
+  color: rgb(252, 158, 32);
+}
+.icon-fire .path3:before {
+  content: "\e908";
+  margin-left: -1em;
+  color: rgb(224, 62, 62);
+}
+.icon-fire .path4:before {
+  content: "\e909";
+  margin-left: -1em;
+  color: rgb(251, 251, 251);
+}
+.icon-heart:before {
+  content: "\e90a";
+}
+.icon-magnifying-glass:before {
+  content: "\e90c";
+}
+.icon-map-pin:before {
+  content: "\e90d";
+}
+.icon-package-thin:before {
+  content: "\e90e";
+}
+.icon-phone:before {
+  content: "\e90f";
+}
+.icon-shopping-cart-simple:before {
+  content: "\e910";
+}
+.icon-tiktok:before {
+  content: "\e911";
+}
+.icon-thunder:before {
+  content: "\e912";
+}
+.icon-user:before {
+  content: "\e913";
+}
+.icon-x:before {
+  content: "\e914";
+}
+/* YouTube & Pinterest don't have glyphs in the shipped font — provide CSS fallbacks using small embedded SVGs
+   so existing <i class="icon-youtube"> and <i class="icon-pinterest"> markup will work without rebuilding the font. */
+.icon-youtube:before {
+  /* preferred glyph codepoint (requires building icomoon-ext) */
+  content: "\e9a0";
+  /* prefer main icomoon then icomoon-ext if present */
+  font-family: 'icomoon', 'icomoon-ext' !important;
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  vertical-align: middle;
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'><path d='M23.498 6.186a2.996 2.996 0 00-2.11-2.117C19.607 3.36 12 3.36 12 3.36s-7.607 0-9.388.709A2.996 2.996 0 00.502 6.186 31.96 31.96 0 000 12a31.96 31.96 0 00.502 5.814 2.995 2.995 0 002.11 2.116c1.781.709 9.388.709 9.388.709s7.607 0 9.388-.709a2.996 2.996 0 002.11-2.116A31.96 31.96 0 0024 12a31.96 31.96 0 00-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z'/></svg>");
+}
+.icon-pinterest:before {
+  /* preferred glyph codepoint (requires building icomoon-ext) */
+  content: "\e9a1";
+  font-family: 'icomoon', 'icomoon-ext' !important;
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  vertical-align: middle;
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'><path d='M12.004 0C5.373 0 0 5.373 0 12.004c0 4.99 3.283 9.238 7.891 10.789-.11-.917-.207-2.328.044-3.33.226-.957 1.456-6.1 1.456-6.1s-.372-.746-.372-1.847c0-1.732 1.004-3.025 2.254-3.025 1.062 0 1.573.797 1.573 1.753 0 1.067-.676 2.662-1.025 4.14-.291 1.236.62 2.243 1.836 2.243 2.204 0 3.889-2.326 3.889-5.661 0-2.951-2.122-5.018-5.151-5.018-3.508 0-5.619 2.63-5.619 5.35 0 1.07.412 2.221.927 2.843.103.124.118.232.086.356-.093.39-.303 1.236-.344 1.405-.053.225-.171.272-.397.165C6.01 17.68 5.27 15.55 5.27 13.796c0-3.95 2.877-7.585 8.29-7.585 4.348 0 7.73 3.096 7.73 7.232 0 4.33-2.717 7.812-6.466 7.812-1.262 0-2.451-.66-2.857-1.445l-.777 2.966c-.281 1.097-1.04 2.468-1.547 3.301C10.911 23.928 11.918 24 12.004 24 18.636 24 24 18.627 24 12.004 24 5.373 18.636 0 12.004 0z'/></svg>");
+}
+.icon-arrow-right:before {
+  content: "\e915";
+}
+.icon-caret-down:before {
+  content: "\e916";
+}

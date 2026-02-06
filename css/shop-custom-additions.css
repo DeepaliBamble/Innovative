@@ -1,0 +1,704 @@
+/* Add to Cart Button Styling */
+.box-icon.add-to-cart {
+    background: linear-gradient(135deg, #8b7355 0%, #b07d5e 100%);
+    color: #fff !important;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    box-shadow: 0 2px 8px rgba(158, 103, 71, 0.15);
+    transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
+    margin-left: 6px;
+}
+.box-icon.add-to-cart:hover {
+    background: linear-gradient(135deg, #b07d5e 0%, #8b7355 100%);
+    color: #fff !important;
+    box-shadow: 0 4px 16px rgba(158, 103, 71, 0.25);
+    transform: translateY(-2px) scale(1.08);
+}
+.box-icon.add-to-cart .icon-shopping-cart {
+    font-size: 22px;
+    margin: 0;
+}
+/* Additional Shop Page Enhancements */
+
+/* Smooth Page Load Animation */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.card-product {
+    animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.card-product:nth-child(1) { animation-delay: 0.1s; }
+.card-product:nth-child(2) { animation-delay: 0.2s; }
+.card-product:nth-child(3) { animation-delay: 0.3s; }
+.card-product:nth-child(4) { animation-delay: 0.15s; }
+.card-product:nth-child(5) { animation-delay: 0.25s; }
+.card-product:nth-child(6) { animation-delay: 0.35s; }
+.card-product:nth-child(7) { animation-delay: 0.2s; }
+.card-product:nth-child(8) { animation-delay: 0.3s; }
+.card-product:nth-child(9) { animation-delay: 0.4s; }
+.card-product:nth-child(10) { animation-delay: 0.25s; }
+.card-product:nth-child(11) { animation-delay: 0.35s; }
+.card-product:nth-child(12) { animation-delay: 0.45s; }
+
+/* Filter Button for Mobile - Using Theme Colors */
+.tf-btn-filter {
+    background: linear-gradient(135deg, var(--primary) 0%, #b07d5e 100%);
+    color: var(--white);
+    border: none;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(158, 103, 71, 0.3);
+}
+
+.tf-btn-filter:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(158, 103, 71, 0.4);
+}
+
+/* Enhanced Grid Layout */
+.wrapper-shop {
+    position: relative;
+}
+
+/* Smooth Transition for Grid Changes */
+.tf-grid-layout {
+    transition: all 0.3s ease;
+}
+
+/* Add a subtle background pattern - Using Theme Colors */
+.wrapper-control-shop {
+    background-image:
+        radial-gradient(circle at 20% 50%, rgba(158, 103, 71, 0.03) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(158, 103, 71, 0.03) 0%, transparent 50%);
+}
+
+/* Enhance the page title section - Using Theme Colors */
+.s-page-title {
+    background: linear-gradient(135deg, #faf1e5ff 100%, var(--primary) 0%);
+    position: relative;
+    overflow: hidden;
+    padding: 60px 0;
+}
+
+.s-page-title::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+    opacity: 0.5;
+}
+
+.s-page-title .content {
+    position: relative;
+    z-index: 1;
+}
+
+.s-page-title .title-page {
+    color: var(--primary);
+    font-size: 48px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    padding-top: 40px;
+}
+
+.s-page-title .breadcrumbs-page {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.s-page-title .breadcrumbs-page li {
+    color:  var(--primary);
+}
+
+.s-page-title .breadcrumbs-page .link {
+    color: var(--primary);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.s-page-title .breadcrumbs-page .link:hover {
+    color: #f5f5f5;
+    text-shadow: 1px 1px 3px rgb(177, 177, 177);
+}
+
+.s-page-title .breadcrumbs-page .current-page {
+    color:  var(--primary);
+    font-weight: 400;
+}
+
+.s-page-title .breadcrumbs-page .icon {
+    color: var(--primary);
+    font-size: 14px;
+}
+
+/* Scrollbar Styling - Using Theme Colors (Removed duplicate - already in main CSS) */
+
+/* Add to Cart Button Glow Effect - Using Theme Colors */
+@keyframes glow {
+    0%, 100% {
+        box-shadow: 0 0 5px rgba(158, 103, 71, 0.5);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(158, 103, 71, 0.8);
+    }
+}
+
+/* Responsive Improvements */
+@media (max-width: 768px) {
+    .card-product_info .name-product {
+        font-size: 14px;
+        min-height: 40px;
+    }
+
+    .price-new {
+        font-size: 18px;
+    }
+
+    .price-old {
+        font-size: 14px;
+    }
+
+    .tf-shop-control {
+        padding: 15px;
+    }
+
+    .btn-select {
+        min-width: 180px;
+        padding: 10px 15px;
+    }
+
+    .pagination .page-link {
+        min-width: 38px;
+        height: 38px;
+        font-size: 13px;
+    }
+
+    .meta-filter-shop {
+        padding: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .card-product {
+        margin-bottom: 20px;
+    }
+
+    .list-product-btn .box-icon {
+        width: 40px;
+        height: 40px;
+    }
+
+    .on-sale-item {
+        font-size: 10px;
+        padding: 6px 12px;
+    }
+}
+
+/* Hover Effect for Product Name - Using Theme Colors */
+.card-product_info .name-product::after {
+    content: "";
+    display: block;
+    width: 0;
+    height: 2px;
+    background: var(--primary);
+    transition: width 0.3s ease;
+    margin-top: 4px;
+}
+
+.card-product_info .name-product:hover::after {
+    width: 100%;
+}
+
+/* Loading Animation */
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.wrapper-control-shop.loading-shop::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 50px;
+    height: 50px;
+    margin: -25px 0 0 -25px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid var(--primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    z-index: 1000;
+}
+
+/* ====================================
+   Shop This Look / Lookbook Styles
+   ==================================== */
+
+/* Lookbook Section */
+.tf-lookbook-hover,
+.tf-lookbook-simple {
+    position: relative;
+}
+
+/* Banner Lookbook Simple */
+.banner-lookbook-simple {
+    position: relative;
+    overflow: hidden;
+}
+
+/* Pin Button Styling */
+.tf-pin-btn {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid #9e6747;
+    box-shadow: 0 4px 12px rgba(158, 103, 71, 0.2);
+    z-index: 10;
+}
+
+.tf-pin-btn:hover,
+.tf-pin-btn.active {
+    background: #9e6747;
+    transform: scale(1.15);
+    box-shadow: 0 6px 20px rgba(158, 103, 71, 0.4);
+}
+
+.tf-pin-btn span {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: #9e6747;
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transition: all 0.3s ease;
+}
+
+.tf-pin-btn:hover span,
+.tf-pin-btn.active span {
+    background: #fff;
+    width: 16px;
+    height: 16px;
+}
+
+/* Pin Button Pulse Animation */
+.tf-pin-btn::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    border-radius: 50%;
+    border: 2px solid #9e6747;
+    animation: pulse 2s infinite;
+    opacity: 0;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.4);
+        opacity: 0.6;
+    }
+}
+
+/* Lookbook Item Positioning */
+.lookbook-item {
+    position: absolute;
+}
+
+/* Pin 1: Coffee Table (Tables Category) - Left side, lower center */
+.lookbook-item.position3 {
+    top: 70%;
+    left: 28%;
+}
+
+/* Pin 2: Sofa (Sofa Category) - Right center on sofa */
+.lookbook-item.position4 {
+    top: 55%;
+    left: 51%;
+}
+
+/* Mobile positioning adjustments */
+@media (max-width: 991px) {
+    .lookbook-item.position3 {
+        top: 68%;
+        left: 26%;
+    }
+
+    .lookbook-item.position4 {
+        top: 53%;
+        left: 50%;
+    }
+}
+
+/* Tablet positioning adjustments */
+@media (max-width: 767px) {
+    .lookbook-item.position3 {
+        top: 66%;
+        left: 24%;
+    }
+
+    .lookbook-item.position4 {
+        top: 52%;
+        left: 49%;
+    }
+}
+
+/* Lookbook Product Card in Dropdown */
+.lookbook-product {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    padding: 15px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    min-width: 280px;
+}
+
+.lookbook-product.style-row {
+    flex-direction: row-reverse;
+}
+
+.lookbook-product .image {
+    flex-shrink: 0;
+    width: 80px;
+    height: 80px;
+    overflow: hidden;
+    border-radius: 8px;
+}
+
+.lookbook-product .image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.lookbook-product .image:hover img {
+    transform: scale(1.1);
+}
+
+.lookbook-product .content {
+    flex: 1;
+}
+
+.lookbook-product .tag {
+    display: inline-block;
+    font-size: 11px;
+    color: #9e6747;
+    background: rgba(158, 103, 71, 0.1);
+    padding: 4px 10px;
+    border-radius: 4px;
+    margin-bottom: 6px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.lookbook-product .name-prd {
+    font-size: 14px;
+    margin: 8px 0;
+    font-weight: 600;
+}
+
+.lookbook-product .name-prd .link {
+    color: #333;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.lookbook-product .name-prd .link:hover {
+    color: #9e6747;
+}
+
+.lookbook-product .price-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.lookbook-product .price-new {
+    font-size: 16px;
+    font-weight: 700;
+    color: #9e6747;
+}
+
+.lookbook-product .text-third {
+    font-size: 12px;
+    color: #28a745;
+    font-weight: 500;
+}
+
+/* Bundle Hover Effects */
+.bundle-hover-wrap {
+    position: relative;
+}
+
+.bundle-hover-item {
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.bundle-hover-wrap.has-hover .bundle-hover-item {
+    opacity: 1;
+}
+
+.bundle-hover-wrap.has-hover .bundle-hover-item.no-hover {
+    opacity: 0.4;
+    filter: grayscale(0.5);
+}
+
+.bundle-hover-wrap.has-hover .bundle-hover-item.active-hover {
+    opacity: 1;
+    filter: none;
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(158, 103, 71, 0.2);
+}
+
+/* Lookbook Product Cards Enhanced Styling */
+.tf-sw-lookbook .card-product {
+    border-radius: 12px;
+    overflow: hidden;
+    background: #fff;
+    transition: all 0.3s ease;
+}
+
+.tf-sw-lookbook .card-product:hover {
+    box-shadow: 0 8px 25px rgba(158, 103, 71, 0.15);
+}
+
+/* Lookbook Section Title */
+.tf-lookbook-hover .s-title {
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+.tf-lookbook-hover .s-subtitle {
+    color: #666;
+    line-height: 1.6;
+}
+
+/* Notification Container */
+.lookbook-notification-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    max-width: 350px;
+}
+
+.lookbook-notification {
+    margin-bottom: 10px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    animation: slideInRight 0.3s ease;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Loading State for Buttons */
+.btn-add-to-cart-lookbook.loading,
+.btn-add-to-wishlist-lookbook.loading {
+    opacity: 0.6;
+    pointer-events: none;
+    position: relative;
+}
+
+.btn-add-to-cart-lookbook.loading::after,
+.btn-add-to-wishlist-lookbook.loading::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #fff;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+/* Wishlist Heart Icon Fill */
+.btn-add-to-wishlist-lookbook.in-wishlist .icon-heart {
+    color: #e74c3c;
+}
+
+.btn-add-to-wishlist-lookbook.in-wishlist .icon-heart-filled {
+    color: #e74c3c;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 991px) {
+    .lookbook-notification-container {
+        left: 10px;
+        right: 10px;
+        max-width: none;
+    }
+
+    .tf-pin-btn {
+        width: 36px;
+        height: 36px;
+    }
+}
+
+@media (max-width: 575px) {
+    .lookbook-product {
+        min-width: 240px;
+        padding: 12px;
+    }
+
+    .lookbook-product .image {
+        width: 60px;
+        height: 60px;
+    }
+}
+
+/* ====================================
+   Pin Label Styles (for Category Pins)
+   ==================================== */
+
+.pin-label {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    background: rgba(255, 255, 255, 0.98);
+    padding: 12px 24px;
+    border-radius: 25px;
+    box-shadow: 0 8px 20px rgba(158, 103, 71, 0.25);
+    pointer-events: none;
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    white-space: nowrap;
+    z-index: 5;
+}
+
+.lookbook-item:hover .pin-label {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+}
+
+.pin-label .category-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: #9e6747;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+/* Category Pin Link Styling */
+.category-pin {
+    display: block;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.category-pin:hover {
+    transform: scale(1.15);
+}
+
+/* Position adjustments for labels */
+.lookbook-item.position3 .pin-label {
+    top: -50px;
+    left: 50%;
+}
+
+.lookbook-item.position4 .pin-label {
+    top: -50px;
+    left: 50%;
+}
+
+.lookbook-item.position3:hover .pin-label {
+    top: -50px;
+    transform: translate(-50%, 0) scale(1);
+}
+
+.lookbook-item.position4:hover .pin-label {
+    top: -50px;
+    transform: translate(-50%, 0) scale(1);
+}
+
+/* Responsive Label Adjustments */
+@media (max-width: 991px) {
+    .pin-label {
+        padding: 10px 20px;
+    }
+
+    .pin-label .category-name {
+        font-size: 14px;
+    }
+
+    .lookbook-item.position3 .pin-label,
+    .lookbook-item.position4 .pin-label {
+        top: -45px;
+    }
+
+    .lookbook-item.position3:hover .pin-label,
+    .lookbook-item.position4:hover .pin-label {
+        top: -45px;
+    }
+}
+
+@media (max-width: 575px) {
+    .pin-label {
+        padding: 8px 16px;
+    }
+
+    .pin-label .category-name {
+        font-size: 12px;
+    }
+
+    .lookbook-item.position3 .pin-label,
+    .lookbook-item.position4 .pin-label {
+        top: -40px;
+    }
+
+    .lookbook-item.position3:hover .pin-label,
+    .lookbook-item.position4:hover .pin-label {
+        top: -40px;
+    }
+}

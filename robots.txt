@@ -1,0 +1,24 @@
+# Robots.txt for Innovative Homesi
+# https://innovativehomesi.com/robots.txt
+
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /includes/
+Disallow: /sql/
+Disallow: /uploads/temp/
+Disallow: /cart/
+Disallow: /checkout/
+Disallow: /account/
+Disallow: /*?*add-to-cart=*
+Disallow: /*?*removed_item=*
+
+# Allow all images
+Allow: /images/
+Allow: /uploads/products/
+
+# Sitemap location
+Sitemap: https://innovativehomesi.com/sitemap.xml
+
+# Crawl delay (optional - helps prevent server overload)
+Crawl-delay: 1

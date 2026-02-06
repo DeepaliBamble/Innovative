@@ -1,0 +1,712 @@
+/* ============================================
+   MODERN TYPOGRAPHY & SPACING ENHANCEMENT
+   Innovative Homes - Modern UI Refresh
+   ============================================ */
+
+/* Import Merriweather Google Font */
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&display=swap');
+
+/* ============================================
+   CSS CUSTOM PROPERTIES - Typography Scale
+   ============================================ */
+:root {
+  /* Merriweather Font Family */
+  --font-primary: 'Merriweather', Georgia, 'Times New Roman', serif;
+  --font-heading: 'Merriweather', Georgia, 'Times New Roman', serif;
+
+  /* Improved Line Heights - More Readable */
+  --line-height-tight: 1.25;
+  --line-height-snug: 1.375;
+  --line-height-normal: 1.6;
+  --line-height-relaxed: 1.75;
+  --line-height-loose: 2;
+
+  /* Letter Spacing for Better Readability */
+  --tracking-tight: -0.025em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.025em;
+  --tracking-wider: 0.05em;
+  --tracking-widest: 0.1em;
+
+  /* Paragraph Spacing */
+  --paragraph-spacing: 1.5em;
+
+  /* Smooth Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.3s ease;
+  --transition-slow: 0.5s ease;
+}
+
+/* ============================================
+   BASE TYPOGRAPHY IMPROVEMENTS
+   ============================================ */
+
+/* Body Text - Better Readability */
+body {
+  font-family: var(--font-primary) !important;
+  font-size: 16px;
+  line-height: var(--line-height-normal);
+  font-weight: 400;
+  letter-spacing: var(--tracking-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Paragraphs - Better Spacing */
+p {
+  margin-bottom: var(--paragraph-spacing);
+  line-height: var(--line-height-relaxed);
+  letter-spacing: 0.01em;
+}
+
+/* Remove margin from last paragraph in containers */
+p:last-child {
+  margin-bottom: 0;
+}
+
+/* ============================================
+   HEADINGS - Elegant Serif for Impact
+   ============================================ */
+
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6 {
+  font-family: var(--font-heading) !important;
+  font-weight: 500;
+  line-height: var(--line-height-snug);
+  letter-spacing: var(--tracking-tight);
+  margin-bottom: 0.5em;
+}
+
+/* H1 - Hero Headlines */
+h1, .h1 {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  line-height: 1.2;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/* H2 - Section Titles */
+h2, .h2 {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  line-height: 1.25;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+}
+
+/* H3 - Subsection Titles */
+h3, .h3 {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  line-height: 1.3;
+  font-weight: 500;
+}
+
+/* H4 - Card Titles */
+h4, .h4 {
+  font-size: clamp(1.25rem, 2.5vw, 1.5rem);
+  line-height: 1.35;
+  font-weight: 500;
+}
+
+/* H5 - Small Titles */
+h5, .h5 {
+  font-size: clamp(1.125rem, 2vw, 1.25rem);
+  line-height: 1.4;
+  font-weight: 500;
+}
+
+/* H6 - Micro Titles */
+h6, .h6 {
+  font-size: 1rem;
+  line-height: 1.5;
+  font-weight: 600;
+  letter-spacing: var(--tracking-wide);
+}
+
+/* ============================================
+   DISPLAY TEXT - Large Impact Headlines
+   ============================================ */
+
+.text-display {
+  font-family: var(--font-heading) !important;
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  line-height: 1.1;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+
+.text-display-2 {
+  font-family: var(--font-heading) !important;
+  font-size: clamp(2rem, 5vw, 3rem);
+  line-height: 1.15;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+.text-display-3 {
+  font-family: var(--font-heading) !important;
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  line-height: 1.2;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+}
+
+/* ============================================
+   TEXT SIZE UTILITIES - Improved Readability
+   ============================================ */
+
+.text-large {
+  font-size: 1.125rem;
+  line-height: var(--line-height-relaxed);
+}
+
+.text-small {
+  font-size: 0.875rem;
+  line-height: var(--line-height-normal);
+}
+
+.text-small-2 {
+  font-size: 0.8125rem;
+  line-height: var(--line-height-normal);
+}
+
+.text-small-3 {
+  font-size: 0.75rem;
+  line-height: var(--line-height-snug);
+  letter-spacing: var(--tracking-wide);
+}
+
+/* ============================================
+   NAVIGATION - Clean & Modern
+   ============================================ */
+
+/* Main Navigation Links */
+.box-nav-menu .item-link,
+.nav-link,
+nav a {
+  font-family: var(--font-primary) !important;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  transition: color var(--transition-normal);
+}
+
+/* Submenu Links - Match parent category font size */
+.sub-menu_link {
+  font-size: 0.9375rem !important;
+  font-weight: 500;
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+}
+
+/* Mobile Menu */
+.offcanvas .nav-link,
+.mobile-menu a {
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: var(--tracking-normal);
+  padding: 0.875rem 0;
+}
+
+/* ============================================
+   BUTTONS - Modern & Accessible
+   ============================================ */
+
+.tf-btn,
+.btn,
+button[type="submit"],
+input[type="submit"] {
+  font-family: var(--font-primary) !important;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: var(--tracking-wider);
+  line-height: 1.5;
+  padding: 0.875rem 2rem;
+  transition: all var(--transition-normal);
+}
+
+/* Button Sizes */
+.tf-btn.btn-lg,
+.btn-lg {
+  font-size: 1rem;
+  padding: 1rem 2.5rem;
+}
+
+.tf-btn.btn-sm,
+.btn-sm {
+  font-size: 0.8125rem;
+  padding: 0.625rem 1.5rem;
+}
+
+/* ============================================
+   PRODUCT CARDS - Clean & Spacious
+   ============================================ */
+
+/* Product Title */
+.card-product .card-product-title,
+.product-title,
+.tf-product-title {
+  font-family: var(--font-heading) !important;
+  font-size: 1.0625rem;
+  font-weight: 500;
+  line-height: var(--line-height-snug);
+  letter-spacing: 0;
+  margin-bottom: 0.5rem;
+}
+
+/* Product Price */
+.card-product .price,
+.product-price,
+.tf-price {
+  font-family: var(--font-primary) !important;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: var(--tracking-normal);
+  line-height: 1.5;
+}
+
+/* Old/Compare Price */
+.price-old,
+.compare-price {
+  font-size: 0.875rem;
+  font-weight: 400;
+}
+
+/* Product Category/Vendor */
+.product-vendor,
+.product-category {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  margin-bottom: 0.375rem;
+}
+
+/* ============================================
+   FORMS - Modern & Clean
+   ============================================ */
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="tel"],
+input[type="number"],
+input[type="search"],
+textarea,
+select,
+.form-control {
+  font-family: var(--font-primary) !important;
+  font-size: 1rem;
+  line-height: var(--line-height-normal);
+  padding: 0.875rem 1rem;
+  letter-spacing: var(--tracking-normal);
+}
+
+/* Form Labels */
+label,
+.form-label {
+  font-family: var(--font-primary) !important;
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: var(--tracking-wide);
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+/* Placeholder Text */
+::placeholder {
+  font-size: 0.9375rem;
+  letter-spacing: var(--tracking-normal);
+  opacity: 0.6;
+}
+
+/* ============================================
+   FOOTER - Refined Typography
+   ============================================ */
+
+.tf-footer,
+footer {
+  line-height: var(--line-height-relaxed);
+}
+
+.tf-footer h5,
+.tf-footer h6,
+footer h5,
+footer h6,
+.footer-title {
+  font-family: var(--font-primary) !important;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: var(--tracking-widest);
+  text-transform: none;
+  margin-bottom: 1.25rem;
+}
+
+.tf-footer a,
+footer a,
+.footer-link {
+  font-size: 0.9375rem;
+  line-height: var(--line-height-loose);
+  letter-spacing: var(--tracking-normal);
+}
+
+/* Remove uppercase from all footer text including .h6 elements */
+.tf-footer .h6,
+.tf-footer p,
+.tf-footer a,
+.tf-footer .footer-heading,
+.tf-footer .footer-menu-list a,
+.tf-footer .footer-contact a,
+.footer-bottom .h6,
+.footer-bottom p {
+  text-transform: none !important;
+}
+
+/* Dark Footer Styles */
+.tf-footer.footer-dark,
+.tf-footer.footer-dark .footer-body,
+.tf-footer.footer-dark .footer-bottom {
+  background-color: var(--bg-footer);
+}
+
+.tf-footer.footer-dark .footer-heading,
+.tf-footer.footer-dark .footer-heading-mobile {
+  color: var(--white) !important;
+}
+
+.tf-footer.footer-dark .h6,
+.tf-footer.footer-dark p,
+.tf-footer.footer-dark .caption,
+.tf-footer.footer-dark a,
+.tf-footer.footer-dark .footer-menu-list a,
+.tf-footer.footer-dark .footer-contact a,
+.tf-footer.footer-dark .footer-contact i {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.tf-footer.footer-dark .footer-menu-list a:hover,
+.tf-footer.footer-dark .footer-contact a:hover,
+.tf-footer.footer-dark a:hover {
+  color: var(--white) !important;
+}
+
+.tf-footer.footer-dark .tf-social-icon a {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.tf-footer.footer-dark .tf-social-icon a:hover {
+  background-color: var(--primary) !important;
+  border-color: var(--primary) !important;
+}
+
+.tf-footer.footer-dark .tf-social-icon i {
+  color: var(--white) !important;
+}
+
+.tf-footer.footer-dark .footer-bottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tf-footer.footer-dark .footer-bottom .h6,
+.tf-footer.footer-dark .footer-bottom p,
+.tf-footer.footer-dark .footer-bottom a {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.tf-footer.footer-dark .footer-bottom a:hover {
+  color: var(--white) !important;
+}
+
+.tf-footer.footer-dark .footer-heading-mobile::before,
+.tf-footer.footer-dark .footer-heading-mobile::after {
+  background-color: var(--white) !important;
+}
+
+/* ============================================
+   BREADCRUMBS - Subtle & Clean
+   ============================================ */
+
+.breadcrumb,
+.tf-breadcrumb {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: var(--tracking-wide);
+}
+
+/* ============================================
+   BADGES & LABELS - Modern Tags
+   ============================================ */
+
+.badge,
+.tag,
+.product-label,
+.on-sale-label {
+  font-family: var(--font-primary) !important;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  padding: 0.375rem 0.75rem;
+  line-height: 1;
+}
+
+/* ============================================
+   TABLES - Better Readability
+   ============================================ */
+
+table {
+  font-size: 0.9375rem;
+  line-height: var(--line-height-normal);
+}
+
+th {
+  font-family: var(--font-primary) !important;
+  font-weight: 600;
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  font-size: 0.8125rem;
+}
+
+td {
+  font-family: var(--font-primary) !important;
+  padding: 1rem 1.25rem;
+  line-height: var(--line-height-normal);
+}
+
+/* ============================================
+   LISTS - Improved Spacing
+   ============================================ */
+
+ul, ol {
+  line-height: var(--line-height-relaxed);
+}
+
+li {
+  margin-bottom: 0.5em;
+}
+
+/* ============================================
+   BLOCKQUOTES - Elegant Styling
+   ============================================ */
+
+blockquote {
+  font-family: var(--font-heading) !important;
+  font-size: 1.25rem;
+  font-style: italic;
+  line-height: var(--line-height-relaxed);
+  letter-spacing: var(--tracking-normal);
+  padding: 1.5rem 2rem;
+  border-left: 4px solid var(--primary);
+}
+
+/* ============================================
+   ACCORDION & FAQ - Clean Typography
+   ============================================ */
+
+.accordion-button,
+.accordion-title,
+.faq-title {
+  font-family: var(--font-primary) !important;
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: var(--tracking-normal);
+  line-height: var(--line-height-snug);
+}
+
+.accordion-body,
+.accordion-content {
+  font-size: 0.9375rem;
+  line-height: var(--line-height-relaxed);
+}
+
+/* ============================================
+   TESTIMONIALS - Refined Quotes
+   ============================================ */
+
+.testimonial-text,
+.review-text {
+  font-size: 1.0625rem;
+  line-height: var(--line-height-relaxed);
+  font-style: italic;
+}
+
+.testimonial-author,
+.review-author {
+  font-family: var(--font-primary) !important;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: var(--tracking-normal);
+}
+
+/* ============================================
+   POLICY PAGES - Readable Content
+   ============================================ */
+
+.policy-content,
+.page-content,
+.text-content {
+  font-size: 1rem;
+  line-height: var(--line-height-relaxed);
+}
+
+.policy-content h2,
+.page-content h2 {
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.policy-content h3,
+.page-content h3 {
+  margin-top: 2rem;
+  margin-bottom: 0.875rem;
+}
+
+.policy-content p,
+.page-content p {
+  margin-bottom: 1.25rem;
+}
+
+/* ============================================
+   MODAL & POPUP TEXT
+   ============================================ */
+
+.modal-title,
+.popup-title {
+  font-family: var(--font-heading) !important;
+  font-size: 1.5rem;
+  font-weight: 500;
+  line-height: var(--line-height-snug);
+}
+
+.modal-body,
+.popup-body {
+  font-size: 0.9375rem;
+  line-height: var(--line-height-relaxed);
+}
+
+/* ============================================
+   CART & CHECKOUT - Clear Typography
+   ============================================ */
+
+.cart-item-title {
+  font-family: var(--font-heading) !important;
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: var(--line-height-snug);
+}
+
+.cart-item-price,
+.checkout-total {
+  font-family: var(--font-primary) !important;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.cart-summary-label {
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+
+/* ============================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================ */
+
+@media (max-width: 991px) {
+  body {
+    font-size: 15px;
+  }
+
+  p {
+    line-height: var(--line-height-normal);
+  }
+
+  .text-display {
+    font-size: clamp(2rem, 8vw, 3rem);
+  }
+}
+
+@media (max-width: 575px) {
+  body {
+    font-size: 14px;
+    line-height: var(--line-height-normal);
+  }
+
+  h1, .h1 {
+    font-size: clamp(1.75rem, 7vw, 2.25rem);
+  }
+
+  h2, .h2 {
+    font-size: clamp(1.5rem, 6vw, 1.875rem);
+  }
+
+  .tf-btn,
+  .btn {
+    font-size: 0.8125rem;
+    padding: 0.75rem 1.5rem;
+  }
+}
+
+/* ============================================
+   ANIMATION ENHANCEMENTS - Smooth Interactions
+   ============================================ */
+
+a, button, .btn, .tf-btn,
+input, textarea, select {
+  transition: all var(--transition-normal);
+}
+
+/* Smooth hover states for links */
+a:hover {
+  opacity: 0.85;
+}
+
+/* ============================================
+   SELECTION STYLING
+   ============================================ */
+
+::selection {
+  background-color: var(--primary);
+  color: var(--white);
+}
+
+::-moz-selection {
+  background-color: var(--primary);
+  color: var(--white);
+}
+
+/* ============================================
+   FOCUS STATES - Accessibility
+   ============================================ */
+
+a:focus,
+button:focus,
+input:focus,
+textarea:focus,
+select:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* ============================================
+   SCROLLBAR STYLING - Modern Look
+   ============================================ */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-2);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text);
+}
