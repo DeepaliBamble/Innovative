@@ -3,20 +3,20 @@
     <div class="container">
         <div class="row align-items-center">
             <div class="col-md-4 col-3 d-xl-none">
-                <a href="#mobileMenu" data-bs-toggle="offcanvas" class="btn-mobile-menu">
+                <a href="#mobileMenu" data-bs-toggle="offcanvas" class="btn-mobile-menu" aria-label="Open menu">
                     <span></span>
                 </a>
             </div>
             <div class="col-xl-2 col-md-4 col-6 text-center text-xl-start">
                 <a href="index.php" class="logo-site justify-content-center justify-content-xl-start">
-                    <img src="images/logo/logo.png" style="width: 100px; height: 100px;" alt="Logo">
+                    <img src="images/logo/logo.png" alt="Innovative Homesi" class="header-logo">
                 </a>
             </div>
             <div class="col-xl-8 d-none d-xl-block">
-                <nav class="box-navigation">
+                <nav class="box-navigation" role="navigation" aria-label="Main navigation">
                     <ul class="box-nav-menu" style="justify-content: center;">
                         <li class="menu-item">
-                            <a href="index.php" class="item-link" style="text-transform: uppercase;">Home</a>
+                            <a href="index.php" class="item-link">Home</a>
                         </li>
                         <?php
                         // Fetch all parent categories for menu
@@ -34,8 +34,8 @@
                             $menuSubStmt->execute([$menuCatId]);
                             $menuSubcategories = $menuSubStmt->fetchAll();
                         ?>
-                        <li class="menu-item position-relative">
-                            <a href="shop.php?category=<?php echo $menuCatSlug; ?>" class="item-link" style="text-transform: uppercase;">
+                        <li class="menu-item position-relative <?php echo count($menuSubcategories) > 0 ? 'has-children' : ''; ?>">
+                            <a href="shop.php?category=<?php echo $menuCatSlug; ?>" class="item-link">
                                 <?php echo $menuCatName; ?>
                                 <?php if (count($menuSubcategories) > 0): ?>
                                     <i class="icon icon-caret-down"></i>
@@ -44,6 +44,11 @@
                             <?php if (count($menuSubcategories) > 0): ?>
                             <div class="sub-menu">
                                 <ul class="sub-menu_list">
+                                    <li class="sub-menu-header">
+                                        <a href="shop.php?category=<?php echo $menuCatSlug; ?>" class="sub-menu_link sub-menu-view-all">
+                                            All <?php echo $menuCatName; ?>
+                                        </a>
+                                    </li>
                                     <?php foreach ($menuSubcategories as $menuSub): ?>
                                     <li>
                                         <a href="shop.php?category=<?php echo htmlspecialchars($menuSub['slug']); ?>" class="sub-menu_link">
@@ -62,19 +67,19 @@
             <div class="col-xl-2 col-md-4 col-3">
                 <ul class="nav-icon-list">
                     <li class="d-none d-md-flex">
-                        <a class="nav-icon-item link" href="#search" data-bs-toggle="modal">
+                        <a class="nav-icon-item link" href="#search" data-bs-toggle="modal" aria-label="Search">
                             <i class="icon icon-magnifying-glass"></i>
                         </a>
                     </li>
                     <li class="d-none d-lg-flex">
                         <?php if (isLoggedIn()): ?>
-                        <a class="nav-icon-item link" href="account-page.php"><i class="icon icon-user"></i></a>
+                        <a class="nav-icon-item link" href="account-page.php" aria-label="My account"><i class="icon icon-user"></i></a>
                         <?php else: ?>
-                        <a class="nav-icon-item link" href="login.php"><i class="icon icon-user"></i></a>
+                        <a class="nav-icon-item link" href="login.php" aria-label="Login"><i class="icon icon-user"></i></a>
                         <?php endif; ?>
                     </li>
                     <li class="d-none d-sm-flex shop-cart">
-                        <a class="nav-icon-item link" href="wishlist.php">
+                        <a class="nav-icon-item link" href="wishlist.php" aria-label="Wishlist">
                             <i class="icon icon-heart"></i>
                         </a>
                         <span class="count count-box wishlist-count">
@@ -84,7 +89,7 @@
                         </span>
                     </li>
                     <li class="shop-cart">
-                        <a class="nav-icon-item link" href="view-cart.php">
+                        <a class="nav-icon-item link" href="view-cart.php" aria-label="Shopping cart">
                             <i class="icon icon-shopping-cart-simple"></i>
                         </a>
                         <span class="count count-box">

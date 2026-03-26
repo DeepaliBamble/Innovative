@@ -119,20 +119,42 @@
 
 <!-- Mobile Menu -->
 <div class="offcanvas offcanvas-start canvas-mb" id="mobileMenu">
-    <span class="icon-close-popup" data-bs-dismiss="offcanvas">
+    <span class="icon-close-popup" data-bs-dismiss="offcanvas" aria-label="Close menu">
         <i class="icon-close"></i>
     </span>
     <div class="canvas-header">
-        <img src="images/logo/logo.png" style="width: 80px; height: 80px;" alt="Innovative Homes Logo">
+        <img src="images/logo/logo.png" alt="Innovative Homesi" class="mobile-logo">
+        <?php if (function_exists('isLoggedIn') && isLoggedIn()): ?>
+        <a href="account-page.php" class="tf-btn type-small style-2">
+            My Account
+            <i class="icon icon-user"></i>
+        </a>
+        <?php else: ?>
         <a href="login.php" class="tf-btn type-small style-2">
             Login
             <i class="icon icon-user"></i>
         </a>
+        <?php endif; ?>
         <span class="br-line"></span>
     </div>
     <div class="canvas-body">
         <div class="mb-content-top">
             <ul class="nav-ul-mb" id="wrapper-menu-navigation"></ul>
+        </div>
+        <!-- Quick Action Buttons -->
+        <div class="mobile-quick-actions">
+            <a href="customise-service.php" class="mobile-quick-link">
+                <i class="fa-solid fa-palette"></i>
+                <span>Customise</span>
+            </a>
+            <a href="reviews.php" class="mobile-quick-link">
+                <i class="fa-solid fa-star"></i>
+                <span>Reviews</span>
+            </a>
+            <a href="refer-a-friend.php" class="mobile-quick-link">
+                <i class="fa-solid fa-gift"></i>
+                <span>Refer</span>
+            </a>
         </div>
         <div class="group-btn">
             <a href="wishlist.php" class="tf-btn type-small style-2">
@@ -150,22 +172,22 @@
             <h5 class="title">Follow us on</h5>
             <ul class="tf-social-icon">
                 <li>
-                    <a href="https://www.facebook.com/innovativehomesi/" target="_blank" class="social-facebook">
+                    <a href="https://www.facebook.com/innovativehomesi/" target="_blank" class="social-facebook" aria-label="Facebook">
                         <span class="icon"><i class="fa-brands fa-facebook-f"></i></span>
                     </a>
                 </li>
                 <li>
-                    <a href="https://www.instagram.com/innovative_homesi/" target="_blank" class="social-instagram">
+                    <a href="https://www.instagram.com/innovative_homesi/" target="_blank" class="social-instagram" aria-label="Instagram">
                         <span class="icon"><i class="fa-brands fa-instagram"></i></span>
                     </a>
                 </li>
                 <li>
-                    <a href="https://www.youtube.com/@innovativehomesi" target="_blank" class="social-youtube">
+                    <a href="https://www.youtube.com/@innovativehomesi" target="_blank" class="social-youtube" aria-label="YouTube">
                         <span class="icon"><i class="fa-brands fa-youtube"></i></span>
                     </a>
                 </li>
                 <li>
-                    <a href="https://in.pinterest.com/innovativehomes3/" target="_blank" class="social-pinterest">
+                    <a href="https://in.pinterest.com/innovativehomes3/" target="_blank" class="social-pinterest" aria-label="Pinterest">
                         <span class="icon"><i class="fa-brands fa-pinterest-p"></i></span>
                     </a>
                 </li>

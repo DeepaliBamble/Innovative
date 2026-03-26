@@ -372,7 +372,7 @@ try {
         </section>
         <!-- /Category -->
         <!-- New Product -->
-        <section class="flat-spacing pt-0 tf-pag-swiper">
+        <section class="flat-spacing pt-0 tf-pag-swiper new-products-section">
             <div class="container">
                 <div class="sect-title text-center wow fadeInUp">
                     <h1 class="s-title mb-8"  style="color: #9e6747;">New Products</h1>
@@ -437,15 +437,15 @@ try {
                                             </ul>
                                         </div>
                                         <div class="card-product_info">
-                                            <a href="<?php echo $productUrl; ?>" class="name-product h4 link">
+                                            <a href="<?php echo $productUrl; ?>" class="name-product link">
                                                 <?php echo $productName; ?>
                                             </a>
                                             <div class="price-wrap mb-0">
                                                 <?php if ($productSalePrice): ?>
-                                                    <span class="price-old h6 fw-normal">₹<?php echo $productPrice; ?></span>
-                                                    <span class="price-new h6">₹<?php echo $productSalePrice; ?></span>
+                                                    <span class="price-old">₹<?php echo $productPrice; ?></span>
+                                                    <span class="price-new">₹<?php echo $productSalePrice; ?></span>
                                                 <?php else: ?>
-                                                    <span class="price-new h6">₹<?php echo $productPrice; ?></span>
+                                                    <span class="price-new">₹<?php echo $productPrice; ?></span>
                                                 <?php endif; ?>
                                             </div>
                                         </div>
@@ -1825,6 +1825,11 @@ try {
 
     <!-- Notification Toast Styles -->
     <style>
+        /* New Products section - 1:1 square images */
+        .new-products-section .card-product_wrapper {
+            aspect-ratio: 1 / 1;
+        }
+
         .notification-toast {
             position: fixed;
             top: 20px;

@@ -23,7 +23,7 @@ try {
     $pending_orders = $stmt->fetch(PDO::FETCH_ASSOC)['count'] ?? 0;
 
     // Get recent orders
-    $stmt = $pdo->query("SELECT o.*, o.order_status as status, u.name as user_name FROM orders o
+    $stmt = $pdo->query("SELECT o.*, u.name as user_name FROM orders o
                          LEFT JOIN users u ON o.user_id = u.id
                          ORDER BY o.created_at DESC LIMIT 5");
     $recent_orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -170,11 +170,12 @@ include 'includes/header.php';
                             <td><strong>₹<?= number_format($order['total_amount'] ?? 0, 2) ?></strong></td>
                             <td>
                                 <?php
-                                $status = $order['status'] ?? 'pending';
+                                $status = $order['order_status'] ?? 'pending';
                                 $badge_class = 'badge-info';
                                 if ($status === 'delivered') $badge_class = 'badge-success';
                                 elseif ($status === 'cancelled') $badge_class = 'badge-danger';
-                                elseif ($status === 'processing' || $status === 'shipped') $badge_class = 'badge-warning';
+                                elseif ($status === 'processing') $badge_class = 'badge-warning';
+                                elseif ($status === 'shipped') $badge_class = 'badge-primary';
                                 ?>
                                 <span class="badge-custom <?= $badge_class ?>">
                                     <?= ucfirst($status) ?>

@@ -4,53 +4,22 @@
  */
 
 // ======================
-// Environment Detection
-// ======================
-// Detect if running on localhost or live server
-$whitelist = array(
-    '127.0.0.1',
-    '::1',
-    'localhost'
-);
-
-if (isset($_SERVER['HTTP_HOST']) && in_array($_SERVER['HTTP_HOST'], $whitelist)) {
-    define('IS_LOCAL', true);
-} else {
-    define('IS_LOCAL', false);
-}
-
-// ======================
 // Database Configuration
 // ======================
-if (IS_LOCAL) {
-    // Localhost Credentials (XAMPP Default)
-    define('DB_HOST', 'localhost');
-    define('DB_NAME', 'u312948055_innovative'); // Consider changing this to just 'innovative' for local if that is your local DB name
-    define('DB_USER', 'u312948055_innovative'); // Usually 'root' for local XAMPP
-    define('DB_PASS', 'Innovative@321');        // Usually empty '' for local XAMPP
-} else {
-    // Live Server Credentials - PLEASE VERIFY THESE
-    define('DB_HOST', 'localhost');             // Often 'localhost' even on live shared hosting
-    define('DB_NAME', 'u312948055_innovative');
-    define('DB_USER', 'u312948055_innovative');
-    define('DB_PASS', 'Innovative@321'); 
-}
-
+define('DB_HOST', 'localhost');
+define('DB_NAME', 'innovative');
+define('DB_USER', 'root');
+define('DB_PASS', '');
 define('DB_CHARSET', 'utf8mb4');
 
 // ======================
 // Site Configuration
 // ======================
 define('SITE_NAME', 'Innovative Homesi');
-
-if (IS_LOCAL) {
-    define('SITE_URL', 'http://localhost/Innovative%20Homesi'); // Update folder name if different
-} else {
-    define('SITE_URL', 'https://innovativehomesi.com');
-}
-
-define('ADMIN_URL', SITE_URL . '/admin');
-define('PUBLIC_URL', SITE_URL . '/public');
+define('SITE_URL', 'http://localhost/Innovative'); // Local XAMPP URL
+define('BASE_URL_PATH', ''); // root deployment - no subdirectory
+define('ADMIN_URL', SITE_URL . BASE_URL_PATH . '/admin');
+define('PUBLIC_URL', SITE_URL . BASE_URL_PATH . '/public');
 
 // ======================
 // Path Configuration
@@ -83,7 +52,7 @@ define('ALLOWED_IMAGE_TYPES', ['image/jpeg', 'image/png', 'image/gif', 'image/we
 // Error Reporting
 // ======================
 error_reporting(E_ALL);
-ini_set('display_errors', 0); // TURNED OFF for live site
+ini_set('display_errors', 1); // TURNED ON for local development
 
 // ======================
 // Timezone

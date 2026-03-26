@@ -213,916 +213,7 @@ $page_title = htmlspecialchars($product['name']) . ' - Innovative Homesi';
     <link rel="shortcut icon" href="images/logo/favicon.svg">
     <link rel="apple-touch-icon-precomposed" href="images/logo/favicon.svg">
 
-    <style>
-        /* Product Detail Enhancements */
-        .product-info-name {
-            color: #333;
-            font-weight: 700;
-            line-height: 1.3;
-            margin-bottom: 15px;
-        }
-
-        .product-info-meta {
-            background: #f8f9fa;
-            padding: 8px 15px;
-            border-radius: 6px;
-            display: inline-block;
-        }
-
-        .product-price-section {
-            padding: 25px 20px;
-            border-radius: 12px;
-            margin: 20px 0;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-
-        .product-info-price {
-            display: flex;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .product-trust-row {
-            display: flex;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 14px 18px;
-            margin-top: 10px;
-            color: #6c757d;
-            font-size: 0.95rem;
-            font-weight: 500;
-        }
-
-        .product-trust-item {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            white-space: nowrap;
-        }
-
-        .product-trust-item i {
-            color: #d4a574;
-            font-size: 0.95rem;
-        }
-
-        .product-short-description {
-            background: #fff;
-            padding: 20px;
-            border-left: 4px solid #d4a574;
-            border-radius: 6px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-        }
-
-        .product-stock-status .badge {
-            font-size: 14px;
-            padding: 8px 16px;
-            font-weight: 500;
-        }
-
-        .wg-quantity {
-            display: flex;
-            align-items: center;
-            border: 2px solid #e5e5e5;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        .btn-quantity {
-            background: #f8f9fa;
-            border: none;
-            padding: 12px 18px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .btn-quantity:hover {
-            background: #d4a574;
-            color: white;
-        }
-
-        .quantity-product {
-            border: none;
-            width: 60px;
-            text-align: center;
-            font-weight: 600;
-            font-size: 16px;
-        }
-
-        .tf-btn.btn-add-to-cart {
-            background: #d4a574;
-            color: white;
-            padding: 14px 30px;
-            border-radius: 8px;
-            font-weight: 600;
-            border: none;
-            transition: all 0.3s;
-        }
-
-        .tf-btn.btn-add-to-cart:hover {
-            background: #c49464;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(212, 165, 116, 0.3);
-        }
-
-        .tf-btn.btn-primary {
-            background: #333;
-            color: white;
-            padding: 14px 30px;
-            border-radius: 8px;
-            font-weight: 600;
-            text-decoration: none;
-            display: inline-block;
-            transition: all 0.3s;
-        }
-
-        .tf-btn.btn-primary:hover {
-            background: #d4a574;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(51, 51, 51, 0.3);
-        }
-
-        .tf-product-delivery-return {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-        }
-
-        .product-delivery {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 4px 0;
-        }
-
-        .product-delivery .icon, .product-delivery i {
-            color: #d4a574;
-            font-size: 20px;
-        }
-
-        .tf-product-trust-seal {
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            border: 1px solid #e5e5e5;
-        }
-
-        .list-card {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .card-item img {
-            height: 35px;
-            object-fit: contain;
-        }
-
-        /* Tabs Styling */
-        .nav-tabs {
-            border-bottom: 2px solid #e5e5e5;
-            margin-bottom: 30px;
-        }
-
-        .nav-tabs .nav-link {
-            border: none;
-            color: #666;
-            padding: 15px 25px;
-            border-bottom: 3px solid transparent;
-            transition: all 0.3s;
-        }
-
-        .nav-tabs .nav-link.active {
-            color: #d4a574;
-            border-bottom-color: #d4a574;
-            background: transparent;
-        }
-
-        .nav-tabs .nav-link:hover {
-            color: #d4a574;
-        }
-
-        .tab-content {
-            background: #fff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
-        }
-
-        /* Product Attributes Table */
-        .product-attribute-table {
-            width: 100%;
-            margin-top: 10px;
-        }
-
-        .product-attribute-table tbody tr {
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .product-attribute-table tbody tr:last-child {
-            border-bottom: none;
-        }
-
-        .product-attribute-table td {
-            padding: 16px 12px;
-        }
-
-        .product-attribute-table td:first-child {
-            font-weight: 600;
-            width: 40%;
-            color: #333;
-            background: #f8f9fa;
-        }
-
-        .product-attribute-table td:last-child {
-            color: #666;
-            background: #fff;
-        }
-
-        .product-description {
-            line-height: 1.9;
-            color: #666;
-            font-size: 15px;
-        }
-
-        .product-description h4 {
-            color: #333;
-            margin-top: 25px;
-            margin-bottom: 15px;
-        }
-
-        .product-description ul {
-            list-style: none;
-            padding-left: 0;
-        }
-
-        .product-description ul li {
-            padding: 8px 0;
-            padding-left: 25px;
-            position: relative;
-        }
-
-        .product-description ul li:before {
-            content: "✓";
-            position: absolute;
-            left: 0;
-            color: #d4a574;
-            font-weight: bold;
-        }
-
-        /* Related Products Section */
-        .related-products-section {
-            padding: 80px 0;
-            background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%);
-        }
-
-        .section-header {
-            margin-bottom: 40px;
-        }
-
-        .flat-title {
-            text-align: left;
-        }
-
-        .flat-title h3 {
-            color: #333;
-            font-weight: 700;
-            font-size: 2rem;
-            margin-bottom: 10px;
-            position: relative;
-            display: inline-block;
-        }
-
-        .flat-title h3::after {
-            content: "";
-            position: absolute;
-            bottom: -8px;
-            left: 0;
-            width: 60px;
-            height: 4px;
-            background: #d4a574;
-            border-radius: 2px;
-        }
-
-        .flat-title p {
-            color: #666;
-            font-size: 0.95rem;
-            margin-top: 12px;
-            margin-bottom: 0;
-        }
-
-        /* Swiper Navigation Buttons */
-        .swiper-nav-buttons {
-            display: flex;
-            gap: 10px;
-        }
-
-        .swiper-btn {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            border: 2px solid #d4a574;
-            background: white;
-            color: #d4a574;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .swiper-btn:hover {
-            background: #d4a574;
-            color: white;
-            transform: scale(1.1);
-        }
-
-        .swiper-btn.swiper-button-disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-        }
-
-        .card-product {
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            border-radius: 12px;
-            overflow: hidden;
-            background: white;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .card-product:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 12px 28px rgba(0,0,0,0.15);
-        }
-
-        .card-product_wrapper {
-            position: relative;
-            overflow: hidden;
-            border-radius: 12px 12px 0 0;
-            background: #f8f9fa;
-            aspect-ratio: 1 / 1;
-        }
-
-        .card-product_wrapper .product-img {
-            display: block;
-            width: 100%;
-            height: 100%;
-        }
-
-        .card-product_wrapper img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .card-product:hover .card-product_wrapper img {
-            transform: scale(1.15);
-        }
-
-        .card-product_info {
-            padding: 20px;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .card-product_info .name-product {
-            color: #333;
-            font-weight: 600;
-            font-size: 1rem;
-            line-height: 1.4;
-            transition: color 0.3s;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            text-decoration: none;
-            margin: 0;
-        }
-
-        .card-product:hover .card-product_info .name-product {
-            color: #d4a574;
-        }
-
-        .card-product_info .price {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-top: auto;
-        }
-
-        .price-new {
-            color: #d4a574;
-            font-weight: 700;
-            font-size: 1.25rem;
-        }
-
-        .price-old {
-            text-decoration: line-through;
-            color: #999;
-            font-size: 1rem;
-            font-weight: 500;
-        }
-
-        .related-product-badge {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            background: linear-gradient(135deg, #d4a574 0%, #c49464 100%);
-            color: white;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            z-index: 5;
-            box-shadow: 0 2px 8px rgba(212, 165, 116, 0.4);
-        }
-
-        .related-sale-badge {
-            position: absolute;
-            top: 12px;
-            left: 12px;
-            background: linear-gradient(135deg, #ff4757 0%, #ff6348 100%);
-            color: white;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 700;
-            z-index: 5;
-            box-shadow: 0 2px 8px rgba(255, 71, 87, 0.4);
-        }
-
-        .quick-view-btn {
-            position: absolute;
-            bottom: -50px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: white;
-            color: #333;
-            padding: 10px 20px;
-            border-radius: 25px;
-            font-size: 13px;
-            font-weight: 600;
-            transition: all 0.3s;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            z-index: 5;
-            text-decoration: none;
-            white-space: nowrap;
-        }
-
-        .card-product:hover .quick-view-btn {
-            bottom: 15px;
-        }
-
-        .quick-view-btn:hover {
-            background: #d4a574;
-            color: white;
-            transform: translateX(-50%) scale(1.05);
-        }
-
-        .related-products-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 30px;
-            margin-top: 40px;
-        }
-
-        /* Image Gallery Styling */
-        .tf-product-media-wrap {
-            position: sticky;
-            top: 100px;
-        }
-
-        .product-thumbs-slider {
-            display: flex;
-            gap: 15px;
-        }
-
-        .tf-product-media-thumbs {
-            width: 100px;
-            height: auto;
-        }
-
-        .tf-product-media-thumbs .swiper-slide {
-            cursor: pointer;
-            border: 2px solid transparent;
-            border-radius: 12px;
-            overflow: hidden;
-            transition: all 0.3s ease;
-            opacity: 0.6;
-        }
-
-        .tf-product-media-thumbs .swiper-slide:hover {
-            opacity: 1;
-            border-color: #d4a574;
-            transform: scale(1.05);
-        }
-
-        .tf-product-media-thumbs .swiper-slide-thumb-active {
-            opacity: 1;
-            border-color: #d4a574;
-            box-shadow: 0 4px 12px rgba(212, 165, 116, 0.3);
-        }
-
-        .tf-product-media-thumbs .item {
-            width: 100%;
-            height: 100px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #f8f9fa;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        .tf-product-media-thumbs .item img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.3s ease;
-        }
-
-        .tf-product-media-thumbs .swiper-slide:hover .item img {
-            transform: scale(1.1);
-        }
-
-        .flat-wrap-media-product {
-            flex: 1;
-            position: relative;
-        }
-
-        .tf-product-media-main {
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
-            background: #fff;
-        }
-
-        .tf-product-media-main .swiper-slide {
-            background: #f8f9fa;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 500px;
-        }
-
-        .tf-product-media-main .item {
-            display: block;
-            width: 100%;
-            height: 100%;
-        }
-
-        .tf-product-media-main img {
-            width: 100%;
-            height: auto;
-            object-fit: contain;
-            transition: transform 0.4s ease;
-        }
-
-        .tf-product-media-main .swiper-slide:hover img {
-            transform: scale(1.05);
-        }
-
-        /* Navigation Arrows */
-        .thumbs-next,
-        .thumbs-prev {
-            width: 45px;
-            height: 45px;
-            background: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            transition: all 0.3s ease;
-            cursor: pointer;
-            z-index: 20;
-        }
-
-        .thumbs-next:hover,
-        .thumbs-prev:hover {
-            background: #d4a574;
-            color: white;
-            transform: scale(1.1);
-            box-shadow: 0 6px 16px rgba(212, 165, 116, 0.4);
-        }
-
-        .thumbs-next::after,
-        .thumbs-prev::after {
-            font-size: 16px;
-            font-weight: bold;
-        }
-
-        .thumbs-next {
-            right: 15px;
-        }
-
-        .thumbs-prev {
-            left: 15px;
-        }
-
-        .zoom-indicator,
-        .image-counter {
-            pointer-events: none;
-        }
-
-        /* Loading skeleton for images */
-        .tf-image-zoom {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: loading 1.5s infinite;
-        }
-
-        @keyframes loading {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
-
-        .tf-image-zoom.lazyloaded {
-            animation: none;
-            background: transparent;
-        }
-
-        /* Product Badges */
-        .sale-badge {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: linear-gradient(135deg, #ff4757 0%, #ff6348 100%);
-            color: white;
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 16px;
-            z-index: 10;
-            box-shadow: 0 4px 12px rgba(255, 71, 87, 0.4);
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-
-        .featured-badge {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-            color: white;
-            padding: 6px 14px;
-            border-radius: 25px;
-            font-weight: 700;
-            font-size: 11px;
-            z-index: 10;
-            box-shadow: 0 3px 12px rgba(251, 191, 36, 0.5);
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            letter-spacing: 0.5px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            width: auto;
-            max-width: fit-content;
-            white-space: nowrap;
-            transition: all 0.3s ease;
-        }
-
-        .featured-badge:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 16px rgba(251, 191, 36, 0.6);
-        }
-
-        .featured-badge i {
-            color: white;
-            font-size: 11px;
-            animation: starPulse 2s ease-in-out infinite;
-        }
-
-        @keyframes starPulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.15); }
-        }
-
-        .zoom-indicator {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.7);
-            color: white;
-            padding: 10px 16px;
-            border-radius: 25px;
-            font-size: 13px;
-            z-index: 10;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            backdrop-filter: blur(10px);
-        }
-
-        .tf-product-media-main:hover .zoom-indicator {
-            opacity: 1;
-        }
-
-        .zoom-indicator i {
-            animation: zoomPulse 1.5s infinite;
-        }
-
-        @keyframes zoomPulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.2); }
-        }
-
-      
-
-        /* Fix header overlap issue */
-        .s-page-title.style-2 {
-            margin-top: 100px !important;
-            padding-top: 10px !important;
-            padding-bottom: 10px !important;
-        }
-
-        /* Breadcrumb styling */
-        .breadcrumbs-page {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .breadcrumbs-page .link {
-            color: #666;
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-
-        .breadcrumbs-page .link:hover {
-            color: #d4a574;
-        }
-
-        .breadcrumbs-page .current-page {
-            color: #d4a574;
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            .s-page-title.style-2 {
-                margin-top: 70px !important;
-                padding-top: 10px !important;
-            }
-
-            .product-info-price {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .group-btn {
-                flex-direction: column !important;
-                width: 100%;
-            }
-
-            .group-btn > * {
-                width: 100%;
-            }
-
-            .nav-tabs .nav-link {
-                padding: 12px 15px;
-                font-size: 14px;
-            }
-
-            .tab-content {
-                padding: 20px 15px;
-            }
-
-            .product-thumbs-slider {
-                flex-direction: column-reverse;
-                gap: 10px;
-            }
-
-            .tf-product-media-thumbs {
-                width: 100%;
-                height: auto;
-            }
-
-            .tf-product-media-thumbs .item {
-                height: 80px;
-            }
-
-            .tf-product-media-main .swiper-slide {
-                min-height: 350px;
-            }
-
-            .sale-badge,
-            .featured-badge {
-                padding: 6px 12px;
-                font-size: 12px;
-            }
-
-            .zoom-indicator {
-                padding: 8px 12px;
-                font-size: 11px;
-            }
-
-            .image-counter {
-                padding: 6px 10px;
-                font-size: 11px;
-            }
-
-            .thumbs-next,
-            .thumbs-prev {
-                width: 35px;
-                height: 35px;
-            }
-
-            .thumbs-next::after,
-            .thumbs-prev::after {
-                font-size: 14px;
-            }
-        }
-
-        @media (max-width: 576px) {
-            .s-page-title.style-2 {
-                margin-top: 70px !important;
-                padding-top: 15px !important;
-            }
-
-            .tf-product-media-main .swiper-slide {
-                min-height: 280px;
-            }
-
-            .sale-badge {
-                top: 10px;
-                left: 10px;
-            }
-
-            .featured-badge {
-                top: 10px;
-                right: 10px;
-            }
-
-            .zoom-indicator {
-                display: none;
-            }
-
-            /* Related Products Responsive */
-            .related-products-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 15px;
-            }
-
-            .card-product_info {
-                padding: 15px;
-            }
-
-            .card-product_info .name-product {
-                font-size: 0.9rem;
-            }
-
-            .price-new {
-                font-size: 1.1rem;
-            }
-
-            .price-old {
-                font-size: 0.9rem;
-            }
-
-            .flat-title h3 {
-                font-size: 1.5rem;
-            }
-
-            .flat-title p {
-                font-size: 0.9rem;
-            }
-        }
-
-        @media (min-width: 577px) and (max-width: 768px) {
-            .related-products-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 20px;
-            }
-        }
-
-        @media (min-width: 769px) and (max-width: 992px) {
-            .related-products-grid {
-                grid-template-columns: repeat(3, 1fr);
-                gap: 25px;
-            }
-        }
-
-        @media (min-width: 993px) {
-            .related-products-grid {
-                grid-template-columns: repeat(4, 1fr);
-            }
-        }
-    </style>
+<link rel="stylesheet" href="css/product-detail-layout.css">
 </head>
 
 <body>
@@ -1195,8 +286,7 @@ $page_title = htmlspecialchars($product['name']) . ' - Innovative Homesi';
                                                         <img class="tf-image-zoom lazyload" data-zoom="<?php echo htmlspecialchars($image['image_path']); ?>"
                                                             data-src="<?php echo htmlspecialchars($image['image_path']); ?>"
                                                             src="<?php echo htmlspecialchars($image['image_path']); ?>"
-                                                            alt="<?php echo htmlspecialchars($product['name']); ?>"
-                                                            style="width: 100%; height: auto; object-fit: contain; max-height: 500px;">
+                                                            alt="<?php echo htmlspecialchars($product['name']); ?>">
                                                     </a>
                                                 </div>
                                                 <?php endforeach; ?>
@@ -1246,15 +336,15 @@ $page_title = htmlspecialchars($product['name']) . ' - Innovative Homesi';
                                                 $empty_stars = 5 - $full_stars - ($half_star ? 1 : 0);
 
                                                 for ($i = 0; $i < $full_stars; $i++): ?>
-                                                    <i class="fas fa-star" style="color: #f5a623;"></i>
+                                                    <i class="fas fa-star star-color"></i>
                                                 <?php endfor;
 
                                                 if ($half_star): ?>
-                                                    <i class="fas fa-star-half-alt" style="color: #f5a623;"></i>
+                                                    <i class="fas fa-star-half-alt star-color"></i>
                                                 <?php endif;
 
                                                 for ($i = 0; $i < $empty_stars; $i++): ?>
-                                                    <i class="far fa-star" style="color: #f5a623;"></i>
+                                                    <i class="far fa-star star-color"></i>
                                                 <?php endfor; ?>
                                             </div>
                                             <span class="rating-value fw-semibold"><?php echo $avg_rating; ?></span>
@@ -1272,26 +362,36 @@ $page_title = htmlspecialchars($product['name']) . ' - Innovative Homesi';
                                     <div class="product-price-section">
                                         <div class="product-info-price">
                                             <?php if ($product['sale_price'] && $product['sale_price'] < $product['price']): ?>
-                                                <span class="price-new h2 fw-bold" style="color: #d4a574;">₹<?php echo number_format($product['sale_price'], 0); ?></span>
-                                                <span class="price-old h4 text-muted text-decoration-line-through ms-2">₹<?php echo number_format($product['price'], 0); ?></span>
+                                                <span class="price-new">₹<?php echo number_format($product['sale_price'], 0); ?></span>
+                                                <span class="price-old">₹<?php echo number_format($product['price'], 0); ?></span>
                                                 <?php if ($discount_percentage > 0): ?>
-                                                <span class="badge bg-danger ms-2" style="font-size: 14px; padding: 6px 12px;">Save <?php echo $discount_percentage; ?>%</span>
+                                                <span class="badge bg-danger">Save <?php echo $discount_percentage; ?>%</span>
                                                 <?php endif; ?>
                                             <?php else: ?>
-                                                <span class="price-new h2 fw-bold" style="color: #d4a574;">₹<?php echo number_format($product['price'], 0); ?></span>
+                                                <span class="price-new">₹<?php echo number_format($product['price'], 0); ?></span>
                                             <?php endif; ?>
                                         </div>
-                                        <div class="product-trust-row">
-                                            <span class="product-trust-item"><i class="fa-solid fa-check-circle"></i>In-House manufacturing</span>
-                                            <span class="product-trust-item"><i class="fa-solid fa-check-circle"></i>Strict Quality Checked</span>
-                                            <span class="product-trust-item"><i class="fa-solid fa-check-circle"></i>Secure Payments</span>
+                                    </div>
+
+                                    <div class="product-trust-badges mb-4">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <i class="fas fa-check-circle me-2"></i>
+                                            <span class="fw-medium">In-House Manufacturing</span>
+                                        </div>
+                                        <div class="d-flex align-items-center mb-2">
+                                            <i class="fas fa-check-circle me-2"></i>
+                                            <span class="fw-medium">Strict Quality Checked</span>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-check-circle me-2"></i>
+                                            <span class="fw-medium">Secure Payments</span>
                                         </div>
                                     </div>
 
                                     <!-- Short Description -->
                                     <?php if ($product['short_desc']): ?>
                                     <div class="product-short-description mb-4">
-                                        <p class="text-muted" style="font-size: 1rem; font-weight: 500;"><?php echo nl2br(htmlspecialchars($product['short_desc'])); ?></p>
+                                        <p><?php echo nl2br(htmlspecialchars($product['short_desc'])); ?></p>
                                     </div>
                                     <?php endif; ?>
 
@@ -1419,35 +519,35 @@ $page_title = htmlspecialchars($product['name']) . ' - Innovative Homesi';
 
                                     <!-- Product Features -->
                                     <div class="tf-product-delivery-return mb-4">
-                                        <a href="shippingpolicy.php" class="product-delivery mb-1 text-decoration-none" style="cursor: pointer;">
-                                            <div class="icon icon-clock-cd"></div>
-                                            <p class="mb-0" style="font-size: 0.95rem;">Estimated delivery: <span class="fw-bold text-black">10-15 business days</span> <i class="fas fa-external-link-alt ms-1 small"></i></p>
+                                        <a href="shippingpolicy.php" class="product-delivery text-decoration-none">
+                                            <i class="fas fa-truck"></i>
+                                            <p>Estimated delivery: <span class="fw-bold">10-15 business days</span></p>
                                         </a>
-                                        <a href="refund&returnspolicy.php" class="product-delivery return mb-1 text-decoration-none" style="cursor: pointer;">
-                                            <div class="icon icon-compare"></div>
-                                            <p class="mb-0" style="font-size: 0.95rem;">Return within <span class="fw-bold text-black">10 days</span> of purchase <i class="fas fa-external-link-alt ms-1 small"></i></p>
+                                        <a href="refund&returnspolicy.php" class="product-delivery text-decoration-none">
+                                            <i class="fas fa-undo-alt"></i>
+                                            <p>Return within <span class="fw-bold">10 days</span> of purchase</p>
                                         </a>
                                         <div class="product-delivery">
-                                            <i class="fas fa-shield-alt me-2"></i>
-                                            <p class="mb-0" style="font-size: 0.95rem;"><span class="fw-bold text-black">Quality Guarantee</span> Handcrafted with patience and precision, reflecting the care, skill, and passion of our master craftsmen.</p>
+                                            <i class="fas fa-shield-alt"></i>
+                                            <p><span class="fw-bold">Quality Guarantee</span> &mdash; Handcrafted with patience and precision by our master craftsmen.</p>
                                         </div>
                                     </div>
 
                                     <!-- Payment Methods -->
                                     <div class="tf-product-trust-seal">
-                                        <p class="text-seal mb-2" style="font-size: 0.95rem; font-weight: 600;">Secure Payment:</p>
-                                        <ul class="list-card d-flex gap-2">
+                                        <p class="text-seal">Secure Payment</p>
+                                        <ul class="list-card">
                                             <li class="card-item">
-                                                <img src="images/payment/visa.png" alt="Visa" style="height: 30px;">
+                                                <img src="images/payment/visa.png" alt="Visa">
                                             </li>
                                             <li class="card-item">
-                                                <img src="images/payment/master-card.png" alt="Mastercard" style="height: 30px;">
+                                                <img src="images/payment/master-card.png" alt="Mastercard">
                                             </li>
                                             <li class="card-item">
-                                                <img src="images/payment/g pay.png" alt="g pay" style="height: 30px;">
+                                                <img src="images/payment/g pay.png" alt="Google Pay">
                                             </li>
-                                             <li class="card-item">
-                                                <img src="images/payment/PhonePe_Logo.png" alt="PhonePe" style="height: 30px;">
+                                            <li class="card-item">
+                                                <img src="images/payment/PhonePe_Logo.png" alt="PhonePe">
                                             </li>
                                         </ul>
                                     </div>
@@ -1468,20 +568,22 @@ $page_title = htmlspecialchars($product['name']) . ' - Innovative Homesi';
                     <div class="col-12">
                         <ul class="nav nav-tabs widget-tab-1" role="tablist">
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link active h5 fw-semibold" data-bs-toggle="tab" data-bs-target="#description"
+                                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#description"
                                     type="button" role="tab">Description</button>
                             </li>
                             <?php if (!empty($product_attributes)): ?>
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link h5 fw-semibold" data-bs-toggle="tab" data-bs-target="#specifications"
+                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#specifications"
                                     type="button" role="tab">Specifications</button>
                             </li>
                             <?php endif; ?>
                             <li class="nav-item" role="presentation">
-                                <a class="nav-link h5 fw-semibold" href="shippingpolicy.php" target="_blank">Shipping Policy</a>
+                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#shippingPolicy"
+                                    type="button" role="tab">Shipping Policy</button>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <a class="nav-link h5 fw-semibold" href="refund&returnspolicy.php" target="_blank">Refund & Returns Policy</a>
+                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#returnsPolicy"
+                                    type="button" role="tab">Refund & Returns</button>
                             </li>
                         </ul>
                         <div class="tab-content">
@@ -1511,6 +613,30 @@ $page_title = htmlspecialchars($product['name']) . ' - Innovative Homesi';
                                 </table>
                             </div>
                             <?php endif; ?>
+
+                            <!-- Shipping Policy Tab -->
+                            <div class="tab-pane fade" id="shippingPolicy" role="tabpanel">
+                                <div class="shipping-policy-summary">
+                                    <p><i class="fas fa-truck me-2" style="color:#d4a574;"></i> We deliver across India with an estimated delivery time of <strong>10–15 business days</strong> depending on your location.</p>
+                                    <p>Shipping charges are calculated at checkout based on the delivery address and order weight. Orders above a certain value may qualify for <strong>free shipping</strong>.</p>
+                                    <p>All orders are carefully packed to ensure your furniture arrives in perfect condition.</p>
+                                    <a href="shippingpolicy.php" class="tf-btn animate-btn mt-3" style="display:inline-flex; align-items:center; gap:8px;">
+                                        Read More <i class="fas fa-arrow-right"></i>
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- Refund & Returns Policy Tab -->
+                            <div class="tab-pane fade" id="returnsPolicy" role="tabpanel">
+                                <div class="shipping-policy-summary">
+                                    <p><i class="fas fa-undo-alt me-2" style="color:#d4a574;"></i> We offer hassle-free returns within <strong>10 days</strong> of delivery if the product is unused and in its original packaging.</p>
+                                    <p>Refunds are processed within <strong>7–10 business days</strong> after we receive and inspect the returned item.</p>
+                                    <p>Please note that customized or made-to-order furniture may not be eligible for returns unless there is a manufacturing defect.</p>
+                                    <a href="refund&returnspolicy.php" class="tf-btn animate-btn mt-3" style="display:inline-flex; align-items:center; gap:8px;">
+                                        Read More <i class="fas fa-arrow-right"></i>
+                                    </a>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1521,70 +647,56 @@ $page_title = htmlspecialchars($product['name']) . ' - Innovative Homesi';
         <?php if (!empty($related_products)): ?>
         <section class="related-products-section">
             <div class="container">
-                <div class="section-header mb-4">
-                    <div class="flat-title mb-0">
-                        <h3 class="fw-semibold">You May Also Like</h3>
-                        <p class="mb-0">Discover more furniture from our collection</p>
-                    </div>
+                <div class="related-section-heading">
+                    <span class="related-section-label">Curated For You</span>
+                    <h3>You May Also Like</h3>
+                    <p>Handpicked pieces that complement your style</p>
                 </div>
 
                 <div class="related-products-grid">
                     <?php foreach ($related_products as $related):
-                        // Calculate discount for related product
                         $related_discount = 0;
                         if ($related['sale_price'] && $related['sale_price'] < $related['price']) {
                             $related_discount = round((($related['price'] - $related['sale_price']) / $related['price']) * 100);
                         }
                     ?>
-                    <div class="related-product-item">
-                        <div class="card-product">
-                                <div class="card-product_wrapper">
-                                    <?php if ($related_discount > 0): ?>
-                                    <div class="related-sale-badge">
-                                        -<?php echo $related_discount; ?>%
-                                    </div>
-                                    <?php endif; ?>
-                                    <a href="product-detail.php?id=<?php echo $related['id']; ?>" class="product-img">
-                                        <img class="lazyload img-product"
-                                             data-src="<?php echo htmlspecialchars($related['image_path'] ?? 'images/products/placeholder.jpg'); ?>"
-                                             src="<?php echo htmlspecialchars($related['image_path'] ?? 'images/products/placeholder.jpg'); ?>"
-                                             alt="<?php echo htmlspecialchars($related['name']); ?>">
-                                    </a>
-                                    <div class="product-actions">
-                                        <button class="action-btn btn-quick-add" data-product-id="<?php echo $related['id']; ?>" title="Add to Cart">
-                                            <i class="fas fa-shopping-cart"></i>
-                                        </button>
-                                        <button class="action-btn btn-wishlist-add" data-product-id="<?php echo $related['id']; ?>" title="Add to Wishlist">
-                                            <i class="far fa-heart"></i>
-                                        </button>
-                                        <a href="product-detail.php?id=<?php echo $related['id']; ?>" class="action-btn" title="View Details">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                    </div>
-                                </div>
-                                <div class="card-product_info">
-                                    <a href="product-detail.php?id=<?php echo $related['id']; ?>"
-                                       class="name-product"><?php echo htmlspecialchars($related['name']); ?></a>
-                                    <?php if (!empty($related['short_desc'])): ?>
-                                    <p class="product-desc">
-                                        <?php echo htmlspecialchars(substr($related['short_desc'], 0, 60)); ?><?php echo strlen($related['short_desc']) > 60 ? '...' : ''; ?>
-                                    </p>
-                                    <?php endif; ?>
-                                    <div class="price-row">
-                                        <div class="price">
-                                            <?php if ($related['sale_price'] && $related['sale_price'] < $related['price']): ?>
-                                                <span class="price-new">₹<?php echo number_format($related['sale_price'], 0); ?></span>
-                                                <span class="price-old">₹<?php echo number_format($related['price'], 0); ?></span>
-                                            <?php else: ?>
-                                                <span class="price-new">₹<?php echo number_format($related['price'], 0); ?></span>
-                                            <?php endif; ?>
-                                        </div>
-                                    </div>
-                                    <button class="btn-add-cart-full btn-quick-add" data-product-id="<?php echo $related['id']; ?>">
-                                        <i class="fas fa-shopping-cart me-2"></i> Add to Cart
-                                    </button>
-                                </div>
+                    <div class="related-product-card">
+                        <div class="rpc-image-wrap">
+                            <?php if ($related_discount > 0): ?>
+                            <span class="rpc-badge rpc-badge-sale">-<?php echo $related_discount; ?>%</span>
+                            <?php endif; ?>
+                            <?php if ($related['is_featured']): ?>
+                            <span class="rpc-badge rpc-badge-featured"><i class="fas fa-star"></i></span>
+                            <?php endif; ?>
+                            <a href="product-detail.php?id=<?php echo $related['id']; ?>" class="rpc-image-link">
+                                <img class="lazyload"
+                                     data-src="<?php echo htmlspecialchars($related['image_path'] ?? 'images/products/placeholder.jpg'); ?>"
+                                     src="<?php echo htmlspecialchars($related['image_path'] ?? 'images/products/placeholder.jpg'); ?>"
+                                     alt="<?php echo htmlspecialchars($related['name']); ?>">
+                            </a>
+                            <div class="rpc-quick-actions">
+                                <button class="rpc-action-btn btn-quick-add" data-product-id="<?php echo $related['id']; ?>" title="Add to Cart">
+                                    <i class="fas fa-shopping-bag"></i>
+                                </button>
+                                <button class="rpc-action-btn btn-wishlist-add" data-product-id="<?php echo $related['id']; ?>" title="Add to Wishlist">
+                                    <i class="far fa-heart"></i>
+                                </button>
                             </div>
+                        </div>
+                        <div class="rpc-details">
+                            <a href="product-detail.php?id=<?php echo $related['id']; ?>" class="rpc-name"><?php echo htmlspecialchars($related['name']); ?></a>
+                            <div class="rpc-price">
+                                <?php if ($related['sale_price'] && $related['sale_price'] < $related['price']): ?>
+                                    <span class="rpc-price-current">₹<?php echo number_format($related['sale_price'], 0); ?></span>
+                                    <span class="rpc-price-original">₹<?php echo number_format($related['price'], 0); ?></span>
+                                <?php else: ?>
+                                    <span class="rpc-price-current">₹<?php echo number_format($related['price'], 0); ?></span>
+                                <?php endif; ?>
+                            </div>
+                            <a href="product-detail.php?id=<?php echo $related['id']; ?>" class="rpc-view-btn">
+                                View Product <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
                     </div>
                     <?php endforeach; ?>
                 </div>
@@ -1821,15 +933,11 @@ $page_title = htmlspecialchars($product['name']) . ' - Innovative Homesi';
                 }
             });
 
-            const galleryMainEl = document.querySelector('.tf-product-media-main');
-            const galleryNextBtn = galleryMainEl ? galleryMainEl.querySelector('.thumbs-next') : null;
-            const galleryPrevBtn = galleryMainEl ? galleryMainEl.querySelector('.thumbs-prev') : null;
-
             const galleryMain = new Swiper('.tf-product-media-main', {
                 spaceBetween: 10,
                 navigation: {
-                    nextEl: galleryNextBtn,
-                    prevEl: galleryPrevBtn,
+                    nextEl: '.thumbs-next',
+                    prevEl: '.thumbs-prev',
                 },
                 thumbs: {
                     swiper: galleryThumbs,
@@ -2104,6 +1212,35 @@ $page_title = htmlspecialchars($product['name']) . ' - Innovative Homesi';
                 });
             });
 
+            // Lazy-load policy tab content on first click
+            document.querySelectorAll('[data-bs-toggle="tab"]').forEach(tab => {
+                tab.addEventListener('shown.bs.tab', function() {
+                    const target = document.querySelector(this.dataset.bsTarget);
+                    if (!target) return;
+                    const policyWrap = target.querySelector('.policy-tab-content');
+                    if (!policyWrap || policyWrap.dataset.loaded === 'true') return;
+
+                    const url = policyWrap.dataset.policyUrl;
+                    policyWrap.dataset.loaded = 'true';
+
+                    fetch(url)
+                        .then(r => r.text())
+                        .then(html => {
+                            const parser = new DOMParser();
+                            const doc = parser.parseFromString(html, 'text/html');
+                            const content = doc.querySelector('.policy-page-content');
+                            if (content) {
+                                policyWrap.innerHTML = content.innerHTML;
+                            } else {
+                                policyWrap.innerHTML = '<p>Could not load policy content. <a href="' + url + '" target="_blank">View full page</a></p>';
+                            }
+                        })
+                        .catch(() => {
+                            policyWrap.innerHTML = '<p>Failed to load. <a href="' + url + '" target="_blank">View full page</a></p>';
+                        });
+                });
+            });
+
             // Add to Wishlist for Related Products
             document.querySelectorAll('.btn-wishlist-add').forEach(btn => {
                 btn.addEventListener('click', function(e) {
@@ -2158,526 +1295,149 @@ $page_title = htmlspecialchars($product['name']) . ' - Innovative Homesi';
     </script>
 
     <style>
-        /* Notification Toast Styles */
-        .notification-toast {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            min-width: 300px;
-            max-width: 400px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            transform: translateX(450px);
-            transition: transform 0.3s ease;
-            z-index: 9999;
-            overflow: hidden;
-        }
+        /* Star rating color */
+        .star-color { color: #f5a623; }
 
-        .notification-toast.show {
-            transform: translateX(0);
+        /* Trust badges styling */
+        .product-trust-badges {
+            background: #f9fafb;
+            border-radius: 10px;
+            padding: 16px 18px;
+            border: 1px solid #f0f0f0;
         }
-
-        .notification-toast.success {
-            border-left: 4px solid #28a745;
-        }
-
-        .notification-toast.error {
-            border-left: 4px solid #dc3545;
-        }
-
-        .notification-toast.warning {
-            border-left: 4px solid #ffc107;
-        }
-
-        .notification-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 15px;
-            background: #f8f9fa;
-            border-bottom: 1px solid #e9ecef;
-        }
-
-        .notification-header strong {
-            color: #333;
+        .product-trust-badges .fas.fa-check-circle {
+            color: #5da271;
             font-size: 14px;
         }
-
-        .notification-close {
-            background: none;
-            border: none;
-            font-size: 20px;
-            color: #666;
-            cursor: pointer;
-            padding: 0;
-            width: 20px;
-            height: 20px;
-            line-height: 1;
+        .product-trust-badges .fw-medium {
+            font-size: 13.5px;
+            color: #444;
         }
 
-        .notification-close:hover {
-            color: #333;
-        }
-
-        .notification-body {
-            padding: 12px 15px;
-            color: #666;
+        /* Policy tab content */
+        .policy-tab-loader {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
             font-size: 14px;
         }
-
-        /* Wishlist button active state */
-        .btn-add-wishlist.added .icon {
-            color: var(--primary);
+        .policy-tab-loader i {
+            margin-right: 8px;
+            color: #d4a574;
         }
-
-        .btn-add-wishlist.added {
-            background-color: rgba(158, 103, 71, 0.1);
-            border-color: var(--primary);
+        .policy-tab-content {
+            max-width: 850px;
         }
-
-        .btn-add-wishlist.added:hover {
-            background-color: rgba(158, 103, 71, 0.15);
+        .policy-tab-content .policy-section {
+            margin-bottom: 28px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #f0f0f0;
         }
-
-        /* Product Gallery - Horizontal Thumbnails Below */
-        .product-gallery-vertical {
-            display: flex;
-            flex-direction: column;
+        .policy-tab-content .policy-section:last-child {
+            border-bottom: none;
         }
-
-        .main-image-container {
-            background: #f8f9fa;
-            border-radius: 12px;
-            overflow: hidden;
-        }
-
-        .main-image-container .tf-product-media-main {
-            width: 100%;
-        }
-
-        .main-image-container .swiper-slide .item {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 400px;
-            background: #f8f9fa;
-        }
-
-        .main-image-container .swiper-slide .item img {
-            width: 100%;
-            height: auto;
-            max-height: 500px;
-            object-fit: contain;
-        }
-
-        /* Thumbnail styles */
-        .tf-product-media-thumbs.thumbs-horizontal {
-            width: 100%;
-            margin-top: 15px;
-        }
-
-        .tf-product-media-thumbs.thumbs-horizontal .swiper-slide {
-            width: auto;
-            height: auto;
-        }
-
-        .tf-product-media-thumbs.thumbs-horizontal .item {
-            cursor: pointer;
-            border: 2px solid transparent;
-            border-radius: 8px;
-            overflow: hidden;
-            transition: all 0.3s ease;
-            background: #f8f9fa;
-        }
-
-        .tf-product-media-thumbs.thumbs-horizontal .item img {
-            width: 100%;
-            height: 80px;
-            object-fit: cover;
-            display: block;
-        }
-
-        .tf-product-media-thumbs.thumbs-horizontal .swiper-slide-thumb-active .item {
-            border-color: #d4a574;
-            box-shadow: 0 2px 8px rgba(212, 165, 116, 0.3);
-        }
-
-        .tf-product-media-thumbs.thumbs-horizontal .item:hover {
-            border-color: #d4a574;
-        }
-
-        /* Featured badge and zoom indicator positioning */
-        .main-image-container .featured-badge {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            z-index: 10;
-            background: linear-gradient(135deg, #d4a574 0%, #b8956a 100%);
-            color: white;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .main-image-container .zoom-indicator {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            z-index: 10;
-            background: rgba(0, 0, 0, 0.6);
-            color: white;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-        }
-
-        /* Navigation arrows */
-        .main-image-container .swiper-button-next,
-        .main-image-container .swiper-button-prev {
-            color: #333;
-            background: rgba(255, 255, 255, 0.9);
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .main-image-container .swiper-button-next:after,
-        .main-image-container .swiper-button-prev:after {
-            font-size: 16px;
-            font-weight: bold;
-        }
-
-        .main-image-container .swiper-button-next:hover,
-        .main-image-container .swiper-button-prev:hover {
-            background: #d4a574;
-            color: white;
-        }
-
-        /* Image counter */
-        .image-counter {
-            position: absolute;
-            bottom: 15px;
-            right: 15px;
-            background: rgba(0, 0, 0, 0.6);
-            color: white;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            z-index: 10;
-        }
-
-        @media (max-width: 767px) {
-            .main-image-container .swiper-slide .item {
-                min-height: 300px;
-            }
-
-            .main-image-container .swiper-slide .item img {
-                max-height: 350px;
-            }
-
-            .tf-product-media-thumbs.thumbs-horizontal .item img {
-                height: 60px;
-            }
-        }
-
-        /* Related Products Section - Enhanced */
-        .related-products-section {
-            background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
-            padding: 70px 0;
-        }
-
-        .related-products-section .flat-title h3 {
-            font-size: 1.8rem;
-            color: #333;
-            margin-bottom: 8px;
-        }
-
-        .related-products-section .flat-title p {
-            color: #666;
-            font-size: 1rem;
-        }
-
-        .related-products-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 25px;
-            padding: 10px 0;
-        }
-
-        .related-product-item .card-product {
-            background: white;
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            transition: all 0.4s ease;
-            height: 100%;
-        }
-
-        .related-product-item .card-product:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
-        }
-
-        .related-product-item .card-product_wrapper {
-            position: relative;
-            overflow: hidden;
-        }
-
-        .related-product-item .product-img {
-            display: block;
-            position: relative;
-            padding-top: 100%;
-            background: #f8f9fa;
-        }
-
-        .related-product-item .product-img img {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.5s ease;
-        }
-
-        .related-product-item .card-product:hover .product-img img {
-            transform: scale(1.08);
-        }
-
-        .related-product-item .related-sale-badge {
-            position: absolute;
-            top: 12px;
-            left: 12px;
-            background: #e74c3c;
-            color: white;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            z-index: 2;
-        }
-
-        .related-product-item .related-product-badge {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-            color: white;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 9px;
+        .policy-tab-content h2 {
+            font-size: 1.15rem;
             font-weight: 700;
-            z-index: 2;
-            box-shadow: 0 2px 8px rgba(251, 191, 36, 0.4);
+            color: #222;
+            margin-bottom: 14px;
+        }
+        .policy-tab-content h3 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #444;
+            margin-bottom: 8px;
+            margin-top: 16px;
+        }
+        .policy-tab-content p {
+            font-size: 0.9rem;
+            line-height: 1.7;
+            color: #555;
+            margin-bottom: 10px;
+        }
+        .policy-tab-content ul,
+        .policy-tab-content ol {
+            padding-left: 20px;
+            margin-bottom: 12px;
+        }
+        .policy-tab-content li {
+            font-size: 0.88rem;
+            line-height: 1.7;
+            color: #555;
+            margin-bottom: 4px;
+        }
+        .policy-tab-content .policy-intro {
+            background: #fdf8f3;
+            border-left: 3px solid #d4a574;
+            padding: 16px 20px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 24px;
+        }
+        .policy-tab-content .policy-table-wrapper {
+            overflow-x: auto;
+        }
+        .policy-tab-content .policy-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+        }
+        .policy-tab-content .policy-table th,
+        .policy-tab-content .policy-table td {
+            padding: 10px 14px;
+            border: 1px solid #eee;
+            text-align: left;
+        }
+        .policy-tab-content .policy-table th {
+            background: #f8f8f8;
+            font-weight: 600;
+            color: #333;
+        }
+        .policy-tab-content .policy-highlight {
+            background: #f9fafb;
+            border-radius: 10px;
+            padding: 20px 24px;
+            border: 1px solid #eee;
+            margin-top: 20px;
+        }
+        .policy-tab-content .policy-highlight h3 {
+            font-size: 1rem;
+            color: #333;
+            margin-top: 0;
+        }
+        .policy-tab-content .policy-highlight i {
+            color: #d4a574;
+            margin-right: 6px;
+        }
+        .policy-tab-content .policy-contact-box {
+            background: #f9fafb;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 18px 22px;
+            margin-top: 12px;
+        }
+        .policy-tab-content .policy-contact-box h4 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .policy-tab-content .policy-contact-box p {
+            font-size: 0.85rem;
+            margin-bottom: 4px;
+        }
+        .policy-tab-content .effective-date {
             display: inline-flex;
             align-items: center;
-            gap: 4px;
-            letter-spacing: 0.3px;
-            border: 1.5px solid rgba(255, 255, 255, 0.3);
-            width: auto;
-            max-width: fit-content;
-            white-space: nowrap;
-        }
-
-        .related-product-item .related-product-badge i {
-            font-size: 9px;
-            animation: starPulse 2s ease-in-out infinite;
-        }
-
-        @keyframes starPulse {
-            0%, 100% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.15);
-            }
-        }
-
-        .related-product-item .product-actions {
-            position: absolute;
-            bottom: 15px;
-            left: 50%;
-            transform: translateX(-50%) translateY(20px);
-            display: flex;
             gap: 8px;
-            opacity: 0;
-            transition: all 0.3s ease;
-            z-index: 10;
-            pointer-events: none;
+            background: #f0f0f0;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 0.82rem;
+            color: #666;
+            margin-bottom: 20px;
         }
-
-        .related-product-item .card-product:hover .product-actions {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
-            pointer-events: auto;
-        }
-
-        .related-product-item .action-btn {
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            border: none;
-            background: white;
-            color: #333;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
-            text-decoration: none;
-            pointer-events: auto;
-            position: relative;
-            z-index: 11;
-        }
-
-        .related-product-item .action-btn:hover {
-            background: #d4a574;
-            color: white;
-            transform: scale(1.1);
-        }
-
-        .related-product-item .action-btn.active {
-            background: #e74c3c;
-            color: white;
-        }
-
-        .related-product-item .card-product_info {
-            padding: 20px;
-        }
-
-        .related-product-item .name-product {
-            display: block;
-            font-size: 1rem;
-            font-weight: 600;
-            color: #333;
-            text-decoration: none;
-            margin-bottom: 8px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            transition: color 0.3s ease;
-        }
-
-        .related-product-item .name-product:hover {
+        .policy-tab-content .effective-date i {
             color: #d4a574;
-        }
-
-        .related-product-item .product-desc {
-            font-size: 0.85rem;
-            color: #777;
-            margin-bottom: 12px;
-            line-height: 1.4;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .related-product-item .price-row {
-            margin-bottom: 15px;
-        }
-
-        .related-product-item .price {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .related-product-item .price-new {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: #d4a574;
-        }
-
-        .related-product-item .price-old {
-            font-size: 0.95rem;
-            color: #999;
-            text-decoration: line-through;
-        }
-
-        .related-product-item .btn-add-cart-full {
-            width: 100%;
-            padding: 12px 20px;
-            background: transparent;
-            border: 2px solid #d4a574;
-            color: #d4a574;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .related-product-item .btn-add-cart-full:hover {
-            background: #d4a574;
-            color: white;
-        }
-
-        .related-product-item .btn-add-cart-full:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
-        }
-
-        @media (max-width: 1199px) {
-            .related-products-grid {
-                grid-template-columns: repeat(3, 1fr);
-                gap: 20px;
-            }
-        }
-
-        @media (max-width: 991px) {
-            .related-products-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 20px;
-            }
-        }
-
-        @media (max-width: 767px) {
-            .related-products-section {
-                padding: 50px 0;
-            }
-
-            .related-products-section .flat-title h3 {
-                font-size: 1.4rem;
-            }
-
-            .related-products-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 15px;
-            }
-
-            .related-product-item .card-product_info {
-                padding: 15px;
-            }
-
-            .related-product-item .name-product {
-                font-size: 0.9rem;
-            }
-
-            .related-product-item .price-new {
-                font-size: 1.1rem;
-            }
-
-            .related-product-item .btn-add-cart-full {
-                padding: 10px 15px;
-                font-size: 0.85rem;
-            }
-
-            .related-product-item .product-actions {
-                opacity: 1;
-                transform: translateX(-50%) translateY(0);
-            }
-        }
-
-        @media (max-width: 480px) {
-            .related-products-grid {
-                grid-template-columns: 1fr;
-                gap: 15px;
-            }
         }
     </style>
 

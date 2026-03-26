@@ -237,58 +237,129 @@ require_once __DIR__ . '/includes/init.php';
         }
 
         /* Testimonial Section */
-        .testimonial-V05 {
+        .testimonial-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+
+        .testimonial-card {
             background: var(--white);
-            padding: 45px 40px;
             border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(158, 103, 71, 0.1);
-            border-left: 5px solid var(--primary);
+            padding: 35px 30px;
+            box-shadow: 0 8px 30px rgba(158, 103, 71, 0.08);
+            transition: all 0.4s ease;
+            position: relative;
+            border: 2px solid transparent;
+            display: flex;
+            flex-direction: column;
         }
 
-        .testimonial-V05 .tes_icon i {
-            font-size: 50px;
-            color: var(--primary);
-            opacity: 0.2;
-        }
-
-        .testimonial-V05 .author-name {
-            color: var(--text);
-            font-weight: 700;
-            font-size: 1.3rem;
-        }
-
-        .testimonial-V05 .author-verified {
-            color: var(--success);
-            font-size: 20px;
-        }
-
-        .testimonial-V05 .rate_wrap i {
-            color: var(--third);
-            font-size: 18px;
-        }
-
-        .testimonial-V05 .tes_text {
-            font-size: 1.1rem;
-            line-height: 1.8;
-            color: var(--text);
-            font-style: italic;
-        }
-
-        .slider-btn-thumbs .btn-thumbs {
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            overflow: hidden;
-            border: 3px solid transparent;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .slider-btn-thumbs .btn-thumbs:hover,
-        .slider-btn-thumbs .btn-thumbs.active {
+        .testimonial-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 50px rgba(158, 103, 71, 0.15);
             border-color: var(--primary);
-            transform: scale(1.1);
-            box-shadow: 0 5px 20px rgba(158, 103, 71, 0.3);
+        }
+
+        .testimonial-card .quote-icon {
+            font-size: 42px;
+            color: var(--primary);
+            opacity: 0.15;
+            line-height: 1;
+            margin-bottom: 15px;
+        }
+
+        .testimonial-card .review-text {
+            font-size: 1rem;
+            line-height: 1.85;
+            color: var(--text-2);
+            font-style: italic;
+            flex-grow: 1;
+            margin-bottom: 25px;
+        }
+
+        .testimonial-card .review-stars {
+            display: flex;
+            gap: 3px;
+            margin-bottom: 18px;
+        }
+
+        .testimonial-card .review-stars i {
+            color: #f5a623;
+            font-size: 16px;
+        }
+
+        .testimonial-card .reviewer-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-top: 1px solid var(--line);
+            padding-top: 20px;
+        }
+
+        .testimonial-card .reviewer-avatar {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--third) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--white);
+        }
+
+        .testimonial-card .reviewer-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text);
+            margin: 0 0 2px;
+        }
+
+        .testimonial-card .reviewer-location {
+            font-size: 0.88rem;
+            color: var(--text-2);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .testimonial-card .reviewer-location i {
+            font-size: 12px;
+            color: var(--primary);
+        }
+
+        .testimonial-card .verified-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.8rem;
+            color: #27ae60;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        .testimonial-card .verified-badge i {
+            font-size: 14px;
+        }
+
+        @media (max-width: 991px) {
+            .testimonial-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 767px) {
+            .testimonial-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .testimonial-card {
+                padding: 28px 22px;
+            }
         }
 
         /* Gallery Images */
@@ -361,8 +432,8 @@ require_once __DIR__ . '/includes/init.php';
                 margin-bottom: 20px;
             }
 
-            .testimonial-V05 {
-                padding: 30px 20px;
+            .testimonial-card {
+                padding: 28px 22px;
             }
         }
 
@@ -815,11 +886,11 @@ require_once __DIR__ . '/includes/init.php';
             <div class="page_content">
                 <div class="container">
                     <div class="content">
-                        <h1 class="heading fw-bold">
+                        <h1 class="w-bold">
                             WHERE COMFORT MEETS <br class="d-none d-sm-block">
                             CRAFTSMANSHIP
                         </h1>
-                        <a href="shop.php" class="tf-btn animate-btn">
+                        <a href="shop-left-sidebar.php" class="tf-btn animate-btn">
                             Our Products
                             <i class="icon icon-caret-right"></i>
                         </a>
@@ -836,9 +907,8 @@ require_once __DIR__ . '/includes/init.php';
                         <span class="text-uppercase text-primary fw-semibold mb-3 d-block">INNOVATIVE HOMESI</span>
                         <h2 class="about-us-heading">Your Home. Your Story. <br>Our Craft.</h2>
                         <p class="about-us-text">
-                            At InnovativeHomesi, we take pride in crafting every piece of furniture in our own manufacturing unit. From design to finishing, every step is handled in-house by our skilled team, ensuring complete quality control and consistent craftsmanship. <br> <br> We do not outsource our production or rely on third-party manufacturers, which allows us to maintain the highest standards and deliver reliable products. Before dispatch, every item undergoes a strict quality inspection to ensure it meets our durability, comfort, and finish standards. This commitment reflects our dedication to trust, excellence, and complete customer satisfaction.</p>
-                        
-                        <a href="shop.php" class="tf-btn animate-btn">
+                        At InnovativeHomesi, we take pride in crafting every piece of furniture in our own manufacturing unit. From design to finishing, every step is handled in-house by our skilled team, ensuring complete quality control and consistent craftsmanship.  We do not outsource our production or rely on third-party manufacturers, which allows us to maintain the highest standards and deliver reliable products. <br> <br>Before dispatch, every item undergoes a strict quality inspection to ensure it meets our durability, comfort, and finish standards. This commitment reflects our dedication to trust, excellence, and complete customer satisfaction. </p>
+                        <a href="shop-left-sidebar.php" class="tf-btn animate-btn">
                             Explore Our Collection
                             <i class="icon icon-caret-right"></i>
                         </a>
@@ -958,110 +1028,153 @@ require_once __DIR__ . '/includes/init.php';
             </div>
         </section>
         <!-- /Brand Story -->
-        <!-- Customer Review -->
+        <!-- Customer Reviews -->
         <section class="flat-spacing" style="background-color: var(--bg-body);">
             <div class="container">
                 <div class="text-center mb-5">
-                    <span class="text-uppercase fw-semibold mb-3 d-block">TESTIMONIALS</span>
-                    <h2 class="about-us-heading">What Our Customers Say</h2>
+                    <span class="text-uppercase fw-semibold mb-3 d-block">CUSTOMER REVIEWS</span>
+                    <h2 class="about-us-heading">Trusted By Families Across India</h2>
                     <p class="mx-auto about-us-text" style="max-width: 700px;">
-                        Real Reviews From Real Homes
+                        Hear from our happy customers who transformed their homes with Innovative Homesi
                     </p>
                 </div>
-                <div class="row">
-                    <div class="col-lg-8 offset-lg-2">
-                        <div class="slider-thumb-wrap">
-                            <div dir="ltr" class="swiper tf-swiper slider-content-thumb">
-                                <div class="swiper-wrapper">
-                                    <!-- item 1 -->
-                                    <div class="swiper-slide">
-                                        <div class="testimonial-V05">
-                                            <div class="tes_icon">
-                                                <i class="icon icon-block-quote"></i>
-                                            </div>
-                                            <div class="tes_author">
-                                                <p class="author-name h4">Brooklyn Simmons</p>
-                                                <i class="author-verified icon-check-circle"></i>
-                                            </div>
-                                            <div class="rate_wrap">
-                                                <i class="icon-star text-star"></i>
-                                                <i class="icon-star text-star"></i>
-                                                <i class="icon-star text-star"></i>
-                                                <i class="icon-star text-star"></i>
-                                                <i class="icon-star text-star"></i>
-                                            </div>
-                                            <p class="tes_text h4">
-                                                "A sofa is more than just a piece of furniture—it's the heart of your home, where memories are made, conversations flow, and comfort meets style. Invest in a sofa that reflects your personality and stands the test of time."
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <!-- item 2 -->
-                                    <div class="swiper-slide">
-                                        <div class="testimonial-V05">
-                                            <div class="tes_icon">
-                                                <i class="icon icon-block-quote"></i>
-                                            </div>
-                                            <div class="tes_author">
-                                                <p class="author-name h4">Mas Shin</p>
-                                                <i class="author-verified icon-check-circle"></i>
-                                            </div>
-                                            <div class="rate_wrap">
-                                                <i class="icon-star text-star"></i>
-                                                <i class="icon-star text-star"></i>
-                                                <i class="icon-star text-star"></i>
-                                                <i class="icon-star text-star"></i>
-                                                <i class="icon-star text-star"></i>
-                                            </div>
-                                            <p class="tes_text h4">
-                                                "The quality of the sofa we ordered from Innovative Homesi is exceptional. The craftsmanship and attention to detail are evident in every stitch. It's not just furniture—it's a work of art that has transformed our living room."
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <!-- item 3 -->
-                                    <div class="swiper-slide">
-                                        <div class="testimonial-V05">
-                                            <div class="tes_icon">
-                                                <i class="icon icon-block-quote"></i>
-                                            </div>
-                                            <div class="tes_author">
-                                                <p class="author-name h4">Sil Vox</p>
-                                                <i class="author-verified icon-check-circle"></i>
-                                            </div>
-                                            <div class="rate_wrap">
-                                                <i class="icon-star text-star"></i>
-                                                <i class="icon-star text-star"></i>
-                                                <i class="icon-star text-star"></i>
-                                                <i class="icon-star text-star"></i>
-                                                <i class="icon-star text-star"></i>
-                                            </div>
-                                            <p class="tes_text h4">
-                                                "We worked with Innovative Homesi to create a custom dining set, and we couldn't be happier with the results. The team was professional, the design process was seamless, and the final product exceeded our expectations. Truly built to last!"
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
+                <div class="testimonial-grid">
+                    <!-- Review 1 -->
+                    <div class="testimonial-card">
+                        <div class="quote-icon"><i class="fa-solid fa-quote-left"></i></div>
+                        <div class="review-stars">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                        </div>
+                        <p class="review-text">
+                            "We ordered a 7-seater L-shape sofa for our new flat and the quality is outstanding. The fabric is soft yet durable, cushioning is perfect, and the finish is very premium. The team helped us choose the right colour to match our interiors. Highly recommend!"
+                        </p>
+                        <div class="reviewer-info">
+                            <div class="reviewer-avatar">RS</div>
+                            <div>
+                                <p class="reviewer-name">Rajesh Sharma</p>
+                                <p class="reviewer-location"><i class="fa-solid fa-location-dot"></i> Mumbai, Maharashtra</p>
+                                <span class="verified-badge"><i class="fa-solid fa-circle-check"></i> Verified Buyer</span>
                             </div>
-                            <div class="slider-btn-thumbs">
-                                <!-- Btn 1 -->
-                                <div class="btn-thumbs active">
-                                    <img src="images/avatar/avatar-1.jpg" alt="Avatar">
-                                </div>
-                                <!-- Btn 2 -->
-                                <div class="btn-thumbs">
-                                    <img src="images/avatar/avatar-2.jpg" alt="Avatar">
-                                </div>
-                                <!-- Btn 3 -->
-                                <div class="btn-thumbs">
-                                    <img src="images/avatar/avatar-3.jpg" alt="Avatar">
-                                </div>
+                        </div>
+                    </div>
+                    <!-- Review 2 -->
+                    <div class="testimonial-card">
+                        <div class="quote-icon"><i class="fa-solid fa-quote-left"></i></div>
+                        <div class="review-stars">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                        </div>
+                        <p class="review-text">
+                            "Got a custom dining table and chairs set from Innovative Homesi. The wood quality is superb and the craftsmanship is top-notch. Delivery was on time and the installation team was very professional. Our dining room looks beautiful now!"
+                        </p>
+                        <div class="reviewer-info">
+                            <div class="reviewer-avatar">PK</div>
+                            <div>
+                                <p class="reviewer-name">Priya Kulkarni</p>
+                                <p class="reviewer-location"><i class="fa-solid fa-location-dot"></i> Pune, Maharashtra</p>
+                                <span class="verified-badge"><i class="fa-solid fa-circle-check"></i> Verified Buyer</span>
                             </div>
-
+                        </div>
+                    </div>
+                    <!-- Review 3 -->
+                    <div class="testimonial-card">
+                        <div class="quote-icon"><i class="fa-solid fa-quote-left"></i></div>
+                        <div class="review-stars">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                        </div>
+                        <p class="review-text">
+                            "We furnished our entire living room with Innovative Homesi products. The sofa set, centre table, and TV unit all match perfectly. The quality is amazing for the price point. Their customer service is very helpful and responsive. Best furniture brand!"
+                        </p>
+                        <div class="reviewer-info">
+                            <div class="reviewer-avatar">AV</div>
+                            <div>
+                                <p class="reviewer-name">Amit Verma</p>
+                                <p class="reviewer-location"><i class="fa-solid fa-location-dot"></i> Thane, Maharashtra</p>
+                                <span class="verified-badge"><i class="fa-solid fa-circle-check"></i> Verified Buyer</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Review 4 -->
+                    <div class="testimonial-card">
+                        <div class="quote-icon"><i class="fa-solid fa-quote-left"></i></div>
+                        <div class="review-stars">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star-half-stroke"></i>
+                        </div>
+                        <p class="review-text">
+                            "Bought a recliner sofa for my parents and they absolutely love it. The comfort level is unmatched and the build quality gives confidence that it will last for years. The team was very patient in helping us select the right model. Thank you!"
+                        </p>
+                        <div class="reviewer-info">
+                            <div class="reviewer-avatar">SM</div>
+                            <div>
+                                <p class="reviewer-name">Sneha Mehta</p>
+                                <p class="reviewer-location"><i class="fa-solid fa-location-dot"></i> Navi Mumbai, Maharashtra</p>
+                                <span class="verified-badge"><i class="fa-solid fa-circle-check"></i> Verified Buyer</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Review 5 -->
+                    <div class="testimonial-card">
+                        <div class="quote-icon"><i class="fa-solid fa-quote-left"></i></div>
+                        <div class="review-stars">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                        </div>
+                        <p class="review-text">
+                            "We renovated our home and chose Innovative Homesi for all the furniture. From bedroom sets to the sofa, everything is well-built and looks elegant. The attention to detail in every piece shows how much they care about quality. Truly impressed!"
+                        </p>
+                        <div class="reviewer-info">
+                            <div class="reviewer-avatar">DP</div>
+                            <div>
+                                <p class="reviewer-name">Deepak Patil</p>
+                                <p class="reviewer-location"><i class="fa-solid fa-location-dot"></i> Nashik, Maharashtra</p>
+                                <span class="verified-badge"><i class="fa-solid fa-circle-check"></i> Verified Buyer</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Review 6 -->
+                    <div class="testimonial-card">
+                        <div class="quote-icon"><i class="fa-solid fa-quote-left"></i></div>
+                        <div class="review-stars">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                        </div>
+                        <p class="review-text">
+                            "Ordered a customized sofa cum bed for our guest room. The design options were excellent and the final product looks stunning. Very comfortable and space-saving. The 5-year warranty gives great peace of mind. Will definitely order again!"
+                        </p>
+                        <div class="reviewer-info">
+                            <div class="reviewer-avatar">NJ</div>
+                            <div>
+                                <p class="reviewer-name">Neha Joshi</p>
+                                <p class="reviewer-location"><i class="fa-solid fa-location-dot"></i> Bangalore, Karnataka</p>
+                                <span class="verified-badge"><i class="fa-solid fa-circle-check"></i> Verified Buyer</span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
-        <!-- /Customer Review -->
+        <!-- /Customer Reviews -->
 
         <!-- Our Process Section -->
         <section class="flat-spacing bg-white">
@@ -1127,9 +1240,9 @@ require_once __DIR__ . '/includes/init.php';
         <section class="flat-spacing" style="background: linear-gradient(135deg, #9e6747 0%, #7d5139 100%);">
             <div class="container">
                 <div class="text-center mb-5">
-                    <span class="text-uppercase fw-semibold text-white mb-3 d-block" >WHY CHOOSE US</span>
-                    <h2 class="about-us-heading text-white">The Innovative Homesi Difference</h2>
-                    <p class="mx-auto about-us-text text-white" style="max-width: 700px; opacity: 0.9;">
+                    <span class="text-uppercase fw-semibold mb-3 d-block" style="color: rgba(255,255,255,0.8) !important;">WHY CHOOSE US</span>
+                    <h2 class="about-us-heading text-white" style="color: #ffffff;">The Innovative Homesi Difference</h2>
+                    <p class="mx-auto about-us-text text-white" style="max-width: 700px; opacity: 0.9; color: #ffffff;">
                         Experience the perfect blend of quality, craftsmanship, and customer service
                     </p>
                 </div>
@@ -1214,8 +1327,8 @@ require_once __DIR__ . '/includes/init.php';
                     <div class="timeline-item">
                         <div class="timeline-year">2014</div>
                         <div class="timeline-content">
-                            <h4>Big Manufacturing Unit</h4>
-                            <p>Opened our first showroom and expanded our team to include skilled artisans and designers.</p>
+                            <h4>Expansion</h4>
+                            <p>Opened our  big manufacturing unit and expanded our team to include skilled artisans and designers.</p>
                         </div>
                     </div>
                     <div class="timeline-item">
@@ -1358,5 +1471,4 @@ require_once __DIR__ . '/includes/init.php';
 </body>
 
 </html>
-
 

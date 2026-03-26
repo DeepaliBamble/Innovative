@@ -185,24 +185,24 @@ h6, .h6 {
 .nav-link,
 nav a {
   font-family: var(--font-primary) !important;
-  font-size: 0.9375rem;
-  font-weight: 500;
-  letter-spacing: var(--tracking-wide);
+  font-weight: 600;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   transition: color var(--transition-normal);
 }
 
-/* Submenu Links - Match parent category font size */
+/* Submenu Links */
 .sub-menu_link {
-  font-size: 0.9375rem !important;
-  font-weight: 500;
-  letter-spacing: var(--tracking-wide);
-  text-transform: uppercase;
+  font-family: var(--font-primary) !important;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-transform: none;
 }
 
 /* Mobile Menu */
 .offcanvas .nav-link,
 .mobile-menu a {
+  font-family: var(--font-primary) !important;
   font-size: 1rem;
   font-weight: 500;
   letter-spacing: var(--tracking-normal);

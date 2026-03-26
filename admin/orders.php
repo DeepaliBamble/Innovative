@@ -4,7 +4,7 @@ if (!isAdmin()) { redirect('login.php'); }
 
 // Get orders from database
 try {
-    $stmt = $pdo->query("SELECT o.*, o.order_status as status, u.name as user_name, u.email as user_email
+    $stmt = $pdo->query("SELECT o.*, u.name as user_name, u.email as user_email
                          FROM orders o
                          LEFT JOIN users u ON o.user_id = u.id
                          ORDER BY o.created_at DESC");
@@ -12,8 +12,8 @@ try {
 
     // Get order statistics
     $total_orders = count($orders);
-    $pending_orders = count(array_filter($orders, fn($o) => ($o['status'] ?? '') === 'pending'));
-    $completed_orders = count(array_filter($orders, fn($o) => ($o['status'] ?? '') === 'delivered'));
+    $pending_orders = count(array_filter($orders, fn($o) => $o['order_status'] === 'pending'));
+    $completed_orders = count(array_filter($orders, fn($o) => $o['order_status'] === 'delivered'));
     $total_revenue = array_sum(array_column($orders, 'total_amount'));
 
 } catch (PDOException $e) {
@@ -146,11 +146,12 @@ include 'includes/header.php';
                         </td>
                         <td>
                             <?php
-                            $status = $order['status'] ?? 'pending';
+                            $status = $order['order_status'] ?? 'pending';
                             $status_class = 'info';
                             if ($status === 'delivered') $status_class = 'success';
                             elseif ($status === 'cancelled') $status_class = 'danger';
-                            elseif ($status === 'processing' || $status === 'shipped') $status_class = 'warning';
+                            elseif ($status === 'processing') $status_class = 'warning';
+                            elseif ($status === 'shipped') $status_class = 'primary';
                             ?>
                             <span class="badge-custom badge-<?= $status_class ?>">
                                 <?= ucfirst($status) ?>

@@ -69,29 +69,20 @@ function getCurrentAdminId() {
 /**
  * Generate URL with base path
  * Prepends BASE_URL_PATH for root-relative URLs
- * Leaves absolute URLs (starting with http:// or https://) unchanged
  */
 function url($path = '') {
-    // If it's already an absolute URL, return as-is
-    if (preg_match('/^https?:\/\//', $path)) {
-        return $path;
-    }
-    
-    // If it's a root-relative URL and BASE_URL_PATH is set, prepend it
     if (strpos($path, '/') === 0 && defined('BASE_URL_PATH') && BASE_URL_PATH !== '') {
         return BASE_URL_PATH . $path;
     }
-    
     return $path;
 }
 
 /**
  * Redirect to a URL
- * Handles both absolute URLs and relative paths
+ * Automatically prepends BASE_URL_PATH for root-relative URLs
  */
 function redirect($path) {
-    $redirectUrl = url($path);
-    header("Location: " . $redirectUrl);
+    header("Location: " . url($path));
     exit;
 }
 

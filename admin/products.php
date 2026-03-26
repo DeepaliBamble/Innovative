@@ -168,7 +168,7 @@ include 'includes/header.php';
                                     src="../<?= htmlspecialchars($p['image_path']) ?>"
                                     alt="<?= htmlspecialchars($p['name']) ?>"
                                     style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;"
-                                    onerror="this.onerror=null;this.src='../images/logo/logo.png';"
+                                    onerror="this.src='../images/placeholder.jpg'"
                                 >
                             <?php else: ?>
                                 <div style="width: 60px; height: 60px; background: var(--admin-bg); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
