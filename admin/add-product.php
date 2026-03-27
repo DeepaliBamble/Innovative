@@ -22,7 +22,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $price = floatval($_POST['price'] ?? 0);
     $sale_price = !empty($_POST['sale_price']) ? floatval($_POST['sale_price']) : null;
     $cost_price = !empty($_POST['cost_price']) ? floatval($_POST['cost_price']) : null;
-    $category_id = intval($_POST['category_id'] ?? 0);
+    $category_ids = array_map('intval', $_POST['category_ids'] ?? []);
+    $category_id = !empty($category_ids) ? $category_ids[0] : 0; // primary = first selected
     $image_path = trim($_POST['image_path'] ?? '');
     $stock_quantity = intval($_POST['stock_quantity'] ?? 0);
     $is_featured = isset($_POST['is_featured']) ? 1 : 0;
@@ -57,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     if ($price <= 0) $errors[] = 'Price must be greater than 0';
     if ($sale_price !== null && $sale_price >= $price) $errors[] = 'Sale price must be less than regular price';
-    if ($category_id <= 0) $errors[] = 'Please select a category';
+    if (empty($category_ids)) $errors[] = 'Please select at least one category';
     if (empty($image_path)) $errors[] = 'Main product image is required';
 
     // Check if slug already exists
@@ -99,6 +100,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
 
             $product_id = $pdo->lastInsertId();
+
+            // Insert product_categories (multi-category)
+            $pcStmt = $pdo->prepare("INSERT INTO product_categories (product_id, category_id, is_primary) VALUES (?, ?, ?)");
+            foreach ($category_ids as $i => $cid) {
+                $pcStmt->execute([$product_id, $cid, $i === 0 ? 1 : 0]);
+            }
 
             // Insert additional images
             if (!empty($additional_images)) {
@@ -340,39 +347,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <h5 class="mb-0">Category</h5>
                             </div>
                             <div class="card-body">
-                                <div class="mb-3">
-                                    <label for="category_id" class="form-label">Product Category *</label>
-                                    <select class="form-select" id="category_id" name="category_id" required>
-                                        <option value="">-- Select Category --</option>
-                                        <?php
-                                        // Group categories by parent
-                                        $parentCategories = [];
-                                        $childCategories = [];
-
-                                        foreach ($categories as $cat) {
-                                            if ($cat['parent_id'] === null || $cat['parent_id'] == 0) {
-                                                $parentCategories[] = $cat;
-                                            } else {
-                                                $childCategories[$cat['parent_id']][] = $cat;
-                                            }
-                                        }
-
-                                        // Display categories hierarchically
-                                        foreach ($parentCategories as $parent) {
-                                            $selected = (!empty($_POST['category_id']) && $_POST['category_id'] == $parent['id']) ? 'selected' : '';
-                                            echo '<option value="' . $parent['id'] . '" ' . $selected . '>' . htmlspecialchars($parent['name']) . '</option>';
-
-                                            // Display child categories
-                                            if (isset($childCategories[$parent['id']])) {
-                                                foreach ($childCategories[$parent['id']] as $child) {
-                                                    $selected = (!empty($_POST['category_id']) && $_POST['category_id'] == $child['id']) ? 'selected' : '';
-                                                    echo '<option value="' . $child['id'] . '" ' . $selected . '>  &nbsp;&nbsp;└─ ' . htmlspecialchars($child['name']) . '</option>';
-                                                }
-                                            }
-                                        }
-                                        ?>
-                                    </select>
+                                <label class="form-label">Product Categories * <small class="text-muted">(select one or more; first selected = primary)</small></label>
+                                <?php
+                                $parentCategories = [];
+                                $childCategories = [];
+                                foreach ($categories as $cat) {
+                                    if ($cat['parent_id'] === null || $cat['parent_id'] == 0) {
+                                        $parentCategories[] = $cat;
+                                    } else {
+                                        $childCategories[$cat['parent_id']][] = $cat;
+                                    }
+                                }
+                                $selectedCategoryIds = array_map('intval', $_POST['category_ids'] ?? []);
+                                foreach ($parentCategories as $parent):
+                                ?>
+                                <div class="mb-1">
+                                    <strong><?= htmlspecialchars($parent['name']) ?></strong>
+                                    <?php if (isset($childCategories[$parent['id']])): ?>
+                                    <div class="ms-3 mt-1">
+                                        <?php foreach ($childCategories[$parent['id']] as $child): ?>
+                                        <div class="form-check">
+                                            <input class="form-check-input category-checkbox" type="checkbox"
+                                                   name="category_ids[]" value="<?= $child['id'] ?>"
+                                                   id="cat_<?= $child['id'] ?>"
+                                                   <?= in_array($child['id'], $selectedCategoryIds) ? 'checked' : '' ?>>
+                                            <label class="form-check-label" for="cat_<?= $child['id'] ?>">
+                                                <?= htmlspecialchars($child['name']) ?>
+                                            </label>
+                                        </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                    <?php else: ?>
+                                    <div class="ms-3 mt-1">
+                                        <div class="form-check">
+                                            <input class="form-check-input category-checkbox" type="checkbox"
+                                                   name="category_ids[]" value="<?= $parent['id'] ?>"
+                                                   id="cat_<?= $parent['id'] ?>"
+                                                   <?= in_array($parent['id'], $selectedCategoryIds) ? 'checked' : '' ?>>
+                                            <label class="form-check-label" for="cat_<?= $parent['id'] ?>">
+                                                <?= htmlspecialchars($parent['name']) ?>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <?php endif; ?>
                                 </div>
+                                <?php endforeach; ?>
+                                <div id="categoryError" class="text-danger small mt-1" style="display:none;">Please select at least one category.</div>
                             </div>
                         </div>
 
@@ -438,6 +458,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </div>
 
 <script>
+// Validate at least one category is selected before submit
+document.getElementById('productForm').addEventListener('submit', function(e) {
+    const checked = document.querySelectorAll('.category-checkbox:checked');
+    if (checked.length === 0) {
+        e.preventDefault();
+        document.getElementById('categoryError').style.display = 'block';
+        document.getElementById('categoryError').scrollIntoView({behavior: 'smooth'});
+    } else {
+        document.getElementById('categoryError').style.display = 'none';
+    }
+});
+
 // Auto-generate slug from name
 document.getElementById('name').addEventListener('input', function() {
     const slug = this.value.toLowerCase()

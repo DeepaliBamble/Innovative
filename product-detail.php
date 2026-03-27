@@ -126,9 +126,9 @@ try {
         $discount_percentage = round((($product['price'] - $product['sale_price']) / $product['price']) * 100);
     }
 
-    // Fetch related products (same category)
+    // Fetch related products (share at least one category)
     $stmt = $pdo->prepare("
-        SELECT
+        SELECT DISTINCT
             p.id,
             p.name,
             p.slug,
@@ -139,11 +139,16 @@ try {
             COALESCE(pi.image_path, p.image_path) as image_path
         FROM products p
         LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.is_primary = 1
-        WHERE p.category_id = ? AND p.id != ? AND p.is_active = 1
+        WHERE p.id != ? AND p.is_active = 1
+        AND EXISTS (
+            SELECT 1 FROM product_categories pc1
+            JOIN product_categories pc2 ON pc1.category_id = pc2.category_id
+            WHERE pc1.product_id = ? AND pc2.product_id = p.id
+        )
         ORDER BY RAND()
         LIMIT 4
     ");
-    $stmt->execute([$product['category_id'], $product_id]);
+    $stmt->execute([$product_id, $product_id]);
     $related_products = $stmt->fetchAll();
 
     // Update view count

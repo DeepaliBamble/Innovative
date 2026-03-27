@@ -372,11 +372,11 @@ require_once __DIR__ . '/includes/init.php';
                             }
 
                             // Count total products
-                            $countQuery = "SELECT COUNT(*) FROM products WHERE is_active = 1";
+                            $countQuery = "SELECT COUNT(DISTINCT p.id) FROM products p WHERE p.is_active = 1";
                             $countParams = [];
                             if (!empty($categoryIds)) {
                                 $in = str_repeat('?,', count($categoryIds) - 1) . '?';
-                                $countQuery .= " AND category_id IN ($in)";
+                                $countQuery .= " AND EXISTS (SELECT 1 FROM product_categories pc WHERE pc.product_id = p.id AND pc.category_id IN ($in))";
                                 $countParams = $categoryIds;
                             }
                             $countStmt = $pdo->prepare($countQuery);
@@ -387,11 +387,11 @@ require_once __DIR__ . '/includes/init.php';
                             $pagination = paginate($totalProducts, $perPage, $page);
 
                             // Build product query with sorting
-                            $query = "SELECT * FROM products WHERE is_active = 1";
+                            $query = "SELECT DISTINCT p.* FROM products p WHERE p.is_active = 1";
                             $params = [];
                             if (!empty($categoryIds)) {
                                 $in = str_repeat('?,', count($categoryIds) - 1) . '?';
-                                $query .= " AND category_id IN ($in)";
+                                $query .= " AND EXISTS (SELECT 1 FROM product_categories pc WHERE pc.product_id = p.id AND pc.category_id IN ($in))";
                                 $params = $categoryIds;
                             }
 

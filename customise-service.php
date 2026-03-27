@@ -492,7 +492,7 @@ require_once __DIR__ . '/includes/init.php';
                                 Chairs & Seating
                             </h3>
                             <p class="mb-3" style="color: var(--text); font-size: 0.9rem;">
-                                Dining Chairs • Accent Chairs • Benches • Ottoman & Pouf
+                                Dining Chairs • Accent Chairs • Bench & Ottoman
                             </p>
                             <ul style="list-style: none; padding: 0; color: var(--text);">
                                 <li class="py-2"><i class="fa-solid fa-check text-primary me-2"></i> Seat dimensions & height</li>
@@ -650,7 +650,7 @@ require_once __DIR__ . '/includes/init.php';
                                 </h2>
                                 <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#customiseFAQ">
                                     <div class="accordion-body" style="color: var(--text); padding: 20px 25px; background: var(--bg-9);">
-                                        We offer customisation for all our furniture categories including Sofas (3 Seater, L Shape, U Shape, Sofa Cum Bed, Recliner), Chairs (Dining, Accent, Benches, Ottoman & Pouf), Tables & Storage (Center Table, Dining Table, Console, Side Table, Cabinet, TV Unit), Beds & Bedroom Furniture, and Furnishing items like cushions, table runners, and rugs. Every piece can be tailored to your specifications.
+                                        We offer customisation for all our furniture categories including Sofas (3 Seater, L Shape, U Shape, Sofa Cum Bed, Recliner), Chairs (Dining, Accent, Bench & Ottoman), Tables & Storage (Center Table, Dining Table, Console, Side Table, Cabinet, TV Unit), Beds & Bedroom Furniture, and Furnishing items like cushions, table runners, and rugs. Every piece can be tailored to your specifications.
                                     </div>
                                 </div>
                             </div>

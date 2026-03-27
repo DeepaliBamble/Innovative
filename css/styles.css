@@ -949,6 +949,12 @@ a:focus, a:hover {
   text-decoration: none;
   outline: 0;
 }
+a:focus-visible,
+.item-link:focus,
+.item-link:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
 
 .link {
   -webkit-transition: all 0.3s ease;
