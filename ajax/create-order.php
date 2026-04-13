@@ -26,17 +26,39 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
+// Verify CSRF Token
+if (!isAjaxRequest()) {
+    verifyCsrfOrDie();
+} else {
+    $token = $_POST['csrf_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
+    if (!validateCsrfToken($token)) {
+        http_response_code(403);
+        echo json_encode(['success' => false, 'message' => 'Security token expired. Please refresh the page and try again.']);
+        exit;
+    }
+}
+
+// Enforce Rate Limiting (max 10 order attempts per 15 minutes)
+if (!checkRateLimit($pdo, 'create_order', 10, 900)) {
+    http_response_code(429);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Too many order attempts. Please try again later.'
+    ]);
+    exit;
+}
+
 try {
     // Validate and sanitize input
     $firstName = sanitize($_POST['first_name'] ?? '');
     $lastName = sanitize($_POST['last_name'] ?? '');
-    $email = sanitize($_POST['email'] ?? '');
-    $phone = sanitize($_POST['phone'] ?? '');
+    $email = validateEmail($_POST['email'] ?? '');
+    $phone = sanitize($_POST['phone'] ?? ''); // Ideally use validatePhone($phone)
     $country = sanitize($_POST['country'] ?? 'India');
     $city = sanitize($_POST['city'] ?? '');
     $street = sanitize($_POST['street'] ?? '');
     $state = sanitize($_POST['state'] ?? '');
-    $postalCode = sanitize($_POST['postal_code'] ?? '');
+    $postalCode = sanitize($_POST['postal_code'] ?? ''); // Ideally validatePostalCode($postalCode)
     $notes = sanitize($_POST['notes'] ?? '');
     $shippingMethod = sanitize($_POST['shipping_method'] ?? 'standard');
     $couponCode = sanitize($_POST['coupon_code'] ?? '');
@@ -46,7 +68,7 @@ try {
         throw new Exception('First name and last name are required.');
     }
 
-    if (empty($email) || !isValidEmail($email)) {
+    if (!$email) {
         throw new Exception('Valid email address is required.');
     }
 

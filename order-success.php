@@ -3,9 +3,10 @@ require_once __DIR__ . '/includes/init.php';
 
 // Get order ID from query string
 $orderId = isset($_GET['order_id']) ? (int)$_GET['order_id'] : 0;
+$token = isset($_GET['token']) ? $_GET['token'] : '';
 
-if ($orderId <= 0) {
-    setFlashMessage('error', 'Invalid order ID.');
+if ($orderId <= 0 || empty($token)) {
+    setFlashMessage('error', 'Invalid order link.');
     redirect('index.php');
 }
 
@@ -24,17 +25,20 @@ if (!$order) {
     redirect('index.php');
 }
 
-// Security check: Verify order belongs to current user or session
-$isOwner = false;
-if (isLoggedIn() && $order['user_id'] == getCurrentUserId()) {
-    $isOwner = true;
-} elseif (!isLoggedIn() && $order['session_id'] == session_id()) {
-    $isOwner = true;
-}
+// Security check: Verify order access token
+if (!verifyOrderAccessToken($orderId, $order['order_number'], $token)) {
+    // Fallback: Verify order belongs to current user or session if token fails
+    $isOwner = false;
+    if (isLoggedIn() && $order['user_id'] == getCurrentUserId()) {
+        $isOwner = true;
+    } elseif (!isLoggedIn() && $order['session_id'] == session_id()) {
+        $isOwner = true;
+    }
 
-if (!$isOwner) {
-    setFlashMessage('error', 'Access denied.');
-    redirect('index.php');
+    if (!$isOwner) {
+        setFlashMessage('error', 'Access denied.');
+        redirect('index.php');
+    }
 }
 
 // Fetch order items

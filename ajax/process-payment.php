@@ -26,6 +26,18 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
+// Verify CSRF Token
+if (!isAjaxRequest()) {
+    verifyCsrfOrDie();
+} else {
+    $token = $_POST['csrf_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
+    if (!validateCsrfToken($token)) {
+        http_response_code(403);
+        echo json_encode(['success' => false, 'message' => 'Security token expired. Please refresh the page and try again.']);
+        exit;
+    }
+}
+
 try {
     // Get and validate POST data
     $razorpayPaymentId = sanitize($_POST['razorpay_payment_id'] ?? '');
@@ -163,6 +175,9 @@ try {
         // TODO: Send order confirmation email
         // sendOrderConfirmationEmail($order, $orderItems);
 
+        // Generate secure access token
+        $orderToken = generateOrderAccessToken($orderId, $order['order_number']);
+
         // Return success response
         echo json_encode([
             'success' => true,
@@ -170,7 +185,7 @@ try {
             'order_id' => $orderId,
             'order_number' => $order['order_number'],
             'payment_id' => $razorpayPaymentId,
-            'redirect' => 'order-success.php?order_id=' . $orderId
+            'redirect' => 'order-success.php?order_id=' . $orderId . '&token=' . urlencode($orderToken)
         ]);
 
     } catch (Exception $e) {

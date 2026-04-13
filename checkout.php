@@ -169,6 +169,8 @@ $razorpayConfig = getRazorpayConfig();
 
                             <!-- Checkout Form -->
                             <form id="checkout-form" class="tf-checkout-cart-main">
+                                <input type="hidden" id="csrf_token" name="csrf_token" value="<?= htmlspecialchars(generateCsrfToken()) ?>">
+                                
                                 <!-- Customer Information -->
                                 <div class="box-ip-checkout estimate-shipping">
                                     <h2 class="title type-semibold">Customer Information</h2>
@@ -380,6 +382,77 @@ $razorpayConfig = getRazorpayConfig();
             let discountAmount = 0;
             let couponCode = '';
 
+            // Apply coupon handler
+            const applyCouponBtn = document.getElementById('apply-coupon-btn');
+            if (applyCouponBtn) {
+                applyCouponBtn.addEventListener('click', function() {
+                    const code = document.getElementById('coupon-code-input').value.trim();
+                    const messageEl = document.getElementById('coupon-message');
+                    
+                    if (!code) {
+                        messageEl.innerHTML = '<span class="text-danger">Please enter a coupon code.</span>';
+                        return;
+                    }
+                    
+                    const btnOriginalText = this.innerHTML;
+                    this.disabled = true;
+                    this.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                    
+                    const formData = new FormData();
+                    formData.append('coupon_code', code);
+                    
+                    fetch('ajax/validate-coupon.php', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        this.disabled = false;
+                        this.innerHTML = btnOriginalText;
+                        
+                        if (data.success) {
+                            couponCode = data.coupon.code;
+                            
+                            // Calculate discount based on subtotal
+                            if (data.coupon.discount_type === 'percentage') {
+                                discountAmount = (subtotal * data.coupon.discount_value) / 100;
+                                if (data.coupon.max_discount_amount && discountAmount > data.coupon.max_discount_amount) {
+                                    discountAmount = data.coupon.max_discount_amount;
+                                }
+                            } else {
+                                discountAmount = parseFloat(data.coupon.discount_value);
+                            }
+                            
+                            messageEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-1"></i> ${data.message}</span>`;
+                            
+                            // Show discount row
+                            const discountRow = document.getElementById('discount-row');
+                            if (discountRow) {
+                                discountRow.style.display = 'flex';
+                                document.getElementById('order-discount').textContent = '-₹' + discountAmount.toFixed(2);
+                            }
+                            
+                            updateTotal();
+                        } else {
+                            couponCode = '';
+                            discountAmount = 0;
+                            messageEl.innerHTML = `<span class="text-danger"><i class="fas fa-exclamation-circle me-1"></i> ${data.message}</span>`;
+                            
+                            const discountRow = document.getElementById('discount-row');
+                            if (discountRow) discountRow.style.display = 'none';
+                            
+                            updateTotal();
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Error applying coupon:', err);
+                        this.disabled = false;
+                        this.innerHTML = btnOriginalText;
+                        messageEl.innerHTML = '<span class="text-danger">Failed to validate coupon.</span>';
+                    });
+                });
+            }
+
             // Shipping method change handler
             document.querySelectorAll('input[name="shipping_method"]').forEach(radio => {
                 radio.addEventListener('change', function() {
@@ -457,10 +530,14 @@ $razorpayConfig = getRazorpayConfig();
                 // Get form data
                 const formData = new FormData(checkoutForm);
                 formData.append('coupon_code', couponCode);
+                formData.append('csrf_token', document.getElementById('csrf_token') ? document.getElementById('csrf_token').value : '');
 
                 // Create order
                 fetch('ajax/create-order.php', {
                     method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
                     body: formData
                 })
                 .then(response => response.json())
@@ -522,9 +599,13 @@ $razorpayConfig = getRazorpayConfig();
                 formData.append('razorpay_payment_id', razorpayResponse.razorpay_payment_id);
                 formData.append('razorpay_order_id', razorpayResponse.razorpay_order_id);
                 formData.append('razorpay_signature', razorpayResponse.razorpay_signature);
+                formData.append('csrf_token', document.getElementById('csrf_token') ? document.getElementById('csrf_token').value : '');
 
                 fetch('ajax/process-payment.php', {
                     method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
                     body: formData
                 })
                 .then(response => response.json())
