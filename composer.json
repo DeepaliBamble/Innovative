@@ -3,7 +3,8 @@
     "description": "Innovative Furniture E-commerce Website",
     "type": "project",
     "require": {
-        "php": ">=7.4"
+        "php": ">=7.4",
+        "phpseclib/phpseclib": "~3.0"
     },
     "require-dev": {
         "phpoffice/phpspreadsheet": "^1.29"
