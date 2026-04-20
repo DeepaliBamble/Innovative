@@ -124,10 +124,10 @@ try {
         $subtotal += $itemPrice * $item['quantity'];
     }
 
-    // Calculate shipping cost
+    // Calculate shipping cost (in INR)
     $shippingCost = 0;
     if ($shippingMethod === 'express') {
-        $shippingCost = 5.00;
+        $shippingCost = 500.00; // ₹500 for express shipping
     }
 
     // Apply coupon if provided

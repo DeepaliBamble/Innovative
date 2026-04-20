@@ -8,10 +8,6 @@ if (!isAdmin()) {
 
 header('Content-Type: application/json');
 
-// Log for debugging
-error_log('Upload attempt - Method: ' . $_SERVER['REQUEST_METHOD']);
-error_log('FILES: ' . print_r($_FILES, true));
-error_log('POST: ' . print_r($_POST, true));
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);

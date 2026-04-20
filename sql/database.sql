@@ -37,9 +37,12 @@ CREATE TABLE `users` (
 --
 -- Default Users: Admin and Test Customer
 --
+-- IMPORTANT: Change these passwords immediately after first login.
+-- Admin password: Admin@Homesi2026 | Test user password: Customer@Homesi2026
+-- To generate your own hash: php -r "echo password_hash('YourPassword', PASSWORD_DEFAULT);"
 INSERT INTO `users` (`id`, `name`, `email`, `password`, `phone`, `is_admin`, `is_active`, `email_verified`, `created_at`, `updated_at`) VALUES
-(1, 'Admin', 'admin@innovative.com', 'admin123', NULL, 1, 1, 1, '2025-12-02 10:05:36', '2025-12-02 10:06:08'),
-(2, 'Test User', 'customer@test.com', 'test123', NULL, 0, 1, 1, '2025-12-06 11:56:23', '2025-12-06 12:19:53');
+(1, 'Admin', 'admin@innovative.com', '$2y$10$Jk3NBNE9v0bznY6iJIx.0ez0d2xjQVMnleByXcF4VLQ2lO8CQPztm', NULL, 1, 1, 1, '2025-12-02 10:05:36', '2025-12-02 10:06:08'),
+(2, 'Test User', 'customer@test.com', '$2y$10$pZdHJvft/i7xhNT7lK8zWOo6rD4cdSZbb1E7yiVV4DOHs7fA1muNi', NULL, 0, 1, 1, '2025-12-06 11:56:23', '2025-12-06 12:19:53');
 
 --
 -- Table: otp_verifications

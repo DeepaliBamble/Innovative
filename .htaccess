@@ -1,0 +1,57 @@
+Options -Indexes
+
+# ============================================================
+# Force HTTPS
+# ============================================================
+RewriteEngine On
+RewriteCond %{HTTPS} off
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# ============================================================
+# Block direct access to sensitive files
+# ============================================================
+<FilesMatch "\.(env|sql|log|sh|bak|git|md|json|lock|yml|yaml|xml|ini)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Block access to hidden files/directories (starting with dot)
+RewriteCond %{REQUEST_URI} (^|/)\.
+RewriteRule ^ - [F,L]
+
+# ============================================================
+# Block direct access to sensitive directories
+# ============================================================
+RewriteRule ^includes/ - [F,L]
+RewriteRule ^sql/ - [F,L]
+RewriteRule ^auth/ - [F,L]
+RewriteRule ^ajax/ - [F,L]
+RewriteRule ^vendor/ - [F,L]
+
+# ============================================================
+# Security Headers
+# ============================================================
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+</IfModule>
+
+# ============================================================
+# Disable server signature
+# ============================================================
+ServerSignature Off
+
+# ============================================================
+# PHP settings (if using Apache mod_php)
+# ============================================================
+<IfModule mod_php.c>
+    php_flag display_errors Off
+    php_flag log_errors On
+</IfModule>
+<IfModule mod_php8.c>
+    php_flag display_errors Off
+    php_flag log_errors On
+</IfModule>
