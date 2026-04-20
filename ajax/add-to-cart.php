@@ -6,6 +6,14 @@
 
 require_once __DIR__ . '/../includes/init.php';
 
+// Surface real errors when ?debug=1 is passed (same convention as product-detail.php).
+$debug = isset($_GET['debug']) && $_GET['debug'] === '1';
+if ($debug) {
+    ini_set('display_errors', '1');
+    ini_set('display_startup_errors', '1');
+    error_reporting(E_ALL);
+}
+
 header('Content-Type: application/json');
 
 // Check if request is POST
@@ -126,10 +134,12 @@ try {
         'cart_count' => $cartCount
     ]);
 
-} catch (PDOException $e) {
-    error_log('Add to cart error: ' . $e->getMessage());
+} catch (Throwable $e) {
+    error_log('Add to cart error: ' . $e->getMessage() . ' at ' . $e->getFile() . ':' . $e->getLine());
     echo json_encode([
         'success' => false,
-        'message' => 'An error occurred. Please try again.'
+        'message' => $debug
+            ? ($e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine())
+            : 'An error occurred. Please try again.'
     ]);
 }

@@ -69,10 +69,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (empty($errors)) {
-        // Auto-generate slug if empty
-        if (empty($slug)) {
-            $slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $title)));
-            $slug = trim($slug, '-');
+        // Auto-generate slug if empty, otherwise normalize user-provided slug
+        // so URL-unsafe characters (spaces, colons, punctuation) can never reach the DB.
+        $slugSource = empty($slug) ? $title : $slug;
+        $slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $slugSource)));
+        $slug = trim($slug, '-');
+        if ($slug === '') {
+            $slug = 'blog-' . time();
         }
 
         // Auto-generate meta title if empty

@@ -208,6 +208,7 @@ CREATE TABLE `reviews` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`),
+  UNIQUE KEY `uniq_review_user_product` (`user_id`, `product_id`),
   KEY `idx_product` (`product_id`),
   KEY `idx_user` (`user_id`),
   KEY `idx_approved` (`is_approved`),
