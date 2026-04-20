@@ -168,7 +168,7 @@ include 'includes/header.php';
                                     src="../<?= htmlspecialchars($p['image_path']) ?>"
                                     alt="<?= htmlspecialchars($p['name']) ?>"
                                     style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;"
-                                    onerror="this.src='../images/placeholder.jpg'"
+                                    onerror="this.onerror=null;this.outerHTML='<div style=&quot;width:60px;height:60px;background:var(--admin-bg);border-radius:8px;display:flex;align-items:center;justify-content:center;&quot;><i class=&quot;bi bi-image&quot; style=&quot;font-size:1.5rem;color:var(--admin-text-light);&quot;></i></div>';"
                                 >
                             <?php else: ?>
                                 <div style="width: 60px; height: 60px; background: var(--admin-bg); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
