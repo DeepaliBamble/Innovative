@@ -6,6 +6,8 @@
 
 // Load config first to get SESSION_NAME
 require_once __DIR__ . '/../includes/config.php';
+require_once __DIR__ . '/../includes/db.php';
+require_once __DIR__ . '/../includes/functions.php';
 
 // Set session name before starting
 if (session_status() === PHP_SESSION_NONE) {
@@ -13,10 +15,8 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Remove remember me cookie if exists
-if (isset($_COOKIE['remember_token'])) {
-    setcookie('remember_token', '', time() - 3600, '/');
-}
+// Remove remember me token from DB and clear cookie
+clearRememberToken($pdo);
 
 // Clear all session variables
 $_SESSION = [];

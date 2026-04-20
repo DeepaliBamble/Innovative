@@ -13,6 +13,7 @@
 
 require_once __DIR__ . '/../includes/init.php';
 require_once __DIR__ . '/../includes/razorpay-config.php';
+require_once __DIR__ . '/../includes/mail-helper.php';
 
 header('Content-Type: application/json');
 
@@ -172,8 +173,11 @@ try {
         // Log successful payment
         error_log("Payment successful for order {$orderId}: {$razorpayPaymentId}");
 
-        // TODO: Send order confirmation email
-        // sendOrderConfirmationEmail($order, $orderItems);
+        // Send order confirmation email to customer
+        $emailResult = sendOrderConfirmationEmail($order, $orderItems);
+        if (!$emailResult['success']) {
+            error_log("Order confirmation email failed for order {$orderId}: " . $emailResult['message']);
+        }
 
         // Generate secure access token
         $orderToken = generateOrderAccessToken($orderId, $order['order_number']);

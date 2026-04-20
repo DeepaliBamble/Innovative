@@ -7,6 +7,7 @@ require_once __DIR__ . '/includes/init.php';
 <meta http-equiv="content-type" content="text/html;charset=utf-8" />
 <head>
     <meta charset="utf-8">
+    <meta name="csrf-token" content="<?= generateCsrfToken() ?>">
     <title>Customer Login - Innovative Homesi | Access Your Account</title>
     <meta name="author" content="Innovative Homesi">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -211,6 +212,7 @@ require_once __DIR__ . '/includes/init.php';
 
                         <!-- Password Login Form (Alternative) -->
                         <form class="form-login" method="POST" action="auth/login_handler.php" id="passwordForm" style="display: none;">
+                            <?= csrfTokenField() ?>
                             <div class="list-ver">
                                 <fieldset>
                                     <input type="email" name="email" id="passwordEmail" placeholder="Enter your email address *" required>
@@ -401,6 +403,8 @@ require_once __DIR__ . '/includes/init.php';
                 clearInterval(countdownInterval);
             });
 
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
             // Send OTP
             $('#emailForm').submit(function(e) {
                 e.preventDefault();
@@ -417,7 +421,7 @@ require_once __DIR__ . '/includes/init.php';
                 $.ajax({
                     url: 'auth/send-login-otp.php',
                     method: 'POST',
-                    data: { email: email },
+                    data: { email: email, csrf_token: csrfToken },
                     dataType: 'json',
                     success: function(response) {
                         if (response.success) {
@@ -459,7 +463,7 @@ require_once __DIR__ . '/includes/init.php';
                 $.ajax({
                     url: 'auth/send-login-otp.php',
                     method: 'POST',
-                    data: { email: currentEmail },
+                    data: { email: currentEmail, csrf_token: csrfToken },
                     dataType: 'json',
                     success: function(response) {
                         if (response.success) {
@@ -511,7 +515,8 @@ require_once __DIR__ . '/includes/init.php';
                     method: 'POST',
                     data: {
                         otp: otp,
-                        remember: remember
+                        remember: remember,
+                        csrf_token: csrfToken
                     },
                     dataType: 'json',
                     success: function(response) {

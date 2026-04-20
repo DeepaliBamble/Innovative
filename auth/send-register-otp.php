@@ -15,6 +15,13 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
+// Validate CSRF token
+if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+    http_response_code(403);
+    echo json_encode(['success' => false, 'message' => 'Security token expired. Please refresh the page and try again.']);
+    exit;
+}
+
 // Get and sanitize form data
 $name = sanitize($_POST['name'] ?? '');
 $email = sanitize($_POST['email'] ?? '');

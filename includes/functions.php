@@ -161,15 +161,10 @@ function generateRandomString($length = 32) {
 
 /**
  * Get user IP address
+ * Uses only REMOTE_ADDR to prevent spoofing via HTTP headers.
  */
 function getUserIP() {
-    if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
-        return $_SERVER['HTTP_CLIENT_IP'];
-    } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-        return $_SERVER['HTTP_X_FORWARDED_FOR'];
-    } else {
-        return $_SERVER['REMOTE_ADDR'];
-    }
+    return $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
 }
 
 /**
@@ -275,4 +270,95 @@ function getWishlistCount($pdo) {
     $stmt->execute([$userId]);
     $result = $stmt->fetch();
     return $result['count'] ?? 0;
+}
+
+/**
+ * Store a remember-me token in the database and set the cookie.
+ * @param PDO $pdo
+ * @param int $userId
+ */
+function storeRememberToken($pdo, $userId) {
+    $token  = generateRandomString(64);
+    $hash   = hash('sha256', $token);
+    $expiry = time() + (30 * 24 * 60 * 60); // 30 days
+
+    try {
+        $stmt = $pdo->prepare(
+            'INSERT INTO remember_tokens (user_id, token_hash, expires_at) VALUES (?, ?, ?)'
+        );
+        $stmt->execute([$userId, $hash, date('Y-m-d H:i:s', $expiry)]);
+
+        setcookie('remember_token', $token, [
+            'expires'  => $expiry,
+            'path'     => '/',
+            'secure'   => isset($_SERVER['HTTPS']),
+            'httponly' => true,
+            'samesite' => 'Strict',
+        ]);
+    } catch (Exception $e) {
+        error_log('Remember token store error: ' . $e->getMessage());
+    }
+}
+
+/**
+ * Delete a remember-me token from the database and clear the cookie.
+ * @param PDO $pdo
+ */
+function clearRememberToken($pdo) {
+    $token = $_COOKIE['remember_token'] ?? '';
+    if ($token) {
+        $hash = hash('sha256', $token);
+        try {
+            $stmt = $pdo->prepare('DELETE FROM remember_tokens WHERE token_hash = ?');
+            $stmt->execute([$hash]);
+        } catch (Exception $e) {
+            error_log('Remember token clear error: ' . $e->getMessage());
+        }
+        setcookie('remember_token', '', time() - 3600, '/', '', isset($_SERVER['HTTPS']), true);
+    }
+}
+
+/**
+ * Auto-login from a remember-me cookie if the user is not already logged in.
+ * @param PDO $pdo
+ */
+function autoLoginFromCookie($pdo) {
+    if (isLoggedIn()) return;
+
+    $token = $_COOKIE['remember_token'] ?? '';
+    if (empty($token)) return;
+
+    $hash = hash('sha256', $token);
+
+    try {
+        $stmt = $pdo->prepare(
+            'SELECT rt.user_id, u.name, u.email, u.is_admin, u.is_active
+             FROM remember_tokens rt
+             INNER JOIN users u ON rt.user_id = u.id
+             WHERE rt.token_hash = ? AND rt.expires_at > NOW()'
+        );
+        $stmt->execute([$hash]);
+        $row = $stmt->fetch();
+
+        if (!$row || $row['is_active'] != 1) {
+            clearRememberToken($pdo);
+            return;
+        }
+
+        // Restore session
+        $_SESSION['user_id']      = $row['user_id'];
+        $_SESSION['user_name']    = $row['name'];
+        $_SESSION['user_email']   = $row['email'];
+        $_SESSION['user_is_admin'] = $row['is_admin'];
+        $_SESSION['logged_in']    = true;
+        $_SESSION['login_time']   = time();
+
+        // Rotate token for security
+        $stmt = $pdo->prepare('DELETE FROM remember_tokens WHERE token_hash = ?');
+        $stmt->execute([$hash]);
+        storeRememberToken($pdo, $row['user_id']);
+
+    } catch (Exception $e) {
+        error_log('Auto-login error: ' . $e->getMessage());
+    }
 }

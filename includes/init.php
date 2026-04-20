@@ -25,3 +25,6 @@ setSecurityHeaders();
 
 // Generate CSRF token on every page load (for forms)
 generateCsrfToken();
+
+// Auto-login from remember-me cookie if not already in session
+autoLoginFromCookie($pdo);

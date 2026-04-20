@@ -15,6 +15,13 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
+// Validate CSRF token
+if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+    http_response_code(403);
+    echo json_encode(['success' => false, 'message' => 'Security token expired. Please refresh the page and try again.']);
+    exit;
+}
+
 // Get session email
 $email = $_SESSION['otp_email'] ?? '';
 $otpType = $_SESSION['otp_type'] ?? '';
@@ -79,10 +86,7 @@ try {
 
     // Set remember me cookie if checked (30 days)
     if ($remember) {
-        $token = generateRandomString(64);
-        $expiry = time() + (30 * 24 * 60 * 60); // 30 days
-        setcookie('remember_token', $token, $expiry, '/', '', false, true);
-        $_SESSION['remember_token'] = $token;
+        storeRememberToken($pdo, $user['id']);
     }
 
     // Update last login time

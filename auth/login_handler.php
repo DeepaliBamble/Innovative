@@ -12,6 +12,13 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
+// Validate CSRF token
+if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+    setFlashMessage('error', 'Security token expired. Please try again.');
+    redirect('../login.php');
+    exit;
+}
+
 // Get and sanitize form data
 $email = sanitize($_POST['email'] ?? '');
 $password = $_POST['password'] ?? '';
@@ -75,15 +82,7 @@ try {
 
     // Set remember me cookie if checked (30 days)
     if ($remember) {
-        $token = generateRandomString(64);
-        $expiry = time() + (30 * 24 * 60 * 60); // 30 days
-
-        // Store token in database (you may want to create a remember_tokens table)
-        // For now, we'll just set a cookie with user ID (in production, use a secure token system)
-        setcookie('remember_token', $token, $expiry, '/', '', false, true);
-
-        // Store token in session for future use
-        $_SESSION['remember_token'] = $token;
+        storeRememberToken($pdo, $user['id']);
     }
 
     // Update last login time (optional - you may want to add a last_login column to users table)

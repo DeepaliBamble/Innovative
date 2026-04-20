@@ -8,6 +8,7 @@ require_once __DIR__ . '/includes/init.php';
 <meta http-equiv="content-type" content="text/html;charset=utf-8" />
 <head>
     <meta charset="utf-8">
+    <meta name="csrf-token" content="<?= generateCsrfToken() ?>">
     <title>Create Account - Innovative Homesi | Sign Up for Exclusive Benefits</title>
     <meta name="author" content="Innovative Homesi">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -294,6 +295,8 @@ require_once __DIR__ . '/includes/init.php';
             let resendCountdown = 60;
             let countdownInterval;
 
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
             // Handle form submission
             registrationForm.addEventListener('submit', function(e) {
                 e.preventDefault();
@@ -315,6 +318,7 @@ require_once __DIR__ . '/includes/init.php';
                 formData.append('phone', document.getElementById('reg_phone').value);
                 formData.append('password', document.getElementById('reg_password').value);
                 formData.append('confirm_password', document.getElementById('reg_confirm_password').value);
+                formData.append('csrf_token', csrfToken);
 
                 showLoading(true);
                 clearMessage();
@@ -367,6 +371,7 @@ require_once __DIR__ . '/includes/init.php';
 
                 const formData = new FormData();
                 formData.append('otp', otp);
+                formData.append('csrf_token', csrfToken);
 
                 fetch('auth/verify-register-otp.php', {
                     method: 'POST',
@@ -473,6 +478,7 @@ require_once __DIR__ . '/includes/init.php';
                 formData.append('phone', document.getElementById('reg_phone').value);
                 formData.append('password', document.getElementById('reg_password').value);
                 formData.append('confirm_password', document.getElementById('reg_confirm_password').value);
+                formData.append('csrf_token', csrfToken);
 
                 clearMessage();
 

@@ -183,6 +183,134 @@ function sendCustomiseEnquiryConfirmation($data) {
 }
 
 /**
+ * Send order confirmation email to customer after successful payment
+ *
+ * @param array $order     Order row from the database
+ * @param array $orderItems Array of order_items rows
+ * @return array ['success' => bool, 'message' => string]
+ */
+function sendOrderConfirmationEmail($order, $orderItems) {
+    $customerName  = htmlspecialchars($order['customer_name'] ?? $order['user_name'] ?? 'Customer');
+    $customerEmail = $order['customer_email'] ?? $order['user_email'] ?? '';
+    $orderNumber   = htmlspecialchars($order['order_number']);
+    $orderDate     = date('d M Y, h:i A', strtotime($order['created_at']));
+    $paymentId     = htmlspecialchars($order['razorpay_payment_id'] ?? '');
+
+    if (empty($customerEmail)) {
+        error_log("sendOrderConfirmationEmail: no email for order {$order['id']}");
+        return ['success' => false, 'message' => 'No customer email'];
+    }
+
+    // Build items table rows
+    $itemRows = '';
+    foreach ($orderItems as $item) {
+        $name     = htmlspecialchars($item['product_name']);
+        $qty      = (int) $item['quantity'];
+        $price    = number_format($item['price'], 2);
+        $subtotal = number_format($item['subtotal'], 2);
+        $itemRows .= "
+            <tr>
+                <td style='padding:8px 12px;border-bottom:1px solid #eee;'>{$name}</td>
+                <td style='padding:8px 12px;border-bottom:1px solid #eee;text-align:center;'>{$qty}</td>
+                <td style='padding:8px 12px;border-bottom:1px solid #eee;text-align:right;'>&#x20B9;{$price}</td>
+                <td style='padding:8px 12px;border-bottom:1px solid #eee;text-align:right;'>&#x20B9;{$subtotal}</td>
+            </tr>";
+    }
+
+    $subtotalFmt  = number_format($order['subtotal'], 2);
+    $shippingFmt  = number_format($order['shipping_amount'] ?? 0, 2);
+    $discountFmt  = number_format($order['discount_amount'] ?? 0, 2);
+    $totalFmt     = number_format($order['total_amount'], 2);
+    $shippingAddr = implode(', ', array_filter([
+        $order['shipping_address_line1'] ?? '',
+        $order['shipping_address_line2'] ?? '',
+        $order['shipping_city']          ?? '',
+        $order['shipping_state']         ?? '',
+        $order['shipping_postal_code']   ?? '',
+        $order['shipping_country']       ?? '',
+    ]));
+
+    $subject = "Order Confirmed #{$orderNumber} - Innovative Homesi";
+
+    $message = "
+    <html>
+    <head>
+        <style>
+            body{font-family:Arial,sans-serif;line-height:1.6;color:#333;margin:0;padding:0;}
+            .wrap{max-width:620px;margin:0 auto;padding:20px;}
+            .header{background:#d4a574;color:#fff;padding:24px 20px;text-align:center;}
+            .header h1{margin:0;font-size:22px;}
+            .section{padding:20px;background:#fafafa;margin-top:16px;border-radius:4px;}
+            table{width:100%;border-collapse:collapse;}
+            th{background:#f5f5f5;padding:8px 12px;text-align:left;font-size:13px;}
+            .total-row td{font-weight:bold;padding:10px 12px;border-top:2px solid #d4a574;}
+            .btn{display:inline-block;background:#d4a574;color:#fff;padding:12px 24px;
+                 text-decoration:none;border-radius:4px;margin-top:16px;font-weight:bold;}
+            .footer{text-align:center;color:#999;font-size:12px;margin-top:24px;}
+        </style>
+    </head>
+    <body>
+    <div class='wrap'>
+        <div class='header'>
+            <h1>Order Confirmed!</h1>
+            <p style='margin:4px 0 0;font-size:14px;'>Thank you for shopping with Innovative Homesi</p>
+        </div>
+
+        <div class='section'>
+            <p>Dear {$customerName},</p>
+            <p>Your payment was successful and your order is now being processed.</p>
+            <table style='width:100%;'>
+                <tr><td style='padding:4px 0;color:#666;width:160px;'>Order Number</td><td><strong>#{$orderNumber}</strong></td></tr>
+                <tr><td style='padding:4px 0;color:#666;'>Order Date</td><td>{$orderDate}</td></tr>
+                " . ($paymentId ? "<tr><td style='padding:4px 0;color:#666;'>Payment ID</td><td>{$paymentId}</td></tr>" : '') . "
+                <tr><td style='padding:4px 0;color:#666;'>Status</td><td><span style='color:#28a745;font-weight:bold;'>Paid &amp; Processing</span></td></tr>
+            </table>
+        </div>
+
+        <div class='section'>
+            <h3 style='margin-top:0;'>Items Ordered</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th style='text-align:center;'>Qty</th>
+                        <th style='text-align:right;'>Price</th>
+                        <th style='text-align:right;'>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {$itemRows}
+                    <tr><td colspan='3' style='padding:8px 12px;text-align:right;color:#666;'>Subtotal</td><td style='padding:8px 12px;text-align:right;'>&#x20B9;{$subtotalFmt}</td></tr>
+                    <tr><td colspan='3' style='padding:8px 12px;text-align:right;color:#666;'>Shipping</td><td style='padding:8px 12px;text-align:right;'>&#x20B9;{$shippingFmt}</td></tr>
+                    " . ($order['discount_amount'] > 0 ? "<tr><td colspan='3' style='padding:8px 12px;text-align:right;color:#28a745;'>Discount</td><td style='padding:8px 12px;text-align:right;color:#28a745;'>-&#x20B9;{$discountFmt}</td></tr>" : '') . "
+                    <tr class='total-row'><td colspan='3' style='text-align:right;'>Total Paid</td><td style='text-align:right;'>&#x20B9;{$totalFmt}</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        " . ($shippingAddr ? "
+        <div class='section'>
+            <h3 style='margin-top:0;'>Delivery Address</h3>
+            <p style='margin:0;'>{$shippingAddr}</p>
+        </div>" : '') . "
+
+        <div style='text-align:center;margin-top:20px;'>
+            <a href='" . SITE_URL . "/account-orders.php' class='btn'>View My Orders</a>
+        </div>
+
+        <div class='footer'>
+            <p>Questions? Email us at " . ADMIN_EMAIL . " or call +91 9892827404</p>
+            <p>&copy; " . date('Y') . " Innovative Homesi. All rights reserved.</p>
+        </div>
+    </div>
+    </body>
+    </html>
+    ";
+
+    return sendEmail($customerEmail, $subject, $message, $customerName);
+}
+
+/**
  * Send contact form notification to admin
  *
  * @param array $data Contact form data
