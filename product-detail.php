@@ -179,6 +179,9 @@ try {
 
 } catch (PDOException $e) {
     error_log('Error fetching product: ' . $e->getMessage());
+    if (isset($_GET['debug']) && $_GET['debug'] === '1') {
+        die('DB error: ' . htmlspecialchars($e->getMessage()));
+    }
     header('Location: shop.php');
     exit;
 }
