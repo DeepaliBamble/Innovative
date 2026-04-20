@@ -181,7 +181,6 @@ try {
 
         // Generate secure access token
         $orderToken = generateOrderAccessToken($orderId, $order['order_number']);
-
         // Return success response
         echo json_encode([
             'success' => true,
