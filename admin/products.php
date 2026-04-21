@@ -160,13 +160,28 @@ include 'includes/header.php';
                 </thead>
                 <tbody>
                     <?php foreach ($products as $p): ?>
+                    <?php
+                        // Treat empty or known-bad paths as "no image" so the browser
+                        // never issues a 404. `placeholder.jpg` doesn't exist on disk —
+                        // rendering it 156 times triggered 156 slow 404s and made the
+                        // page appear to load forever.
+                        $rawPath = trim((string) ($p['image_path'] ?? ''));
+                        $isPlaceholder = $rawPath === '' || stripos($rawPath, 'placeholder') !== false;
+                        if (!$isPlaceholder) {
+                            $imgSrc = preg_match('~^https?://~i', $rawPath)
+                                ? $rawPath
+                                : '../' . ltrim($rawPath, '/');
+                        }
+                    ?>
                     <tr>
                         <td><strong>#<?= $p['id'] ?></strong></td>
                         <td>
-                            <?php if (!empty($p['image_path'])): ?>
+                            <?php if (!$isPlaceholder): ?>
                                 <img
-                                    src="../<?= htmlspecialchars($p['image_path']) ?>"
+                                    src="<?= htmlspecialchars($imgSrc) ?>"
                                     alt="<?= htmlspecialchars($p['name']) ?>"
+                                    loading="lazy"
+                                    decoding="async"
                                     style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;"
                                     onerror="this.onerror=null;this.outerHTML='<div style=&quot;width:60px;height:60px;background:var(--admin-bg);border-radius:8px;display:flex;align-items:center;justify-content:center;&quot;><i class=&quot;bi bi-image&quot; style=&quot;font-size:1.5rem;color:var(--admin-text-light);&quot;></i></div>';"
                                 >
