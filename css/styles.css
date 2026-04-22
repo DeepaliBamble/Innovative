@@ -1446,7 +1446,7 @@ a:focus-visible,
   opacity: 0.8;
 }
 
-/* Preload 
+/* Preload
 ------------------------------------------- */
 .preload-container {
   display: flex;
@@ -1463,6 +1463,12 @@ a:focus-visible,
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  animation: preload-failsafe 8s forwards;
+}
+
+@keyframes preload-failsafe {
+  0%, 95% { opacity: 1; visibility: visible; }
+  100% { opacity: 0; visibility: hidden; }
 }
 
 .spinner {

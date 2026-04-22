@@ -15,6 +15,16 @@ RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
     Deny from all
 </FilesMatch>
 
+# Allow SEO files that would otherwise be blocked by the rule above
+<Files "sitemap.xml">
+    Order allow,deny
+    Allow from all
+</Files>
+<Files "robots.txt">
+    Order allow,deny
+    Allow from all
+</Files>
+
 # Block access to hidden files/directories (starting with dot)
 RewriteCond %{REQUEST_URI} (^|/)\.
 RewriteRule ^ - [F,L]
