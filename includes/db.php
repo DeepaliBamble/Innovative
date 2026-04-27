@@ -18,6 +18,9 @@ try {
 
     $pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
 
+    // Sync MySQL session timezone with PHP timezone (Asia/Kolkata = +05:30)
+    $pdo->exec("SET time_zone = '+05:30'");
+
     // Also create MySQLi connection for compatibility with some modules
     $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 
