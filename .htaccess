@@ -34,8 +34,6 @@ RewriteRule ^ - [F,L]
 # ============================================================
 RewriteRule ^includes/ - [F,L]
 RewriteRule ^sql/ - [F,L]
-RewriteRule ^auth/ - [F,L]
-RewriteRule ^ajax/ - [F,L]
 RewriteRule ^vendor/ - [F,L]
 
 # ============================================================
