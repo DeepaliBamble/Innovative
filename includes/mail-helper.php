@@ -38,6 +38,11 @@ function sendEmail($to, $subject, $body, $toName = '', $replyTo = null, $replyTo
 
         // Character set
         $mail->CharSet = 'UTF-8';
+        $mail->Encoding = 'base64';
+
+        // Anti-spam headers
+        $mail->MessageID = '<' . uniqid('ih', true) . '@innovativehomesi.com>';
+        $mail->XMailer   = 'Innovative Homesi Mailer';
 
         // Recipients
         $mail->setFrom(MAIL_FROM_EMAIL, MAIL_FROM_NAME);
@@ -46,13 +51,16 @@ function sendEmail($to, $subject, $body, $toName = '', $replyTo = null, $replyTo
         // Reply-To address
         if ($replyTo) {
             $mail->addReplyTo($replyTo, $replyToName);
+        } else {
+            $mail->addReplyTo(MAIL_FROM_EMAIL, MAIL_FROM_NAME);
         }
 
         // Content
         $mail->isHTML(true);
         $mail->Subject = $subject;
         $mail->Body    = $body;
-        $mail->AltBody = strip_tags($body); // Plain text version
+        // Plain text fallback (strip tags + clean up whitespace)
+        $mail->AltBody = wordwrap(preg_replace('/\s+/', ' ', strip_tags($body)), 72, "\n", true);
 
         // Send email
         $mail->send();
