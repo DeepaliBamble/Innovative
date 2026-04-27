@@ -10,10 +10,11 @@ if (!getenv('SMTP_PASSWORD')) {
     if (file_exists($envFile)) {
         foreach (file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line) {
             $line = trim($line);
-            if (empty($line) || $line[0] === '#') continue;
+            if (empty($line) || $line[0] === '#')
+                continue;
             if (strpos($line, '=') !== false) {
                 list($key, $value) = explode('=', $line, 2);
-                $key   = trim($key);
+                $key = trim($key);
                 $value = trim($value, " \t\n\r\0\x0B\"'");
                 if (!array_key_exists($key, $_ENV)) {
                     putenv("$key=$value");
