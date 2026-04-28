@@ -11,7 +11,7 @@ if (!isLoggedIn()) {
 
 // Get current user data
 $userId = getCurrentUserId();
-$stmt = $pdo->prepare('SELECT id, name, email, phone, created_at FROM users WHERE id = ?');
+$stmt = $pdo->prepare('SELECT id, name, email, phone, location, created_at FROM users WHERE id = ?');
 $stmt->execute([$userId]);
 $user = $stmt->fetch();
 
@@ -33,8 +33,9 @@ $success = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['update_profile'])) {
         $newFirstName = sanitize($_POST['first_name'] ?? '');
-        $newLastName = sanitize($_POST['last_name'] ?? '');
-        $newEmail = sanitize($_POST['email'] ?? '');
+        $newLastName  = sanitize($_POST['last_name']  ?? '');
+        $newEmail     = sanitize($_POST['email']      ?? '');
+        $newLocation  = sanitize($_POST['location']   ?? '');
 
         if (empty($newFirstName)) {
             $errors[] = 'First name is required';
@@ -54,48 +55,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (empty($errors)) {
             $fullName = trim($newFirstName . ' ' . $newLastName);
-            $updateStmt = $pdo->prepare('UPDATE users SET name = ?, email = ? WHERE id = ?');
-            $updateStmt->execute([$fullName, $newEmail, $userId]);
+            $updateStmt = $pdo->prepare('UPDATE users SET name = ?, email = ?, location = ? WHERE id = ?');
+            $updateStmt->execute([$fullName, $newEmail, $newLocation ?: null, $userId]);
 
             // Update session
-            $_SESSION['user_name'] = $fullName;
+            $_SESSION['user_name']  = $fullName;
             $_SESSION['user_email'] = $newEmail;
 
             $success = 'Profile updated successfully';
 
             // Refresh user data
-            $user['name'] = $fullName;
-            $user['email'] = $newEmail;
+            $user['name']     = $fullName;
+            $user['email']    = $newEmail;
+            $user['location'] = $newLocation;
             $firstName = $newFirstName;
-            $lastName = $newLastName;
-        }
-    }
-
-    if (isset($_POST['change_password'])) {
-        $currentPassword = $_POST['current_password'] ?? '';
-        $newPassword = $_POST['new_password'] ?? '';
-        $confirmPassword = $_POST['confirm_password'] ?? '';
-
-        // Get current password from database
-        $passStmt = $pdo->prepare('SELECT password FROM users WHERE id = ?');
-        $passStmt->execute([$userId]);
-        $storedPassword = $passStmt->fetchColumn();
-
-        if (!verifyPassword($currentPassword, $storedPassword)) {
-            $errors[] = 'Current password is incorrect';
-        }
-        if (strlen($newPassword) < PASSWORD_MIN_LENGTH) {
-            $errors[] = 'New password must be at least ' . PASSWORD_MIN_LENGTH . ' characters';
-        }
-        if ($newPassword !== $confirmPassword) {
-            $errors[] = 'Passwords do not match';
-        }
-
-        if (empty($errors)) {
-            $hashedPassword = hashPassword($newPassword);
-            $updatePassStmt = $pdo->prepare('UPDATE users SET password = ? WHERE id = ?');
-            $updatePassStmt->execute([$hashedPassword, $userId]);
-            $success = 'Password changed successfully';
+            $lastName  = $newLastName;
         }
     }
 }
@@ -109,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Account Settings - Innovative Homesi | Update Your Profile</title>
     <meta name="author" content="Innovative Homesi">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <meta name="description" content="Update your Innovative Homesi account information, password, and preferences.">
+    <meta name="description" content="Update your Innovative Homesi account information and preferences.">
     <meta name="robots" content="noindex, nofollow">
 
     <!-- font -->
@@ -470,34 +444,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             </fieldset>
                                         </div>
                                         <fieldset>
-                                            <input type="email" name="email" placeholder="Email *" value="<?php echo htmlspecialchars($user['email']); ?>" required>
+                                            <input type="email" name="email" placeholder="Email *" value="<?php echo htmlspecialchars($user['email'] ?? ''); ?>" required>
+                                        </fieldset>
+                                        <fieldset>
+                                            <input type="tel" placeholder="Mobile number" value="<?php echo htmlspecialchars($user['phone'] ?? ''); ?>" disabled readonly>
+                                        </fieldset>
+                                        <fieldset>
+                                            <input type="text" name="location" placeholder="Location (city / area)" value="<?php echo htmlspecialchars($user['location'] ?? ''); ?>">
                                         </fieldset>
                                     </div>
                                     <button type="submit" name="update_profile" class="btn-submit_form tf-btn animate-btn fw-bold mb-4">
                                         Update Profile
-                                    </button>
-                                </div>
-                            </form>
-
-                            <form method="POST" class="form-change_pass">
-                                <div class="">
-                                    <h2 class="account-title type-semibold">Change Password</h2>
-                                    <div class="form_content site-change">
-                                        <fieldset class="password-wrapper">
-                                            <input class="password-field" type="password" name="current_password" placeholder="Current password *" required>
-                                            <span class="toggle-pass icon-show-password"></span>
-                                        </fieldset>
-                                        <fieldset class="password-wrapper">
-                                            <input class="password-field" type="password" name="new_password" placeholder="New password *" required>
-                                            <span class="toggle-pass icon-show-password"></span>
-                                        </fieldset>
-                                        <fieldset class="password-wrapper">
-                                            <input class="password-field" type="password" name="confirm_password" placeholder="Confirm password *" required>
-                                            <span class="toggle-pass icon-show-password"></span>
-                                        </fieldset>
-                                    </div>
-                                    <button type="submit" name="change_password" class="btn-submit_form tf-btn animate-btn w-100 fw-bold">
-                                        Change Password
                                     </button>
                                 </div>
                             </form>

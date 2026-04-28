@@ -172,6 +172,12 @@ require_once __DIR__ . '/includes/init.php';
                                 <fieldset>
                                     <input type="tel" name="mobile" id="reg_mobile" placeholder="Enter your mobile number *" maxlength="10" inputmode="numeric" pattern="[6-9][0-9]{9}" required>
                                 </fieldset>
+                                <fieldset>
+                                    <input type="email" name="email" id="reg_email" placeholder="Enter your email address *" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" required>
+                                </fieldset>
+                                <fieldset>
+                                    <input type="text" name="location" id="reg_location" placeholder="Enter your location (city / area) *" value="<?= htmlspecialchars($_POST['location'] ?? '') ?>" required>
+                                </fieldset>
                             </div>
 
                             <!-- OTP Verification Section (Hidden by default) -->
@@ -301,8 +307,10 @@ require_once __DIR__ . '/includes/init.php';
 
             // Send Registration OTP
             function sendRegistrationOTP() {
-                const name   = document.getElementById('reg_name').value.trim();
-                const mobile = document.getElementById('reg_mobile').value.replace(/\D/g, '');
+                const name     = document.getElementById('reg_name').value.trim();
+                const mobile   = document.getElementById('reg_mobile').value.replace(/\D/g, '');
+                const email    = document.getElementById('reg_email').value.trim();
+                const location = document.getElementById('reg_location').value.trim();
 
                 if (!name || name.length < 2) {
                     showMessage('danger', 'Please enter your full name');
@@ -312,10 +320,20 @@ require_once __DIR__ . '/includes/init.php';
                     showMessage('danger', 'Please enter a valid 10-digit mobile number');
                     return;
                 }
+                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                    showMessage('danger', 'Please enter a valid email address');
+                    return;
+                }
+                if (!location || location.length < 2) {
+                    showMessage('danger', 'Please enter your location');
+                    return;
+                }
 
                 const formData = new FormData();
                 formData.append('name',       name);
                 formData.append('mobile',     mobile);
+                formData.append('email',      email);
+                formData.append('location',   location);
                 formData.append('csrf_token', csrfToken);
 
                 showLoading(true);
@@ -466,6 +484,8 @@ require_once __DIR__ . '/includes/init.php';
                 const formData = new FormData();
                 formData.append('name',       document.getElementById('reg_name').value.trim());
                 formData.append('mobile',     document.getElementById('reg_mobile').value.replace(/\D/g, ''));
+                formData.append('email',      document.getElementById('reg_email').value.trim());
+                formData.append('location',   document.getElementById('reg_location').value.trim());
                 formData.append('csrf_token', csrfToken);
 
                 clearMessage();

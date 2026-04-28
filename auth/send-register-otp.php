@@ -1,6 +1,7 @@
 <?php
 /**
  * Send Registration OTP via MSG91 SMS
+ * Collects name, mobile, email, location — stores in session until verify step.
  */
 
 require_once __DIR__ . '/../includes/init.php';
@@ -19,8 +20,10 @@ if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
     exit;
 }
 
-$name   = sanitize($_POST['name']   ?? '');
-$mobile = sanitize($_POST['mobile'] ?? '');
+$name     = sanitize($_POST['name']     ?? '');
+$mobile   = sanitize($_POST['mobile']   ?? '');
+$email    = sanitize($_POST['email']    ?? '');
+$location = sanitize($_POST['location'] ?? '');
 
 $errors = [];
 
@@ -34,6 +37,16 @@ if (empty($mobile)) {
     $errors[] = 'Please enter a valid 10-digit mobile number';
 }
 
+if (empty($email)) {
+    $errors[] = 'Email address is required';
+} elseif (!isValidEmail($email)) {
+    $errors[] = 'Please enter a valid email address';
+}
+
+if (empty($location) || strlen($location) < 2) {
+    $errors[] = 'Please enter your location (city / area)';
+}
+
 if (!empty($errors)) {
     echo json_encode(['success' => false, 'message' => implode('. ', $errors)]);
     exit;
@@ -42,12 +55,19 @@ if (!empty($errors)) {
 $plain10 = substr(preg_replace('/\D/', '', $mobile), -10);
 
 try {
-    // Check if mobile already registered
+    // Phone already registered?
     $stmt = $pdo->prepare('SELECT id FROM users WHERE phone = ?');
     $stmt->execute([$plain10]);
-
     if ($stmt->fetch()) {
         echo json_encode(['success' => false, 'message' => 'An account with this mobile number already exists. Please login instead.']);
+        exit;
+    }
+
+    // Email already registered?
+    $stmt = $pdo->prepare('SELECT id FROM users WHERE email = ?');
+    $stmt->execute([$email]);
+    if ($stmt->fetch()) {
+        echo json_encode(['success' => false, 'message' => 'An account with this email already exists. Please login with your registered mobile number.']);
         exit;
     }
 
@@ -59,10 +79,12 @@ try {
         exit;
     }
 
-    // Store registration data in session
+    // Stash registration data for the verify step
     $_SESSION['registration_data'] = [
-        'name'   => $name,
-        'mobile' => $plain10
+        'name'     => $name,
+        'mobile'   => $plain10,
+        'email'    => $email,
+        'location' => $location,
     ];
     $_SESSION['otp_mobile']  = $plain10;
     $_SESSION['otp_type']    = 'registration';
@@ -71,9 +93,9 @@ try {
     $maskedMobile = substr($plain10, 0, 2) . 'XXXX' . substr($plain10, -4);
 
     echo json_encode([
-        'success'       => true,
-        'message'       => 'OTP sent to your mobile number',
-        'maskedMobile'  => $maskedMobile
+        'success'      => true,
+        'message'      => 'OTP sent to your mobile number',
+        'maskedMobile' => $maskedMobile,
     ]);
 
 } catch (PDOException $e) {

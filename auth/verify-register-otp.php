@@ -44,21 +44,23 @@ if (!$verifyResult['success']) {
 }
 
 try {
-    $name   = $registrationData['name'];
-    $mobile = $registrationData['mobile'];
+    $name     = $registrationData['name'];
+    $mobile   = $registrationData['mobile'];
+    $email    = $registrationData['email']    ?? null;
+    $location = $registrationData['location'] ?? null;
 
     // Insert user — no password, phone is the unique identifier
     $stmt = $pdo->prepare('
-        INSERT INTO users (name, phone, password, is_admin, is_active, email_verified, created_at)
-        VALUES (?, ?, NULL, 0, 1, 1, NOW())
+        INSERT INTO users (name, phone, email, location, password, is_admin, is_active, email_verified, created_at)
+        VALUES (?, ?, ?, ?, NULL, 0, 1, 0, NOW())
     ');
-    $stmt->execute([$name, $mobile]);
+    $stmt->execute([$name, $mobile, $email, $location]);
     $userId = $pdo->lastInsertId();
 
     // Auto-login
     $_SESSION['user_id']       = $userId;
     $_SESSION['user_name']     = $name;
-    $_SESSION['user_email']    = '';
+    $_SESSION['user_email']    = $email ?? '';
     $_SESSION['user_is_admin'] = 0;
     $_SESSION['logged_in']     = true;
     $_SESSION['login_time']    = time();
@@ -77,7 +79,7 @@ try {
     error_log('Verify Registration OTP Error: ' . $e->getMessage());
 
     if ($e->getCode() == 23000) {
-        echo json_encode(['success' => false, 'message' => 'This mobile number is already registered. Please login instead.']);
+        echo json_encode(['success' => false, 'message' => 'This mobile number or email is already registered. Please login instead.']);
     } else {
         echo json_encode(['success' => false, 'message' => 'An error occurred during registration. Please try again.']);
     }
