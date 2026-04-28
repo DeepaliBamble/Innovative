@@ -140,11 +140,11 @@ require_once __DIR__ . '/includes/init.php';
                         </div>
                         <?php endif; ?>
 
-                        <!-- Email Form (Step 1) -->
+                        <!-- Mobile Form (Step 1) -->
                         <form class="form-login" id="emailForm" style="display: block;">
                             <div class="list-ver">
                                 <fieldset>
-                                    <input type="email" name="email" id="email" placeholder="Enter your email address *" required>
+                                    <input type="tel" name="mobile" id="mobile" placeholder="Enter your mobile number *" maxlength="10" inputmode="numeric" pattern="[6-9][0-9]{9}" required>
                                 </fieldset>
                                 <div class="check-bottom">
                                     <div class="checkbox-wrap">
@@ -161,15 +161,12 @@ require_once __DIR__ . '/includes/init.php';
                                 </span>
                             </button>
 
-                            <div class="mt-3 text-center">
-                                <p class="h6">Or use <a href="#" id="usePasswordLogin" class="link fw-bold">password login</a></p>
-                            </div>
                         </form>
 
                         <!-- OTP Verification Form (Step 2) -->
                         <form class="form-login" id="otpForm" style="display: none;">
                             <div class="alert alert-info mb-3">
-                                <i class="fa fa-envelope"></i> We've sent a 6-digit OTP to <strong id="otpEmail"></strong>
+                                <i class="fa fa-mobile-alt"></i> We've sent a 6-digit OTP to <strong id="otpEmail"></strong>
                             </div>
 
                             <div class="otp-input-container mb-3">
@@ -206,39 +203,11 @@ require_once __DIR__ . '/includes/init.php';
                             </button>
 
                             <div class="mt-3 text-center">
-                                <p class="h6"><a href="#" id="backToEmail" class="link"><i class="fa fa-arrow-left"></i> Change Email</a></p>
+                                <p class="h6"><a href="#" id="backToEmail" class="link"><i class="fa fa-arrow-left"></i> Change Mobile</a></p>
                             </div>
                         </form>
 
-                        <!-- Password Login Form (Alternative) -->
-                        <form class="form-login" method="POST" action="auth/login_handler.php" id="passwordForm" style="display: none;">
-                            <?= csrfTokenField() ?>
-                            <div class="list-ver">
-                                <fieldset>
-                                    <input type="email" name="email" id="passwordEmail" placeholder="Enter your email address *" required>
-                                </fieldset>
-                                <fieldset class="password-wrapper mb-8">
-                                    <input class="password-field" type="password" name="password" id="password" placeholder="Password *" required>
-                                    <span class="toggle-pass icon-show-password"></span>
-                                </fieldset>
-                                <div class="check-bottom">
-                                    <div class="checkbox-wrap">
-                                        <input id="rememberPassword" name="remember" type="checkbox" class="tf-check" value="1">
-                                        <label for="rememberPassword" class="h6">Keep me signed in</label>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <button id="btnPasswordLogin" type="submit" class="tf-btn animate-btn w-100">
-                                Login with Password
-                            </button>
-
-                            <div class="mt-3 text-center">
-                                <p class="h6">Or use <a href="#" id="useOTPLogin" class="link fw-bold">OTP login</a></p>
-                            </div>
-                        </form>
-
-                        <div id="loginMessage" class="mt-3" style="display:none;"></div>
+<div id="loginMessage" class="mt-3" style="display:none;"></div>
                     </div>
                     <div class="col-right">
                         <h1 class="heading">New Customer</h1>
@@ -285,7 +254,7 @@ require_once __DIR__ . '/includes/init.php';
 
     <script>
         $(document).ready(function() {
-            let currentEmail = '';
+            let currentMobile = '';
             let resendCountdown = 60;
             let countdownInterval;
             const otpDigits = $('.otp-digit');
@@ -376,23 +345,6 @@ require_once __DIR__ . '/includes/init.php';
                 });
             });
 
-            // Toggle between forms
-            $('#usePasswordLogin').click(function(e) {
-                e.preventDefault();
-                $('#emailForm').hide();
-                $('#otpForm').hide();
-                $('#passwordForm').show();
-                $('#loginMessage').hide();
-            });
-
-            $('#useOTPLogin').click(function(e) {
-                e.preventDefault();
-                $('#passwordForm').hide();
-                $('#otpForm').hide();
-                $('#emailForm').show();
-                $('#loginMessage').hide();
-            });
-
             $('#backToEmail').click(function(e) {
                 e.preventDefault();
                 $('#otpForm').hide();
@@ -409,10 +361,14 @@ require_once __DIR__ . '/includes/init.php';
             $('#emailForm').submit(function(e) {
                 e.preventDefault();
 
-                const email = $('#email').val();
+                const mobile = $('#mobile').val().replace(/\D/g, '');
                 const remember = $('#rememberEmail').is(':checked') ? 1 : 0;
 
-                // Show loading state
+                if (!/^[6-9]\d{9}$/.test(mobile)) {
+                    showMessage('Please enter a valid 10-digit mobile number', 'danger');
+                    return;
+                }
+
                 $('#btnSendOTP .btn-text').hide();
                 $('#btnSendOTP .btn-loading').show();
                 $('#btnSendOTP').prop('disabled', true);
@@ -421,18 +377,16 @@ require_once __DIR__ . '/includes/init.php';
                 $.ajax({
                     url: 'auth/send-login-otp.php',
                     method: 'POST',
-                    data: { email: email, csrf_token: csrfToken },
+                    data: { mobile: mobile, csrf_token: csrfToken },
                     dataType: 'json',
                     success: function(response) {
                         if (response.success) {
-                            currentEmail = email;
-                            $('#otpEmail').text(email);
+                            currentMobile = mobile;
+                            $('#otpEmail').text(response.maskedMobile || mobile.replace(/(\d{2})(\d{4})(\d{4})/, '$1XXXX$3'));
                             $('#emailForm').hide();
                             $('#otpForm').show();
                             $('#rememberOTP').prop('checked', remember);
-                            // Focus on first OTP input
                             otpDigits.eq(0).focus();
-                            // Start countdown
                             startResendCountdown();
                             showMessage(response.message, 'success');
                         } else {
@@ -443,7 +397,6 @@ require_once __DIR__ . '/includes/init.php';
                         showMessage('An error occurred. Please try again.', 'danger');
                     },
                     complete: function() {
-                        // Reset button state
                         $('#btnSendOTP .btn-text').show();
                         $('#btnSendOTP .btn-loading').hide();
                         $('#btnSendOTP').prop('disabled', false);
@@ -455,23 +408,21 @@ require_once __DIR__ . '/includes/init.php';
             $('#resendOTP').click(function(e) {
                 e.preventDefault();
 
-                if (!currentEmail) {
-                    showMessage('Please enter your email first.', 'danger');
+                if (!currentMobile) {
+                    showMessage('Please enter your mobile number first.', 'danger');
                     return;
                 }
 
                 $.ajax({
                     url: 'auth/send-login-otp.php',
                     method: 'POST',
-                    data: { email: currentEmail, csrf_token: csrfToken },
+                    data: { mobile: currentMobile, csrf_token: csrfToken },
                     dataType: 'json',
                     success: function(response) {
                         if (response.success) {
                             showMessage('OTP resent successfully!', 'success');
-                            // Clear OTP inputs
                             otpDigits.val('').removeClass('filled error');
                             otpDigits.eq(0).focus();
-                            // Restart countdown
                             startResendCountdown();
                         } else {
                             showMessage(response.message, 'danger');

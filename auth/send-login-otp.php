@@ -1,85 +1,75 @@
 <?php
 /**
- * Send Login OTP
- * Handles OTP generation and sending for login
+ * Send Login OTP via MSG91 SMS
  */
 
 require_once __DIR__ . '/../includes/init.php';
-require_once __DIR__ . '/../includes/otp-helper.php';
+require_once __DIR__ . '/../includes/msg91-helper.php';
 
 header('Content-Type: application/json');
 
-// Check if form is submitted via POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode(['success' => false, 'message' => 'Invalid request method']);
     exit;
 }
 
-// Validate CSRF token
 if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
     http_response_code(403);
     echo json_encode(['success' => false, 'message' => 'Security token expired. Please refresh the page and try again.']);
     exit;
 }
 
-// Get and sanitize email
-$email = sanitize($_POST['email'] ?? '');
+$mobile = sanitize($_POST['mobile'] ?? '');
 
-// Validation
-if (empty($email)) {
-    echo json_encode(['success' => false, 'message' => 'Email is required']);
+if (empty($mobile)) {
+    echo json_encode(['success' => false, 'message' => 'Mobile number is required']);
     exit;
 }
 
-if (!isValidEmail($email)) {
-    echo json_encode(['success' => false, 'message' => 'Please enter a valid email address']);
+if (!isValidMobile($mobile)) {
+    echo json_encode(['success' => false, 'message' => 'Please enter a valid 10-digit mobile number']);
     exit;
 }
+
+// Normalize to plain 10-digit for DB lookup
+$plain10 = substr(preg_replace('/\D/', '', $mobile), -10);
 
 try {
-    // Check if user exists with this email
-    $stmt = $pdo->prepare('SELECT id, name, email, is_active FROM users WHERE email = ?');
-    $stmt->execute([$email]);
+    // Look up user by phone number (stored as 10-digit in DB)
+    $stmt = $pdo->prepare('SELECT id, name, phone, is_active FROM users WHERE phone = ?');
+    $stmt->execute([$plain10]);
     $user = $stmt->fetch();
 
     if (!$user) {
-        // Email not found - prompt user to register
-        echo json_encode(['success' => false, 'message' => 'Email not found. Please register first to create an account.']);
+        echo json_encode(['success' => false, 'message' => 'No account found with this mobile number. Please register first.']);
         exit;
     }
 
-    // Check if account is active
     if ($user['is_active'] != 1) {
         echo json_encode(['success' => false, 'message' => 'Your account has been deactivated. Please contact support.']);
         exit;
     }
 
-    // Generate and store OTP
-    $otpResult = createOTP($pdo, $email, 'login', 10);
+    // Send OTP via MSG91
+    $smsResult = sendSmsOTP($mobile);
 
-    if (!$otpResult['success']) {
-        echo json_encode(['success' => false, 'message' => 'Failed to generate OTP. Please try again.']);
+    if (!$smsResult['success']) {
+        echo json_encode(['success' => false, 'message' => $smsResult['message']]);
         exit;
     }
 
-    // Send OTP via email
-    $emailResult = sendLoginOTP($email, $otpResult['otp'], $user['name']);
-
-    if (!$emailResult['success']) {
-        error_log('Failed to send login OTP to: ' . $email . ' - ' . $emailResult['message']);
-        echo json_encode(['success' => false, 'message' => 'Failed to send OTP. Please try again later.']);
-        exit;
-    }
-
-    // Store email in session for OTP verification
-    $_SESSION['otp_email'] = $email;
-    $_SESSION['otp_type'] = 'login';
+    // Store mobile in session for verification step
+    $_SESSION['otp_mobile']  = $plain10;
+    $_SESSION['otp_type']    = 'login';
     $_SESSION['otp_sent_at'] = time();
 
+    // Mask middle digits for display: 98XXXX4321
+    $maskedMobile = substr($plain10, 0, 2) . 'XXXX' . substr($plain10, -4);
+
     echo json_encode([
-        'success' => true,
-        'message' => 'OTP sent successfully to your email',
-        'email' => $email
+        'success'       => true,
+        'message'       => 'OTP sent to your mobile number',
+        'maskedMobile'  => $maskedMobile
     ]);
 
 } catch (PDOException $e) {

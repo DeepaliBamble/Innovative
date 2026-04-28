@@ -170,25 +170,14 @@ require_once __DIR__ . '/includes/init.php';
                                     <input type="text" name="name" id="reg_name" placeholder="Enter your full name *" value="<?= htmlspecialchars($_POST['name'] ?? '') ?>" required>
                                 </fieldset>
                                 <fieldset>
-                                    <input type="email" name="email" id="reg_email" placeholder="Enter your email address *" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" required>
-                                </fieldset>
-                                <fieldset>
-                                    <input type="tel" name="phone" id="reg_phone" placeholder="Enter your phone number (optional)" value="<?= htmlspecialchars($_POST['phone'] ?? '') ?>">
-                                </fieldset>
-                                <fieldset class="password-wrapper">
-                                    <input class="password-field" type="password" name="password" id="reg_password" placeholder="Password *" required>
-                                    <span class="toggle-pass icon-show-password"></span>
-                                </fieldset>
-                                <fieldset class="password-wrapper">
-                                    <input class="password-field" type="password" name="confirm_password" id="reg_confirm_password" placeholder="Confirm password *" required>
-                                    <span class="toggle-pass icon-show-password"></span>
+                                    <input type="tel" name="mobile" id="reg_mobile" placeholder="Enter your mobile number *" maxlength="10" inputmode="numeric" pattern="[6-9][0-9]{9}" required>
                                 </fieldset>
                             </div>
 
                             <!-- OTP Verification Section (Hidden by default) -->
                             <div id="otpSection" style="display: none;">
                                 <div class="alert alert-info mb-3">
-                                    <i class="fas fa-envelope"></i> We've sent a 6-digit verification code to <strong id="otpEmail"></strong>
+                                    <i class="fas fa-mobile-alt"></i> We've sent a 6-digit OTP to <strong id="otpEmail"></strong>
                                 </div>
 
                                 <div class="otp-input-container mb-3">
@@ -312,12 +301,21 @@ require_once __DIR__ . '/includes/init.php';
 
             // Send Registration OTP
             function sendRegistrationOTP() {
+                const name   = document.getElementById('reg_name').value.trim();
+                const mobile = document.getElementById('reg_mobile').value.replace(/\D/g, '');
+
+                if (!name || name.length < 2) {
+                    showMessage('danger', 'Please enter your full name');
+                    return;
+                }
+                if (!/^[6-9]\d{9}$/.test(mobile)) {
+                    showMessage('danger', 'Please enter a valid 10-digit mobile number');
+                    return;
+                }
+
                 const formData = new FormData();
-                formData.append('name', document.getElementById('reg_name').value);
-                formData.append('email', document.getElementById('reg_email').value);
-                formData.append('phone', document.getElementById('reg_phone').value);
-                formData.append('password', document.getElementById('reg_password').value);
-                formData.append('confirm_password', document.getElementById('reg_confirm_password').value);
+                formData.append('name',       name);
+                formData.append('mobile',     mobile);
                 formData.append('csrf_token', csrfToken);
 
                 showLoading(true);
@@ -332,19 +330,13 @@ require_once __DIR__ . '/includes/init.php';
                     showLoading(false);
 
                     if (data.success) {
-                        // Switch to OTP verification mode
                         isOtpMode = true;
                         registrationFields.style.display = 'none';
                         otpSection.style.display = 'block';
-                        otpEmailDisplay.textContent = data.email;
+                        otpEmailDisplay.textContent = data.maskedMobile || mobile.replace(/(\d{2})(\d{4})(\d{4})/, '$1XXXX$3');
                         btnText.textContent = 'Verify & Register';
-
-                        // Focus on first OTP input
                         otpDigits[0].focus();
-
-                        // Start resend countdown
                         startResendCountdown();
-
                         showMessage('success', data.message);
                     } else {
                         showMessage('danger', data.message);
@@ -471,13 +463,9 @@ require_once __DIR__ . '/includes/init.php';
             resendOtpBtn.addEventListener('click', function() {
                 if (resendOtpBtn.disabled) return;
 
-                const email = document.getElementById('reg_email').value;
                 const formData = new FormData();
-                formData.append('name', document.getElementById('reg_name').value);
-                formData.append('email', email);
-                formData.append('phone', document.getElementById('reg_phone').value);
-                formData.append('password', document.getElementById('reg_password').value);
-                formData.append('confirm_password', document.getElementById('reg_confirm_password').value);
+                formData.append('name',       document.getElementById('reg_name').value.trim());
+                formData.append('mobile',     document.getElementById('reg_mobile').value.replace(/\D/g, ''));
                 formData.append('csrf_token', csrfToken);
 
                 clearMessage();
@@ -490,7 +478,6 @@ require_once __DIR__ . '/includes/init.php';
                 .then(data => {
                     if (data.success) {
                         showMessage('success', 'OTP resent successfully!');
-                        // Clear OTP inputs
                         otpDigits.forEach(input => {
                             input.value = '';
                             input.classList.remove('filled');
