@@ -1,38 +1,135 @@
 <?php
 require __DIR__ . '/../includes/init.php';
+require_once __DIR__ . '/../includes/email-otp-helper.php';
+
 $errors = [];
 
-// Check if database connection exists
 if (!isset($pdo)) {
     die('Database connection not available. Please check your configuration.');
 }
 
+// Already logged in — bounce straight to the dashboard.
+if (!empty($_SESSION['admin_id'])) {
+    redirect('dashboard.php');
+}
+
+// Are we on step 1 (password) or step 2 (OTP)?
+$step = !empty($_SESSION['pending_admin_id']) && ($_SESSION['pending_admin_step'] ?? '') === 'otp'
+    ? 'otp'
+    : 'password';
+
+// Constant-time fallback so timing reveals nothing about whether the email exists.
+// Cost matched to the seeded admin hashes (cost=10).
+const ADMIN_LOGIN_DUMMY_HASH = '$2y$10$CwTycUXWue0Thq9StjUM0uJ8K8HfqjKXM/4z6Q5y7q6cV1aP2pVay';
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = sanitize($_POST['email'] ?? '');
-    $password = $_POST['password'] ?? '';
+    if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+        $errors[] = 'Security token expired. Please refresh and try again.';
+    } elseif (!checkRateLimit($pdo, 'admin_login', 5, 900)) {
+        // 5 attempts per 15 minutes per session. Covers both steps so a stalled OTP can't
+        // be brute-forced indefinitely either.
+        $errors[] = 'Too many login attempts. Please try again in 15 minutes.';
+    } elseif (($_POST['step'] ?? '') === 'otp' && $step === 'otp') {
+        // ─── Step 2: verify the email OTP ───────────────────────────────────────
+        $otp        = preg_replace('/\D/', '', $_POST['otp'] ?? '');
+        $adminEmail = $_SESSION['pending_admin_email'] ?? '';
+        $adminId    = $_SESSION['pending_admin_id']    ?? 0;
+        $adminName  = $_SESSION['pending_admin_name']  ?? '';
 
-    if (!$email || !$password) {
-        $errors[] = 'All fields required';
-    }
-
-    if (!$errors) {
-        try {
-            $stmt = $pdo->prepare('SELECT id, name, password FROM users WHERE email = ? AND is_admin = 1 LIMIT 1');
-            $stmt->execute([$email]);
-            $admin = $stmt->fetch();
-
-            if ($admin && verifyPassword($password, $admin['password'])) {
-                $_SESSION['admin_id'] = $admin['id'];
-                $_SESSION['admin_name'] = $admin['name'];
+        if (strlen($otp) !== 6) {
+            $errors[] = 'Please enter the 6-digit code sent to your email.';
+        } elseif (empty($adminEmail) || empty($adminId)) {
+            // Session lost between steps — restart from scratch.
+            unset($_SESSION['pending_admin_id'], $_SESSION['pending_admin_email'],
+                  $_SESSION['pending_admin_name'], $_SESSION['pending_admin_step']);
+            $errors[] = 'Session expired. Please sign in again.';
+            $step = 'password';
+        } else {
+            $verify = verifyEmailLoginOtp($pdo, $adminEmail, $otp);
+            if (!$verify['success']) {
+                error_log('Admin OTP failed for ' . $adminEmail . ' — ' . $verify['message']);
+                $errors[] = $verify['message'];
+            } else {
+                // Auth fully passed — promote the pending session into a real admin session.
+                session_regenerate_id(true);
+                $_SESSION['admin_id']    = $adminId;
+                $_SESSION['admin_name']  = $adminName;
+                $_SESSION['admin_email'] = $adminEmail;
+                $_SESSION['admin_login_at'] = time();
+                unset($_SESSION['pending_admin_id'], $_SESSION['pending_admin_email'],
+                      $_SESSION['pending_admin_name'], $_SESSION['pending_admin_step'],
+                      $_SESSION['rate_limit_admin_login']);
+                error_log('Admin login OK for ' . $adminEmail . ' from ' . ($_SERVER['REMOTE_ADDR'] ?? '?'));
                 redirect('dashboard.php');
             }
-            $errors[] = 'Invalid credentials';
-        } catch (PDOException $e) {
-            error_log('Login query error: ' . $e->getMessage());
-            $errors[] = 'A database error occurred. Please try again later.';
+        }
+    } else {
+        // ─── Step 1: verify password, then send OTP ────────────────────────────
+        $email    = strtolower(trim(sanitize($_POST['email'] ?? '')));
+        $password = $_POST['password'] ?? '';
+
+        if (!$email || !$password) {
+            $errors[] = 'All fields required';
+        } else {
+            try {
+                $stmt = $pdo->prepare('SELECT id, name, email, password FROM users WHERE email = ? AND is_admin = 1 AND is_active = 1 LIMIT 1');
+                $stmt->execute([$email]);
+                $admin = $stmt->fetch();
+
+                // Constant-time: always run password_verify even if no admin matched.
+                $hash = $admin['password'] ?? ADMIN_LOGIN_DUMMY_HASH;
+                $passwordOk = password_verify($password, $hash);
+
+                if ($admin && $passwordOk) {
+                    if (empty($admin['email'])) {
+                        $errors[] = 'This admin account has no email on file. OTP login cannot proceed — contact support.';
+                    } else {
+                        $send = sendEmailLoginOtp($pdo, $admin['email'], $admin['name'], 'login');
+                        if (!$send['success']) {
+                            error_log('Admin OTP send failed for ' . $admin['email'] . ': ' . $send['message']);
+                            $errors[] = $send['message'];
+                        } else {
+                            $_SESSION['pending_admin_id']    = $admin['id'];
+                            $_SESSION['pending_admin_email'] = $admin['email'];
+                            $_SESSION['pending_admin_name']  = $admin['name'];
+                            $_SESSION['pending_admin_step']  = 'otp';
+                            $step = 'otp';
+                        }
+                    }
+                } else {
+                    error_log('Admin login fail (' . $email . ') from ' . ($_SERVER['REMOTE_ADDR'] ?? '?'));
+                    $errors[] = 'Invalid credentials';
+                }
+            } catch (PDOException $e) {
+                error_log('Admin login query error: ' . $e->getMessage());
+                $errors[] = 'A database error occurred. Please try again later.';
+            }
         }
     }
 }
+
+// Handle "start over" link from the OTP screen.
+if (isset($_GET['restart']) && $step === 'otp') {
+    unset($_SESSION['pending_admin_id'], $_SESSION['pending_admin_email'],
+          $_SESSION['pending_admin_name'], $_SESSION['pending_admin_step']);
+    redirect('login.php');
+}
+
+// Mask the admin email shown on the OTP screen (jo***@example.com).
+$maskedAdminEmail = '';
+if ($step === 'otp' && !empty($_SESSION['pending_admin_email'])) {
+    $em    = $_SESSION['pending_admin_email'];
+    $atPos = strpos($em, '@');
+    if ($atPos !== false) {
+        $local = substr($em, 0, $atPos);
+        $maskedAdminEmail = (strlen($local) <= 2
+            ? $local
+            : substr($local, 0, 2) . str_repeat('*', max(1, strlen($local) - 2))
+        ) . substr($em, $atPos);
+    }
+}
+
+$csrfToken = generateCsrfToken();
 ?>
 <!doctype html>
 <html lang="en">
@@ -418,53 +515,98 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <!-- Right Side - Login Form -->
             <div class="login-form-side">
                 <div class="form-header">
-                    <h2>Welcome Back</h2>
-                    <p>Sign in to access your admin dashboard</p>
+                    <?php if ($step === 'otp'): ?>
+                        <h2>Verify it's you</h2>
+                        <p>We've sent a 6-digit code to <strong><?= htmlspecialchars($maskedAdminEmail) ?></strong></p>
+                    <?php else: ?>
+                        <h2>Welcome Back</h2>
+                        <p>Sign in to access your admin dashboard</p>
+                    <?php endif; ?>
                 </div>
 
                 <?php if ($errors): ?>
                     <div class="alert-custom">
                         <i class="bi bi-exclamation-triangle-fill"></i>
-                        <div><?= implode('<br>', $errors) ?></div>
+                        <div><?= implode('<br>', array_map('htmlspecialchars', $errors)) ?></div>
                     </div>
                 <?php endif; ?>
 
-                <form method="post">
-                    <div class="input-wrapper">
-                        <label class="form-label">Email Address</label>
-                        <div class="input-group">
-                            <i class="bi bi-envelope-fill input-icon"></i>
-                            <input
-                                type="email"
-                                class="form-control"
-                                name="email"
-                                placeholder="admin@innovative.com"
-                                value="<?= htmlspecialchars($_POST['email'] ?? '') ?>"
-                                required
-                                autofocus
-                            >
-                        </div>
-                    </div>
+                <?php if ($step === 'otp'): ?>
+                    <form method="post" autocomplete="off">
+                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+                        <input type="hidden" name="step" value="otp">
 
-                    <div class="input-wrapper">
-                        <label class="form-label">Password</label>
-                        <div class="input-group">
-                            <i class="bi bi-lock-fill input-icon"></i>
-                            <input
-                                type="password"
-                                class="form-control"
-                                name="password"
-                                placeholder="Enter your password"
-                                required
-                            >
+                        <div class="input-wrapper">
+                            <label class="form-label">6-digit code</label>
+                            <div class="input-group">
+                                <i class="bi bi-shield-lock-fill input-icon"></i>
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    name="otp"
+                                    inputmode="numeric"
+                                    pattern="\d{6}"
+                                    maxlength="6"
+                                    placeholder="123456"
+                                    required
+                                    autofocus
+                                    style="letter-spacing: 8px; font-size: 1.3rem; text-align: center;"
+                                >
+                            </div>
                         </div>
-                    </div>
 
-                    <button type="submit" class="btn-login">
-                        <span>Sign In</span>
-                        <i class="bi bi-arrow-right-circle-fill"></i>
-                    </button>
-                </form>
+                        <button type="submit" class="btn-login">
+                            <span>Verify &amp; Sign In</span>
+                            <i class="bi bi-shield-check"></i>
+                        </button>
+                    </form>
+
+                    <div class="back-link" style="margin-top: 20px;">
+                        <a href="login.php?restart=1">
+                            <i class="bi bi-arrow-left"></i>
+                            <span>Use a different account</span>
+                        </a>
+                    </div>
+                <?php else: ?>
+                    <form method="post">
+                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+
+                        <div class="input-wrapper">
+                            <label class="form-label">Email Address</label>
+                            <div class="input-group">
+                                <i class="bi bi-envelope-fill input-icon"></i>
+                                <input
+                                    type="email"
+                                    class="form-control"
+                                    name="email"
+                                    placeholder="admin@innovativehomesi.com"
+                                    value="<?= htmlspecialchars($_POST['email'] ?? '') ?>"
+                                    required
+                                    autofocus
+                                >
+                            </div>
+                        </div>
+
+                        <div class="input-wrapper">
+                            <label class="form-label">Password</label>
+                            <div class="input-group">
+                                <i class="bi bi-lock-fill input-icon"></i>
+                                <input
+                                    type="password"
+                                    class="form-control"
+                                    name="password"
+                                    placeholder="Enter your password"
+                                    required
+                                >
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-login">
+                            <span>Continue</span>
+                            <i class="bi bi-arrow-right-circle-fill"></i>
+                        </button>
+                    </form>
+                <?php endif; ?>
 
                 <div class="divider">
                     <span>&copy; <?= date('Y') ?> Innovative Furniture</span>
