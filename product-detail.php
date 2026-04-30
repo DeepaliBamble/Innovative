@@ -519,9 +519,14 @@ $page_title = htmlspecialchars($product['name']) . ' - Innovative Homesi';
                                             </button>
                                         </div>
 
-                                        <button type="button" class="tf-btn btn-primary w-100 mt-3 btn-buy-now">
-                                            <i class="fas fa-bolt me-2"></i> Buy It Now
-                                        </button>
+                                        <form action="ajax/buy-now.php" method="post" class="m-0 mt-3 buy-now-form">
+                                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(generateCsrfToken()); ?>">
+                                            <input type="hidden" name="product_id" value="<?php echo (int) $product_id; ?>">
+                                            <input type="hidden" name="quantity" value="1" class="buy-now-qty">
+                                            <button type="submit" class="tf-btn btn-primary w-100 btn-buy-now">
+                                                <i class="fas fa-bolt me-2"></i> Buy It Now
+                                            </button>
+                                        </form>
                                     </div>
                                     <?php endif; ?>
 
@@ -816,46 +821,22 @@ $page_title = htmlspecialchars($product['name']) . ' - Innovative Homesi';
                 });
             }
 
-            // Buy Now functionality - add to cart, then go to checkout
-            const buyNowBtn = document.querySelector('.btn-buy-now');
-            if (buyNowBtn) {
-                buyNowBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-
-                    const productId = <?php echo $product['id']; ?>;
-                    const quantity = parseInt(quantityInput ? quantityInput.value : 1);
-
-                    const originalText = this.innerHTML;
-                    this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Processing...';
-                    this.disabled = true;
-                    this.style.pointerEvents = 'none';
-
-                    fetch('ajax/add-to-cart.php', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                            'X-Requested-With': 'XMLHttpRequest'
-                        },
-                        body: `product_id=${productId}&quantity=${quantity}`
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            window.location.href = 'checkout.php';
-                        } else {
-                            showNotification('Error', data.message || 'Failed to add item to cart.', 'error');
-                            this.innerHTML = originalText;
-                            this.disabled = false;
-                            this.style.pointerEvents = 'auto';
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Buy Now error:', error);
-                        showNotification('Error', 'Something went wrong. Please try again.', 'error');
-                        this.innerHTML = originalText;
-                        this.disabled = false;
-                        this.style.pointerEvents = 'auto';
-                    });
+            // Buy Now: copy current qty into the hidden form field on submit.
+            // The form itself POSTs to ajax/buy-now.php which adds the product
+            // server-side and 302-redirects to checkout.php.
+            const buyNowForm = document.querySelector('.buy-now-form');
+            if (buyNowForm) {
+                buyNowForm.addEventListener('submit', function() {
+                    const qtyField = buyNowForm.querySelector('.buy-now-qty');
+                    if (qtyField && quantityInput) {
+                        const q = parseInt(quantityInput.value, 10);
+                        qtyField.value = (isNaN(q) || q < 1) ? 1 : q;
+                    }
+                    const submitBtn = buyNowForm.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Processing...';
+                    }
                 });
             }
 
