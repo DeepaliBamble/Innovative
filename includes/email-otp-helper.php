@@ -12,8 +12,10 @@ const EMAIL_OTP_MAX_ATTEMPTS = 5;
 /**
  * Generate, store, and email a 6-digit OTP to the given address.
  * Wipes any existing OTPs for that email first (only the latest is valid).
+ *
+ * $purpose: 'login' (default) or 'registration' — only changes subject + intro copy.
  */
-function sendEmailLoginOtp(PDO $pdo, string $email, string $userName = ''): array {
+function sendEmailLoginOtp(PDO $pdo, string $email, string $userName = '', string $purpose = 'login'): array {
     $email = strtolower(trim($email));
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         return ['success' => false, 'message' => 'Invalid email address.'];
@@ -32,13 +34,19 @@ function sendEmailLoginOtp(PDO $pdo, string $email, string $userName = ''): arra
         return ['success' => false, 'message' => 'Could not generate OTP. Please try again.'];
     }
 
-    $subject = 'Your Innovative Homesi login code';
+    if ($purpose === 'registration') {
+        $subject  = 'Verify your email — Innovative Homesi';
+        $intro    = 'Use the code below to verify your email and finish creating your Innovative Homesi account. It expires in 10 minutes.';
+    } else {
+        $subject  = 'Your Innovative Homesi login code';
+        $intro    = 'Use the code below to log in to your account. It expires in 10 minutes.';
+    }
     $greeting = $userName !== '' ? 'Hi ' . htmlspecialchars($userName) . ',' : 'Hello,';
     $body = '
         <div style="font-family:Arial,sans-serif;max-width:520px;margin:0 auto;padding:24px;color:#222;">
             <h2 style="color:#d4a574;margin:0 0 16px;">Innovative Homesi</h2>
             <p>' . $greeting . '</p>
-            <p>Use the code below to log in to your account. It expires in 10 minutes.</p>
+            <p>' . $intro . '</p>
             <p style="font-size:32px;font-weight:bold;letter-spacing:8px;background:#faf1e5;padding:16px 24px;text-align:center;border-radius:8px;margin:24px 0;">
                 ' . $otp . '
             </p>

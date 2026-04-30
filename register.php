@@ -107,6 +107,21 @@ require_once __DIR__ . '/includes/init.php';
                 font-size: 20px;
             }
         }
+
+        /* Channel tabs */
+        .login-channel-tabs .channel-tab {
+            background: #f5f5f5;
+            color: #555;
+            border: 1px solid #e0e0e0;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        .login-channel-tabs .channel-tab.active {
+            background: #d4a574;
+            color: #fff;
+            border-color: #d4a574;
+        }
     </style>
 </head>
 
@@ -163,6 +178,16 @@ require_once __DIR__ . '/includes/init.php';
                         </div>
                         <?php endif; ?>
 
+                        <!-- Channel toggle: where to send the verification OTP -->
+                        <div class="login-channel-tabs d-flex mb-3" id="channelTabs" role="tablist" style="gap:8px;">
+                            <button type="button" class="tf-btn channel-tab active w-100" data-channel="mobile">
+                                <i class="fa fa-mobile-alt"></i> Verify via Mobile
+                            </button>
+                            <button type="button" class="tf-btn channel-tab w-100" data-channel="email">
+                                <i class="fa fa-envelope"></i> Verify via Email
+                            </button>
+                        </div>
+
                         <!-- Registration Form -->
                         <form class="form-login" id="registrationForm">
                             <div id="registrationFields" class="list-ver">
@@ -183,7 +208,7 @@ require_once __DIR__ . '/includes/init.php';
                             <!-- OTP Verification Section (Hidden by default) -->
                             <div id="otpSection" style="display: none;">
                                 <div class="alert alert-info mb-3">
-                                    <i class="fas fa-mobile-alt"></i> We've sent a 6-digit OTP to <strong id="otpEmail"></strong>
+                                    <i id="otpChannelIcon" class="fas fa-mobile-alt"></i> We've sent a 6-digit OTP to <strong id="otpEmail"></strong>
                                 </div>
 
                                 <div class="otp-input-container mb-3">
@@ -289,8 +314,23 @@ require_once __DIR__ . '/includes/init.php';
             let isOtpMode = false;
             let resendCountdown = 60;
             let countdownInterval;
+            let currentChannel = 'mobile'; // 'mobile' | 'email'
 
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            const channelTabs = document.querySelectorAll('.channel-tab');
+            const otpChannelIcon = document.getElementById('otpChannelIcon');
+
+            // Channel tab switching — only meaningful before OTP has been sent.
+            channelTabs.forEach(function(tab) {
+                tab.addEventListener('click', function() {
+                    if (isOtpMode) return; // Don't allow switching mid-flow
+                    const ch = this.dataset.channel;
+                    if (ch === currentChannel) return;
+                    currentChannel = ch;
+                    channelTabs.forEach(function(t) { t.classList.remove('active'); });
+                    this.classList.add('active');
+                });
+            });
 
             // Handle form submission
             registrationForm.addEventListener('submit', function(e) {
@@ -339,7 +379,11 @@ require_once __DIR__ . '/includes/init.php';
                 showLoading(true);
                 clearMessage();
 
-                fetch('auth/send-register-otp.php', {
+                const endpoint = currentChannel === 'mobile'
+                    ? 'auth/send-register-otp.php'
+                    : 'auth/send-register-otp-email.php';
+
+                fetch(endpoint, {
                     method: 'POST',
                     body: formData
                 })
@@ -351,7 +395,15 @@ require_once __DIR__ . '/includes/init.php';
                         isOtpMode = true;
                         registrationFields.style.display = 'none';
                         otpSection.style.display = 'block';
-                        otpEmailDisplay.textContent = data.maskedMobile || mobile.replace(/(\d{2})(\d{4})(\d{4})/, '$1XXXX$3');
+
+                        if (currentChannel === 'mobile') {
+                            otpChannelIcon.className = 'fas fa-mobile-alt';
+                            otpEmailDisplay.textContent = data.maskedMobile || mobile.replace(/(\d{2})(\d{4})(\d{4})/, '$1XXXX$3');
+                        } else {
+                            otpChannelIcon.className = 'fas fa-envelope';
+                            otpEmailDisplay.textContent = data.maskedEmail || email;
+                        }
+
                         btnText.textContent = 'Verify & Register';
                         otpDigits[0].focus();
                         startResendCountdown();
@@ -383,7 +435,11 @@ require_once __DIR__ . '/includes/init.php';
                 formData.append('otp', otp);
                 formData.append('csrf_token', csrfToken);
 
-                fetch('auth/verify-register-otp.php', {
+                const verifyUrl = currentChannel === 'mobile'
+                    ? 'auth/verify-register-otp.php'
+                    : 'auth/verify-register-otp-email.php';
+
+                fetch(verifyUrl, {
                     method: 'POST',
                     body: formData
                 })
@@ -490,7 +546,11 @@ require_once __DIR__ . '/includes/init.php';
 
                 clearMessage();
 
-                fetch('auth/send-register-otp.php', {
+                const resendUrl = currentChannel === 'mobile'
+                    ? 'auth/send-register-otp.php'
+                    : 'auth/send-register-otp-email.php';
+
+                fetch(resendUrl, {
                     method: 'POST',
                     body: formData
                 })
