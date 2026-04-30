@@ -84,6 +84,21 @@ require_once __DIR__ . '/includes/init.php';
                 font-size: 20px;
             }
         }
+
+        /* Channel tabs */
+        .login-channel-tabs .channel-tab {
+            background: #f5f5f5;
+            color: #555;
+            border: 1px solid #e0e0e0;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        .login-channel-tabs .channel-tab.active {
+            background: #d4a574;
+            color: #fff;
+            border-color: #d4a574;
+        }
     </style>
 </head>
 
@@ -140,6 +155,16 @@ require_once __DIR__ . '/includes/init.php';
                         </div>
                         <?php endif; ?>
 
+                        <!-- Channel toggle -->
+                        <div class="login-channel-tabs d-flex mb-3" id="channelTabs" role="tablist" style="gap:8px;">
+                            <button type="button" class="tf-btn channel-tab active w-100" data-channel="mobile">
+                                <i class="fa fa-mobile-alt"></i> Mobile
+                            </button>
+                            <button type="button" class="tf-btn channel-tab w-100" data-channel="email">
+                                <i class="fa fa-envelope"></i> Email
+                            </button>
+                        </div>
+
                         <!-- Mobile Form (Step 1) -->
                         <form class="form-login" id="emailForm" style="display: block;">
                             <div class="list-ver">
@@ -161,6 +186,28 @@ require_once __DIR__ . '/includes/init.php';
                                 </span>
                             </button>
 
+                        </form>
+
+                        <!-- Email Form (Step 1, alternative channel) -->
+                        <form class="form-login" id="emailLoginForm" style="display: none;">
+                            <div class="list-ver">
+                                <fieldset>
+                                    <input type="email" name="email" id="loginEmail" placeholder="Enter your registered email *" required>
+                                </fieldset>
+                                <div class="check-bottom">
+                                    <div class="checkbox-wrap">
+                                        <input id="rememberEmailChannel" name="remember" type="checkbox" class="tf-check" value="1">
+                                        <label for="rememberEmailChannel" class="h6">Keep me signed in</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button id="btnSendEmailOTP" type="submit" class="tf-btn animate-btn w-100">
+                                <span class="btn-text">Send OTP to Email</span>
+                                <span class="btn-loading" style="display:none;">
+                                    <i class="fa fa-spinner fa-spin"></i> Sending...
+                                </span>
+                            </button>
                         </form>
 
                         <!-- OTP Verification Form (Step 2) -->
@@ -203,7 +250,7 @@ require_once __DIR__ . '/includes/init.php';
                             </button>
 
                             <div class="mt-3 text-center">
-                                <p class="h6"><a href="#" id="backToEmail" class="link"><i class="fa fa-arrow-left"></i> Change Mobile</a></p>
+                                <p class="h6"><a href="#" id="backToEmail" class="link"><i class="fa fa-arrow-left"></i> <span id="backLinkLabel">Change Mobile</span></a></p>
                             </div>
                         </form>
 
@@ -254,10 +301,35 @@ require_once __DIR__ . '/includes/init.php';
 
     <script>
         $(document).ready(function() {
+            let currentChannel = 'mobile';   // 'mobile' | 'email'
             let currentMobile = '';
+            let currentEmail = '';
             let resendCountdown = 60;
             let countdownInterval;
             const otpDigits = $('.otp-digit');
+
+            // Channel tab switching
+            $('.channel-tab').on('click', function() {
+                const ch = $(this).data('channel');
+                if (ch === currentChannel) return;
+                currentChannel = ch;
+                $('.channel-tab').removeClass('active');
+                $(this).addClass('active');
+
+                // Reset to step 1 for the chosen channel
+                $('#otpForm').hide();
+                $('#loginMessage').hide();
+                clearInterval(countdownInterval);
+                otpDigits.val('').removeClass('filled error');
+
+                if (ch === 'mobile') {
+                    $('#emailLoginForm').hide();
+                    $('#emailForm').show();
+                } else {
+                    $('#emailForm').hide();
+                    $('#emailLoginForm').show();
+                }
+            });
 
             // Show message function
             function showMessage(message, type = 'danger') {
@@ -348,7 +420,11 @@ require_once __DIR__ . '/includes/init.php';
             $('#backToEmail').click(function(e) {
                 e.preventDefault();
                 $('#otpForm').hide();
-                $('#emailForm').show();
+                if (currentChannel === 'mobile') {
+                    $('#emailForm').show();
+                } else {
+                    $('#emailLoginForm').show();
+                }
                 $('#loginMessage').hide();
                 // Clear OTP inputs
                 otpDigits.val('').removeClass('filled error');
@@ -383,6 +459,7 @@ require_once __DIR__ . '/includes/init.php';
                         if (response.success) {
                             currentMobile = mobile;
                             $('#otpEmail').text(response.maskedMobile || mobile.replace(/(\d{2})(\d{4})(\d{4})/, '$1XXXX$3'));
+                            $('#backLinkLabel').text('Change Mobile');
                             $('#emailForm').hide();
                             $('#otpForm').show();
                             $('#rememberOTP').prop('checked', remember);
@@ -404,19 +481,74 @@ require_once __DIR__ . '/includes/init.php';
                 });
             });
 
-            // Resend OTP
+            // Send Email OTP
+            $('#emailLoginForm').submit(function(e) {
+                e.preventDefault();
+
+                const email = $('#loginEmail').val().trim();
+                const remember = $('#rememberEmailChannel').is(':checked') ? 1 : 0;
+
+                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                    showMessage('Please enter a valid email address', 'danger');
+                    return;
+                }
+
+                $('#btnSendEmailOTP .btn-text').hide();
+                $('#btnSendEmailOTP .btn-loading').show();
+                $('#btnSendEmailOTP').prop('disabled', true);
+                $('#loginMessage').hide();
+
+                $.ajax({
+                    url: 'auth/send-login-otp-email.php',
+                    method: 'POST',
+                    data: { email: email, csrf_token: csrfToken },
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+                            currentEmail = email;
+                            $('#otpEmail').text(response.maskedEmail || email);
+                            $('#backLinkLabel').text('Change Email');
+                            $('#emailLoginForm').hide();
+                            $('#otpForm').show();
+                            $('#rememberOTP').prop('checked', remember);
+                            otpDigits.eq(0).focus();
+                            startResendCountdown();
+                            showMessage(response.message, 'success');
+                        } else {
+                            showMessage(response.message, 'danger');
+                        }
+                    },
+                    error: function() {
+                        showMessage('An error occurred. Please try again.', 'danger');
+                    },
+                    complete: function() {
+                        $('#btnSendEmailOTP .btn-text').show();
+                        $('#btnSendEmailOTP .btn-loading').hide();
+                        $('#btnSendEmailOTP').prop('disabled', false);
+                    }
+                });
+            });
+
+            // Resend OTP — picks endpoint based on active channel
             $('#resendOTP').click(function(e) {
                 e.preventDefault();
 
-                if (!currentMobile) {
+                const isMobile = currentChannel === 'mobile';
+                if (isMobile && !currentMobile) {
                     showMessage('Please enter your mobile number first.', 'danger');
+                    return;
+                }
+                if (!isMobile && !currentEmail) {
+                    showMessage('Please enter your email first.', 'danger');
                     return;
                 }
 
                 $.ajax({
-                    url: 'auth/send-login-otp.php',
+                    url: isMobile ? 'auth/send-login-otp.php' : 'auth/send-login-otp-email.php',
                     method: 'POST',
-                    data: { mobile: currentMobile, csrf_token: csrfToken },
+                    data: isMobile
+                        ? { mobile: currentMobile, csrf_token: csrfToken }
+                        : { email: currentEmail,  csrf_token: csrfToken },
                     dataType: 'json',
                     success: function(response) {
                         if (response.success) {
@@ -462,7 +594,9 @@ require_once __DIR__ . '/includes/init.php';
                 $('#loginMessage').hide();
 
                 $.ajax({
-                    url: 'auth/verify-login-otp.php',
+                    url: currentChannel === 'mobile'
+                        ? 'auth/verify-login-otp.php'
+                        : 'auth/verify-login-otp-email.php',
                     method: 'POST',
                     data: {
                         otp: otp,
