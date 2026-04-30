@@ -293,7 +293,7 @@ function storeRememberToken($pdo, $userId) {
             'path'     => '/',
             'secure'   => isset($_SERVER['HTTPS']),
             'httponly' => true,
-            'samesite' => 'Strict',
+            'samesite' => 'Lax',
         ]);
     } catch (Exception $e) {
         error_log('Remember token store error: ' . $e->getMessage());

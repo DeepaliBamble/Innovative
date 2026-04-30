@@ -173,7 +173,7 @@ require_once __DIR__ . '/includes/init.php';
                                 </fieldset>
                                 <div class="check-bottom">
                                     <div class="checkbox-wrap">
-                                        <input id="rememberEmail" name="remember" type="checkbox" class="tf-check" value="1">
+                                        <input id="rememberEmail" name="remember" type="checkbox" class="tf-check" value="1" checked>
                                         <label for="rememberEmail" class="h6">Keep me signed in</label>
                                     </div>
                                 </div>
@@ -196,7 +196,7 @@ require_once __DIR__ . '/includes/init.php';
                                 </fieldset>
                                 <div class="check-bottom">
                                     <div class="checkbox-wrap">
-                                        <input id="rememberEmailChannel" name="remember" type="checkbox" class="tf-check" value="1">
+                                        <input id="rememberEmailChannel" name="remember" type="checkbox" class="tf-check" value="1" checked>
                                         <label for="rememberEmailChannel" class="h6">Keep me signed in</label>
                                     </div>
                                 </div>
@@ -230,7 +230,7 @@ require_once __DIR__ . '/includes/init.php';
                             <div class="list-ver">
                                 <div class="check-bottom">
                                     <div class="checkbox-wrap">
-                                        <input id="rememberOTP" name="remember" type="checkbox" class="tf-check" value="1">
+                                        <input id="rememberOTP" name="remember" type="checkbox" class="tf-check" value="1" checked>
                                         <label for="rememberOTP" class="h6">Keep me signed in</label>
                                     </div>
                                     <h6>

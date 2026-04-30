@@ -10,13 +10,23 @@ if (session_status() === PHP_SESSION_NONE) {
     ini_set('session.cookie_httponly', 1);
     ini_set('session.use_only_cookies', 1);
     ini_set('session.cookie_secure', isset($_SERVER['HTTPS']) ? 1 : 0); // Auto-detect HTTPS
-    ini_set('session.cookie_samesite', 'Strict');
+    ini_set('session.cookie_samesite', 'Lax');
 
     // Set session name
     session_name(SESSION_NAME);
 
-    // Set session lifetime
+    // Persist the session cookie across browser restarts (was browser-session
+    // only by default). Combined with SESSION_LIFETIME below this keeps users
+    // signed in for 30 days of idle time.
+    ini_set('session.cookie_lifetime', SESSION_LIFETIME);
     ini_set('session.gc_maxlifetime', SESSION_LIFETIME);
+    session_set_cookie_params([
+        'lifetime' => SESSION_LIFETIME,
+        'path'     => '/',
+        'secure'   => isset($_SERVER['HTTPS']),
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
 
     // Start the session
     session_start();
