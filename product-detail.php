@@ -519,9 +519,9 @@ $page_title = htmlspecialchars($product['name']) . ' - Innovative Homesi';
                                             </button>
                                         </div>
 
-                                        <a href="checkout.php" class="tf-btn btn-primary w-100 mt-3">
+                                        <button type="button" class="tf-btn btn-primary w-100 mt-3 btn-buy-now">
                                             <i class="fas fa-bolt me-2"></i> Buy It Now
-                                        </a>
+                                        </button>
                                     </div>
                                     <?php endif; ?>
 
@@ -811,6 +811,49 @@ $page_title = htmlspecialchars($product['name']) . ' - Innovative Homesi';
                         console.error('Error:', error);
                         showNotification('Error', 'Failed to add item to cart. Please try again.', 'error');
                         this.innerHTML = originalText;
+                        this.style.pointerEvents = 'auto';
+                    });
+                });
+            }
+
+            // Buy Now functionality - add to cart, then go to checkout
+            const buyNowBtn = document.querySelector('.btn-buy-now');
+            if (buyNowBtn) {
+                buyNowBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+
+                    const productId = <?php echo $product['id']; ?>;
+                    const quantity = parseInt(quantityInput ? quantityInput.value : 1);
+
+                    const originalText = this.innerHTML;
+                    this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Processing...';
+                    this.disabled = true;
+                    this.style.pointerEvents = 'none';
+
+                    fetch('ajax/add-to-cart.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: `product_id=${productId}&quantity=${quantity}`
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            window.location.href = 'checkout.php';
+                        } else {
+                            showNotification('Error', data.message || 'Failed to add item to cart.', 'error');
+                            this.innerHTML = originalText;
+                            this.disabled = false;
+                            this.style.pointerEvents = 'auto';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Buy Now error:', error);
+                        showNotification('Error', 'Something went wrong. Please try again.', 'error');
+                        this.innerHTML = originalText;
+                        this.disabled = false;
                         this.style.pointerEvents = 'auto';
                     });
                 });

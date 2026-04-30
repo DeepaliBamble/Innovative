@@ -39,12 +39,13 @@ if (!isAjaxRequest()) {
     }
 }
 
+$orderId = (int) ($_POST['order_id'] ?? 0);
+
 try {
     // Get and validate POST data
     $razorpayPaymentId = sanitize($_POST['razorpay_payment_id'] ?? '');
     $razorpayOrderId = sanitize($_POST['razorpay_order_id'] ?? '');
     $razorpaySignature = sanitize($_POST['razorpay_signature'] ?? '');
-    $orderId = (int) ($_POST['order_id'] ?? 0);
 
     // Validate required fields
     if (empty($razorpayPaymentId) || empty($razorpayOrderId) || empty($razorpaySignature)) {
@@ -79,9 +80,20 @@ try {
         throw new Exception('Order not found.');
     }
 
-    // Check if order is already paid
+    // Webhook race: if Razorpay's server-to-server webhook reached us first
+    // and already marked this order paid, just return success — don't throw,
+    // because the catch block would otherwise wrongly cancel a paid order.
     if ($order['payment_status'] === 'paid') {
-        throw new Exception('This order has already been paid.');
+        $orderToken = generateOrderAccessToken($orderId, $order['order_number']);
+        echo json_encode([
+            'success' => true,
+            'message' => 'Payment confirmed.',
+            'order_id' => $orderId,
+            'order_number' => $order['order_number'],
+            'payment_id' => $order['razorpay_payment_id'] ?: $razorpayPaymentId,
+            'redirect' => 'order-success.php?order_id=' . $orderId . '&token=' . urlencode($orderToken)
+        ]);
+        exit;
     }
 
     // Start transaction for atomic operations
@@ -140,22 +152,17 @@ try {
         $orderItems = $itemsStmt->fetchAll(PDO::FETCH_ASSOC);
 
         foreach ($orderItems as $item) {
-            // Update stock with safety check
+            // Update stock — if it goes negative we still allow it rather than
+            // cancelling a paid order; admin can reconcile manually.
             $stockStmt = $pdo->prepare("
                 UPDATE products
-                SET stock_quantity = stock_quantity - ?
-                WHERE id = ? AND stock_quantity >= ?
+                SET stock_quantity = GREATEST(stock_quantity - ?, 0)
+                WHERE id = ?
             ");
             $stockStmt->execute([
                 $item['quantity'],
-                $item['product_id'],
-                $item['quantity']
+                $item['product_id']
             ]);
-
-            // Verify stock was updated
-            if ($stockStmt->rowCount() === 0) {
-                throw new Exception("Failed to update stock for product ID {$item['product_id']}");
-            }
         }
 
         // Clear cart for this user/session
@@ -170,68 +177,87 @@ try {
         // Commit all database changes
         $pdo->commit();
 
-        // Log successful payment
-        error_log("Payment successful for order {$orderId}: {$razorpayPaymentId}");
+    } catch (Exception $e) {
+        // Rollback all changes on error during the transaction
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        throw $e;
+    }
 
-        // Send order confirmation email to customer
+    // === Post-commit: payment is durably recorded as paid. ===
+    // Anything that throws below MUST NOT cancel the order.
+
+    error_log("Payment successful for order {$orderId}: {$razorpayPaymentId}");
+
+    // Send order confirmation email — never let this affect order status
+    try {
+        $order['razorpay_payment_id'] = $razorpayPaymentId; // freshen for email body
         $emailResult = sendOrderConfirmationEmail($order, $orderItems);
         if (!$emailResult['success']) {
             error_log("Order confirmation email failed for order {$orderId}: " . $emailResult['message']);
         }
-
-        // Generate secure access token
-        $orderToken = generateOrderAccessToken($orderId, $order['order_number']);
-        // Return success response
-        echo json_encode([
-            'success' => true,
-            'message' => 'Payment successful! Your order has been confirmed.',
-            'order_id' => $orderId,
-            'order_number' => $order['order_number'],
-            'payment_id' => $razorpayPaymentId,
-            'redirect' => 'order-success.php?order_id=' . $orderId . '&token=' . urlencode($orderToken)
-        ]);
-
-    } catch (Exception $e) {
-        // Rollback all changes on error
-        $pdo->rollBack();
-        throw $e;
+    } catch (Throwable $emailErr) {
+        error_log("Order confirmation email exception for order {$orderId}: " . $emailErr->getMessage());
     }
+
+    // Generate secure access token
+    $orderToken = generateOrderAccessToken($orderId, $order['order_number']);
+
+    // Return success response
+    echo json_encode([
+        'success' => true,
+        'message' => 'Payment successful! Your order has been confirmed.',
+        'order_id' => $orderId,
+        'order_number' => $order['order_number'],
+        'payment_id' => $razorpayPaymentId,
+        'redirect' => 'order-success.php?order_id=' . $orderId . '&token=' . urlencode($orderToken)
+    ]);
 
 } catch (Exception $e) {
     // Log error for debugging
     error_log('Payment processing error: ' . $e->getMessage());
     error_log('Stack trace: ' . $e->getTraceAsString());
 
-    // Update payment record as failed if we have an order ID
-    if (isset($orderId) && $orderId > 0) {
+    // Only mark the order as failed if it has NOT already been paid.
+    // (Webhook may have paid it; or our own commit may have succeeded
+    // and a later post-commit step threw — in both cases we must not
+    // overwrite a paid order with cancelled.)
+    if ($orderId > 0) {
         try {
-            $failStmt = $pdo->prepare("
-                UPDATE payments
-                SET payment_status = 'failed',
-                    error_description = ?,
-                    updated_at = NOW()
-                WHERE order_id = ?
-            ");
-            $failStmt->execute([$e->getMessage(), $orderId]);
+            $checkStmt = $pdo->prepare("SELECT payment_status FROM orders WHERE id = ?");
+            $checkStmt->execute([$orderId]);
+            $currentStatus = $checkStmt->fetchColumn();
 
-            $failOrderStmt = $pdo->prepare("
-                UPDATE orders
-                SET payment_status = 'failed',
-                    order_status = 'cancelled',
-                    updated_at = NOW()
-                WHERE id = ?
-            ");
-            $failOrderStmt->execute([$orderId]);
+            if ($currentStatus !== 'paid') {
+                $failStmt = $pdo->prepare("
+                    UPDATE payments
+                    SET payment_status = 'failed',
+                        error_description = ?,
+                        updated_at = NOW()
+                    WHERE order_id = ?
+                ");
+                $failStmt->execute([$e->getMessage(), $orderId]);
 
-            $trackingStmt = $pdo->prepare("
-                INSERT INTO order_tracking (
-                    order_id,
-                    status,
-                    message,
-                    created_by
-                ) VALUES (?, 'cancelled', ?, 'system')
-            ");
-            $trackingStmt->execute([$orderId, 'Payment failed: ' . $e->getMessage()]);
+                $failOrderStmt = $pdo->prepare("
+                    UPDATE orders
+                    SET payment_status = 'failed',
+                        order_status = 'cancelled',
+                        updated_at = NOW()
+                    WHERE id = ? AND payment_status <> 'paid'
+                ");
+                $failOrderStmt->execute([$orderId]);
+
+                $trackingStmt = $pdo->prepare("
+                    INSERT INTO order_tracking (
+                        order_id,
+                        status,
+                        message,
+                        created_by
+                    ) VALUES (?, 'cancelled', ?, 'system')
+                ");
+                $trackingStmt->execute([$orderId, 'Payment failed: ' . $e->getMessage()]);
+            }
         } catch (Exception $logError) {
             error_log('Failed to update payment status: ' . $logError->getMessage());
         }

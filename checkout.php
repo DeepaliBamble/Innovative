@@ -110,6 +110,99 @@ $razorpayConfig = getRazorpayConfig();
             background-color: #f8d7da;
             border-color: #f5c2c7;
         }
+
+        /* Order success popup */
+        .order-success-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+            padding: 20px;
+        }
+        .order-success-overlay.show {
+            display: flex;
+            animation: fadeIn 0.25s ease-out;
+        }
+        .order-success-modal {
+            background: #fff;
+            border-radius: 12px;
+            max-width: 480px;
+            width: 100%;
+            padding: 2.5rem 2rem;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+            animation: popIn 0.35s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+        }
+        .order-success-icon {
+            width: 84px;
+            height: 84px;
+            margin: 0 auto 1.25rem;
+            border-radius: 50%;
+            background: #28a745;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 42px;
+            animation: scaleIn 0.5s 0.1s both;
+        }
+        .order-success-modal h2 {
+            margin: 0 0 0.5rem;
+            color: #1f2d3d;
+            font-size: 1.6rem;
+        }
+        .order-success-modal p {
+            color: #555;
+            margin: 0.25rem 0;
+        }
+        .order-success-meta {
+            background: #f6f8fa;
+            border-radius: 8px;
+            padding: 0.85rem 1rem;
+            margin: 1.25rem 0 1.5rem;
+            font-size: 0.95rem;
+        }
+        .order-success-meta strong {
+            color: #d4a574;
+        }
+        .order-success-actions {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .order-success-actions a,
+        .order-success-actions button {
+            padding: 0.65rem 1.4rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            border: 0;
+            cursor: pointer;
+        }
+        .order-success-actions .btn-primary {
+            background: #d4a574;
+            color: #fff;
+        }
+        .order-success-actions .btn-secondary {
+            background: #f1f3f5;
+            color: #333;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+        @keyframes popIn {
+            0%   { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1);   opacity: 1; }
+        }
+        @keyframes scaleIn {
+            from { transform: scale(0); }
+            to   { transform: scale(1); }
+        }
     </style>
 </head>
 
@@ -356,6 +449,26 @@ $razorpayConfig = getRazorpayConfig();
         <!-- /Check Out -->
 
         <?php include 'includes/footer.php'; ?>
+    </div>
+
+    <!-- Order Success Popup -->
+    <div class="order-success-overlay" id="order-success-overlay" role="dialog" aria-modal="true" aria-labelledby="order-success-title">
+        <div class="order-success-modal">
+            <div class="order-success-icon">
+                <i class="fas fa-check"></i>
+            </div>
+            <h2 id="order-success-title">Thank you for your order!</h2>
+            <p>Your payment was successful and your order is being processed.</p>
+            <div class="order-success-meta">
+                <div>Order Number: <strong id="success-order-number">—</strong></div>
+                <div>Payment ID: <strong id="success-payment-id">—</strong></div>
+            </div>
+            <p class="text-muted small mb-3">A confirmation email is on its way to your inbox.</p>
+            <div class="order-success-actions">
+                <a href="#" id="success-view-order" class="btn-primary">View Order</a>
+                <a href="index.php" class="btn-secondary">Continue Shopping</a>
+            </div>
+        </div>
     </div>
 
     <!-- Javascript -->
@@ -613,10 +726,7 @@ $razorpayConfig = getRazorpayConfig();
                     if (data.success) {
                         submitBtn.innerHTML = '<i class="fas fa-check me-2"></i> Payment Successful!';
                         submitBtn.style.background = '#28a745';
-                        showAlert('Payment successful! Redirecting to confirmation page...', 'success');
-                        setTimeout(() => {
-                            window.location.href = data.redirect;
-                        }, 2000);
+                        showOrderSuccessPopup(data);
                     } else {
                         showAlert(data.message || 'Payment verification failed.');
                         resetSubmitButton();
@@ -627,6 +737,30 @@ $razorpayConfig = getRazorpayConfig();
                     showAlert('Payment verification failed. Please contact support.');
                     resetSubmitButton();
                 });
+            }
+
+            // Show "Thank you" confirmation popup, then auto-redirect after 5s
+            function showOrderSuccessPopup(data) {
+                const overlay = document.getElementById('order-success-overlay');
+                const orderNumberEl = document.getElementById('success-order-number');
+                const paymentIdEl = document.getElementById('success-payment-id');
+                const viewOrderLink = document.getElementById('success-view-order');
+
+                if (orderNumberEl) orderNumberEl.textContent = data.order_number || '—';
+                if (paymentIdEl)   paymentIdEl.textContent   = data.payment_id   || '—';
+                if (viewOrderLink && data.redirect) viewOrderLink.href = data.redirect;
+
+                if (overlay) {
+                    overlay.classList.add('show');
+                    document.body.style.overflow = 'hidden';
+                }
+
+                // Auto-redirect to the full order confirmation page after a short delay
+                setTimeout(() => {
+                    if (data.redirect) {
+                        window.location.href = data.redirect;
+                    }
+                }, 5000);
             }
 
             // Reset submit button
