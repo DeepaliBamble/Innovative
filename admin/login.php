@@ -13,14 +13,10 @@ if (!empty($_SESSION['admin_id'])) {
     redirect('dashboard.php');
 }
 
-// Are we on step 1 (password) or step 2 (OTP)?
+// Are we on step 1 (email) or step 2 (OTP)?
 $step = !empty($_SESSION['pending_admin_id']) && ($_SESSION['pending_admin_step'] ?? '') === 'otp'
     ? 'otp'
-    : 'password';
-
-// Constant-time fallback so timing reveals nothing about whether the email exists.
-// Cost matched to the seeded admin hashes (cost=10).
-const ADMIN_LOGIN_DUMMY_HASH = '$2y$10$CwTycUXWue0Thq9StjUM0uJ8K8HfqjKXM/4z6Q5y7q6cV1aP2pVay';
+    : 'email';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
@@ -43,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             unset($_SESSION['pending_admin_id'], $_SESSION['pending_admin_email'],
                   $_SESSION['pending_admin_name'], $_SESSION['pending_admin_step']);
             $errors[] = 'Session expired. Please sign in again.';
-            $step = 'password';
+            $step = 'email';
         } else {
             $verify = verifyEmailLoginOtp($pdo, $adminEmail, $otp);
             if (!$verify['success']) {
@@ -64,41 +60,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
     } else {
-        // ─── Step 1: verify password, then send OTP ────────────────────────────
-        $email    = strtolower(trim(sanitize($_POST['email'] ?? '')));
-        $password = $_POST['password'] ?? '';
+        // ─── Step 1: validate admin email, then send OTP ───────────────────────
+        $email = strtolower(trim(sanitize($_POST['email'] ?? '')));
 
-        if (!$email || !$password) {
-            $errors[] = 'All fields required';
+        if (!$email) {
+            $errors[] = 'Email is required';
+        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errors[] = 'Please enter a valid email address';
         } else {
             try {
-                $stmt = $pdo->prepare('SELECT id, name, email, password FROM users WHERE email = ? AND is_admin = 1 AND is_active = 1 LIMIT 1');
+                $stmt = $pdo->prepare('SELECT id, name, email FROM users WHERE email = ? AND is_admin = 1 AND is_active = 1 LIMIT 1');
                 $stmt->execute([$email]);
                 $admin = $stmt->fetch();
 
-                // Constant-time: always run password_verify even if no admin matched.
-                $hash = $admin['password'] ?? ADMIN_LOGIN_DUMMY_HASH;
-                $passwordOk = password_verify($password, $hash);
-
-                if ($admin && $passwordOk) {
-                    if (empty($admin['email'])) {
-                        $errors[] = 'This admin account has no email on file. OTP login cannot proceed — contact support.';
+                if ($admin) {
+                    $send = sendEmailLoginOtp($pdo, $admin['email'], $admin['name'], 'login');
+                    if (!$send['success']) {
+                        error_log('Admin OTP send failed for ' . $admin['email'] . ': ' . $send['message']);
+                        $errors[] = $send['message'];
                     } else {
-                        $send = sendEmailLoginOtp($pdo, $admin['email'], $admin['name'], 'login');
-                        if (!$send['success']) {
-                            error_log('Admin OTP send failed for ' . $admin['email'] . ': ' . $send['message']);
-                            $errors[] = $send['message'];
-                        } else {
-                            $_SESSION['pending_admin_id']    = $admin['id'];
-                            $_SESSION['pending_admin_email'] = $admin['email'];
-                            $_SESSION['pending_admin_name']  = $admin['name'];
-                            $_SESSION['pending_admin_step']  = 'otp';
-                            $step = 'otp';
-                        }
+                        $_SESSION['pending_admin_id']    = $admin['id'];
+                        $_SESSION['pending_admin_email'] = $admin['email'];
+                        $_SESSION['pending_admin_name']  = $admin['name'];
+                        $_SESSION['pending_admin_step']  = 'otp';
+                        $step = 'otp';
                     }
                 } else {
-                    error_log('Admin login fail (' . $email . ') from ' . ($_SERVER['REMOTE_ADDR'] ?? '?'));
-                    $errors[] = 'Invalid credentials';
+                    error_log('Admin login fail (no such admin: ' . $email . ') from ' . ($_SERVER['REMOTE_ADDR'] ?? '?'));
+                    $errors[] = 'No active admin account found for this email.';
                 }
             } catch (PDOException $e) {
                 error_log('Admin login query error: ' . $e->getMessage());
@@ -520,7 +509,7 @@ $csrfToken = generateCsrfToken();
                         <p>We've sent a 6-digit code to <strong><?= htmlspecialchars($maskedAdminEmail) ?></strong></p>
                     <?php else: ?>
                         <h2>Welcome Back</h2>
-                        <p>Sign in to access your admin dashboard</p>
+                        <p>Enter your admin email — we'll send a one-time code to sign you in.</p>
                     <?php endif; ?>
                 </div>
 
@@ -572,7 +561,7 @@ $csrfToken = generateCsrfToken();
                         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
 
                         <div class="input-wrapper">
-                            <label class="form-label">Email Address</label>
+                            <label class="form-label">Admin Email Address</label>
                             <div class="input-group">
                                 <i class="bi bi-envelope-fill input-icon"></i>
                                 <input
@@ -587,22 +576,8 @@ $csrfToken = generateCsrfToken();
                             </div>
                         </div>
 
-                        <div class="input-wrapper">
-                            <label class="form-label">Password</label>
-                            <div class="input-group">
-                                <i class="bi bi-lock-fill input-icon"></i>
-                                <input
-                                    type="password"
-                                    class="form-control"
-                                    name="password"
-                                    placeholder="Enter your password"
-                                    required
-                                >
-                            </div>
-                        </div>
-
                         <button type="submit" class="btn-login">
-                            <span>Continue</span>
+                            <span>Send OTP</span>
                             <i class="bi bi-arrow-right-circle-fill"></i>
                         </button>
                     </form>
