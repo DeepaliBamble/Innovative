@@ -258,63 +258,6 @@ function generateOrderNumber() {
 }
 
 /**
- * Whether the current request is in a "Buy Now" single-product checkout flow.
- */
-function isBuyNowFlow() {
-    return !empty($_SESSION['buy_now']) && !empty($_SESSION['buy_now']['product_id']);
-}
-
-/**
- * Resolve the line items for the active checkout. Returns the staged Buy Now
- * product when in Buy Now flow; otherwise returns the user/session cart from
- * the cart table. Result rows have the same shape either way.
- */
-function getCheckoutItems($pdo) {
-    if (isBuyNowFlow()) {
-        $bn = $_SESSION['buy_now'];
-        $stmt = $pdo->prepare("
-            SELECT
-                0 AS id,
-                :pid AS product_id,
-                :qty AS quantity,
-                p.name,
-                p.slug,
-                p.sku,
-                p.price,
-                p.sale_price,
-                p.image_path,
-                p.stock_quantity
-            FROM products p
-            WHERE p.id = :pid AND p.is_active = 1
-        ");
-        $stmt->execute([
-            ':pid' => (int) $bn['product_id'],
-            ':qty' => (int) $bn['quantity'],
-        ]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-    if (isLoggedIn()) {
-        $stmt = $pdo->prepare("
-            SELECT c.*, p.name, p.slug, p.sku, p.price, p.sale_price, p.image_path, p.stock_quantity
-            FROM cart c
-            INNER JOIN products p ON c.product_id = p.id
-            WHERE c.user_id = ? AND p.is_active = 1
-        ");
-        $stmt->execute([getCurrentUserId()]);
-    } else {
-        $stmt = $pdo->prepare("
-            SELECT c.*, p.name, p.slug, p.sku, p.price, p.sale_price, p.image_path, p.stock_quantity
-            FROM cart c
-            INNER JOIN products p ON c.product_id = p.id
-            WHERE c.session_id = ? AND p.is_active = 1
-        ");
-        $stmt->execute([session_id()]);
-    }
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
-
-/**
  * Get wishlist item count for current user
  */
 function getWishlistCount($pdo) {

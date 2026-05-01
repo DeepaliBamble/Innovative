@@ -82,16 +82,33 @@ try {
 
     $customerName = $firstName . ' ' . $lastName;
 
-    // Resolve line items — either the staged Buy Now product or the cart.
-    $isBuyNow  = isBuyNowFlow();
-    $userId    = isLoggedIn() ? getCurrentUserId() : null;
-    $sessionId = isLoggedIn() ? null : session_id();
-    $cartItems = getCheckoutItems($pdo);
+    // Get cart items with security check
+    if (isLoggedIn()) {
+        $userId = getCurrentUserId();
+        $sessionId = null;
+        $cartStmt = $pdo->prepare("
+            SELECT c.*, p.name, p.sku, p.price, p.sale_price, p.image_path, p.stock_quantity
+            FROM cart c
+            INNER JOIN products p ON c.product_id = p.id
+            WHERE c.user_id = ? AND p.is_active = 1
+        ");
+        $cartStmt->execute([$userId]);
+    } else {
+        $sessionId = session_id();
+        $userId = null;
+        $cartStmt = $pdo->prepare("
+            SELECT c.*, p.name, p.sku, p.price, p.sale_price, p.image_path, p.stock_quantity
+            FROM cart c
+            INNER JOIN products p ON c.product_id = p.id
+            WHERE c.session_id = ? AND p.is_active = 1
+        ");
+        $cartStmt->execute([$sessionId]);
+    }
+
+    $cartItems = $cartStmt->fetchAll(PDO::FETCH_ASSOC);
 
     if (empty($cartItems)) {
-        throw new Exception($isBuyNow
-            ? 'That product is no longer available.'
-            : 'Your cart is empty. Please add items to proceed.');
+        throw new Exception('Your cart is empty. Please add items to proceed.');
     }
 
     // Calculate totals and verify stock
@@ -304,15 +321,6 @@ try {
 
         // Commit transaction
         $pdo->commit();
-
-        // Track Buy Now orders so process-payment.php can skip cart clearing.
-        if ($isBuyNow) {
-            if (!isset($_SESSION['buy_now_order_ids']) || !is_array($_SESSION['buy_now_order_ids'])) {
-                $_SESSION['buy_now_order_ids'] = [];
-            }
-            $_SESSION['buy_now_order_ids'][] = (int) $orderId;
-            unset($_SESSION['buy_now']);
-        }
 
         // Return success response
         echo json_encode([
