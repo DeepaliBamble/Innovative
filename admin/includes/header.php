@@ -150,5 +150,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 </div>
             </header>
 
+            <?php include __DIR__ . '/admin-tabs.php'; ?>
+
             <!-- Page Content -->
             <main class="admin-content">

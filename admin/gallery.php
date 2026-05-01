@@ -4,17 +4,53 @@ if (!isAdmin()) {
     redirect('login.php');
 }
 
+$galleryHasCategoryId = false;
+try {
+    $columnStmt = $pdo->query("SHOW COLUMNS FROM gallery LIKE 'category_id'");
+    $galleryHasCategoryId = (bool) $columnStmt->fetch();
+} catch (PDOException $e) {
+    error_log('Gallery schema check failed: ' . $e->getMessage());
+}
+
+$galleryCategoryOptions = [
+    'all' => 'All',
+    'sofas' => 'Sofas',
+    'seating' => 'Seating',
+    'dining' => 'Dining',
+    'bedroom' => 'Bedroom',
+    'decor' => 'Decor',
+    'workspace' => 'Workspace',
+];
+
+if ($galleryHasCategoryId) {
+    $categoryStmt = $pdo->query("SELECT id, name FROM categories WHERE parent_id IS NULL AND is_active = 1 ORDER BY display_order, name");
+    $galleryCategoryOptions = [];
+    foreach ($categoryStmt->fetchAll() as $cat) {
+        $galleryCategoryOptions[(int) $cat['id']] = $cat['name'];
+    }
+}
+
+function galleryCategoryLabel($value, array $options) {
+    return $options[$value] ?? $options[(string) $value] ?? 'Uncategorized';
+}
+
 // Handle add new gallery image
 if (isset($_POST['add_image'])) {
     $title = $_POST['title'] ?? '';
     $description = $_POST['description'] ?? '';
     $image_path = $_POST['image_path'] ?? '';
-    $category_id = (int)($_POST['category'] ?? 0);
+    $category = $_POST['category'] ?? ($galleryHasCategoryId ? 0 : 'all');
     $display_order = (int)($_POST['display_order'] ?? 0);
 
     try {
-        $stmt = $pdo->prepare("INSERT INTO gallery (title, description, image_path, category_id, display_order, created_at) VALUES (?, ?, ?, ?, ?, NOW())");
-        $stmt->execute([$title, $description, $image_path, $category_id, $display_order]);
+        if ($galleryHasCategoryId) {
+            $stmt = $pdo->prepare("INSERT INTO gallery (title, description, image_path, category_id, display_order, created_at) VALUES (?, ?, ?, ?, ?, NOW())");
+            $stmt->execute([$title, $description, $image_path, (int) $category, $display_order]);
+        } else {
+            $category = array_key_exists($category, $galleryCategoryOptions) ? $category : 'all';
+            $stmt = $pdo->prepare("INSERT INTO gallery (title, description, image_path, category, display_order, created_at) VALUES (?, ?, ?, ?, ?, NOW())");
+            $stmt->execute([$title, $description, $image_path, $category, $display_order]);
+        }
         $_SESSION['success_message'] = 'Gallery image added successfully!';
     } catch (PDOException $e) {
         $_SESSION['error_message'] = 'Error adding image: ' . $e->getMessage();
@@ -29,13 +65,19 @@ if (isset($_POST['update_image'])) {
     $title = $_POST['title'] ?? '';
     $description = $_POST['description'] ?? '';
     $image_path = $_POST['image_path'] ?? '';
-    $category_id = (int)($_POST['category'] ?? 0);
+    $category = $_POST['category'] ?? ($galleryHasCategoryId ? 0 : 'all');
     $display_order = (int)($_POST['display_order'] ?? 0);
     $is_active = isset($_POST['is_active']) ? 1 : 0;
 
     try {
-        $stmt = $pdo->prepare("UPDATE gallery SET title = ?, description = ?, image_path = ?, category_id = ?, display_order = ?, is_active = ?, updated_at = NOW() WHERE id = ?");
-        $stmt->execute([$title, $description, $image_path, $category_id, $display_order, $is_active, $id]);
+        if ($galleryHasCategoryId) {
+            $stmt = $pdo->prepare("UPDATE gallery SET title = ?, description = ?, image_path = ?, category_id = ?, display_order = ?, is_active = ?, updated_at = NOW() WHERE id = ?");
+            $stmt->execute([$title, $description, $image_path, (int) $category, $display_order, $is_active, $id]);
+        } else {
+            $category = array_key_exists($category, $galleryCategoryOptions) ? $category : 'all';
+            $stmt = $pdo->prepare("UPDATE gallery SET title = ?, description = ?, image_path = ?, category = ?, display_order = ?, is_active = ?, updated_at = NOW() WHERE id = ?");
+            $stmt->execute([$title, $description, $image_path, $category, $display_order, $is_active, $id]);
+        }
         $_SESSION['success_message'] = 'Gallery image updated successfully!';
     } catch (PDOException $e) {
         $_SESSION['error_message'] = 'Error updating image: ' . $e->getMessage();
@@ -60,7 +102,11 @@ if (isset($_POST['delete_image'])) {
 
 // Fetch all gallery images with category names
 try {
-    $stmt = $pdo->query("SELECT g.*, c.name as category_name FROM gallery g LEFT JOIN categories c ON g.category_id = c.id ORDER BY g.display_order ASC, g.created_at DESC");
+    if ($galleryHasCategoryId) {
+        $stmt = $pdo->query("SELECT g.*, c.name as category_name FROM gallery g LEFT JOIN categories c ON g.category_id = c.id ORDER BY g.display_order ASC, g.created_at DESC");
+    } else {
+        $stmt = $pdo->query("SELECT g.*, g.category as category_name FROM gallery g ORDER BY g.display_order ASC, g.created_at DESC");
+    }
     $images = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     $images = [];
@@ -184,23 +230,23 @@ include 'includes/header.php';
                                     </div>
 
                                     <script>
-                                        setupEditUpload(<?= $image['id'] ?>);
+                                        document.addEventListener('DOMContentLoaded', function() {
+                                            setupEditUpload(<?= $image['id'] ?>);
+                                        });
                                     </script>
 
                                     <div class="mb-3">
                                         <label class="form-label">Category</label>
                                         <select class="form-control" name="category">
-                                            <?php
-                                            $catStmt = $pdo->prepare("SELECT * FROM categories WHERE parent_id IS NULL AND is_active = 1 ORDER BY display_order, name");
-                                            $catStmt->execute();
-                                            $parentCategories = $catStmt->fetchAll();
-                                            foreach ($parentCategories as $cat) {
-                                                $catId = (int)$cat['id'];
-                                                $catName = htmlspecialchars($cat['name']);
-                                                $selected = ($image['category_id'] == $catId) ? ' selected' : '';
-                                                echo '<option value="' . $catId . '"' . $selected . '>' . $catName . '</option>';
-                                            }
-                                            ?>
+                                            <?php foreach ($galleryCategoryOptions as $categoryValue => $categoryLabel): ?>
+                                                <?php
+                                                $currentCategory = $galleryHasCategoryId ? ($image['category_id'] ?? 0) : ($image['category'] ?? 'all');
+                                                $selected = (string) $currentCategory === (string) $categoryValue ? ' selected' : '';
+                                                ?>
+                                                <option value="<?= htmlspecialchars((string) $categoryValue) ?>"<?= $selected ?>>
+                                                    <?= htmlspecialchars($categoryLabel) ?>
+                                                </option>
+                                            <?php endforeach; ?>
                                         </select>
                                     </div>
 
@@ -269,6 +315,22 @@ include 'includes/header.php';
                                 </div>
                             </div>
                             <input type="hidden" name="image_path" id="add_image_path" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-bold">Description</label>
+                            <textarea class="form-control" name="description" rows="2" placeholder="Optional short caption"></textarea>
+                        </div>
+                        <div class="col-md-8">
+                            <label class="form-label fw-bold">Category</label>
+                            <select class="form-control" name="category">
+                                <?php foreach ($galleryCategoryOptions as $categoryValue => $categoryLabel): ?>
+                                    <option value="<?= htmlspecialchars((string) $categoryValue) ?>"><?= htmlspecialchars($categoryLabel) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Display Order</label>
+                            <input type="number" class="form-control" name="display_order" value="0">
                         </div>
                     </div>
                 </div>

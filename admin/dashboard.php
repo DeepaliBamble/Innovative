@@ -182,7 +182,7 @@ include 'includes/header.php';
                                 </span>
                             </td>
                             <td>
-                                <a href="orders.php?id=<?= $order['id'] ?>" class="btn-custom btn-outline-custom" style="padding: 6px 12px; font-size: 0.8rem;">
+                                <a href="view-order.php?id=<?= $order['id'] ?>" class="btn-custom btn-outline-custom" style="padding: 6px 12px; font-size: 0.8rem;">
                                     View Details
                                 </a>
                             </td>

@@ -14,42 +14,67 @@ try {
     $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 100;
     $offset = isset($_GET['offset']) ? (int)$_GET['offset'] : 0;
 
+    $columnStmt = $pdo->query("SHOW COLUMNS FROM gallery LIKE 'category_id'");
+    $galleryHasCategoryId = (bool) $columnStmt->fetch();
 
-    // Prepare SQL query using category_id and join with categories
-    if ($category === 'all') {
-        $sql = "SELECT g.id, g.title, g.description, g.image_path, g.category_id, g.display_order, c.name as category_name, c.slug as category_slug
-                FROM gallery g
-                LEFT JOIN categories c ON g.category_id = c.id
-                WHERE g.is_active = 1 AND c.parent_id IS NULL
-                ORDER BY g.display_order ASC, g.created_at DESC
-                LIMIT :limit OFFSET :offset";
-        $stmt = $pdo->prepare($sql);
-    } else {
-        // Find parent category id from slug (no subcategories)
-        $catStmt = $pdo->prepare("SELECT id FROM categories WHERE slug = ? AND parent_id IS NULL LIMIT 1");
-        $catStmt->execute([$category]);
-        $catRow = $catStmt->fetch();
-        $catId = $catRow ? (int)$catRow['id'] : null;
-        if ($catId) {
+    if ($galleryHasCategoryId) {
+        if ($category === 'all') {
             $sql = "SELECT g.id, g.title, g.description, g.image_path, g.category_id, g.display_order, c.name as category_name, c.slug as category_slug
                     FROM gallery g
                     LEFT JOIN categories c ON g.category_id = c.id
-                    WHERE g.is_active = 1 AND g.category_id = :category_id
+                    WHERE g.is_active = 1
                     ORDER BY g.display_order ASC, g.created_at DESC
                     LIMIT :limit OFFSET :offset";
             $stmt = $pdo->prepare($sql);
-            $stmt->bindParam(':category_id', $catId, PDO::PARAM_INT);
         } else {
-            // No such category, return empty
-            echo json_encode([
-                'success' => true,
-                'data' => [],
-                'total' => 0,
-                'category' => $category,
-                'limit' => $limit,
-                'offset' => $offset
-            ], JSON_PRETTY_PRINT);
-            exit;
+            $catStmt = $pdo->prepare("SELECT id FROM categories WHERE slug = ? AND parent_id IS NULL LIMIT 1");
+            $catStmt->execute([$category]);
+            $catRow = $catStmt->fetch();
+            $catId = $catRow ? (int)$catRow['id'] : null;
+            if ($catId) {
+                $sql = "SELECT g.id, g.title, g.description, g.image_path, g.category_id, g.display_order, c.name as category_name, c.slug as category_slug
+                        FROM gallery g
+                        LEFT JOIN categories c ON g.category_id = c.id
+                        WHERE g.is_active = 1 AND g.category_id = :category_id
+                        ORDER BY g.display_order ASC, g.created_at DESC
+                        LIMIT :limit OFFSET :offset";
+                $stmt = $pdo->prepare($sql);
+                $stmt->bindParam(':category_id', $catId, PDO::PARAM_INT);
+            } else {
+                echo json_encode([
+                    'success' => true,
+                    'data' => [],
+                    'total' => 0,
+                    'category' => $category,
+                    'limit' => $limit,
+                    'offset' => $offset
+                ], JSON_PRETTY_PRINT);
+                exit;
+            }
+        }
+    } else {
+        $validCategories = ['all', 'sofas', 'seating', 'dining', 'bedroom', 'decor', 'workspace'];
+        if (!in_array($category, $validCategories, true)) {
+            $category = 'all';
+        }
+
+        if ($category === 'all') {
+            $sql = "SELECT g.id, g.title, g.description, g.image_path, g.category, g.display_order,
+                           g.category as category_name, g.category as category_slug
+                    FROM gallery g
+                    WHERE g.is_active = 1
+                    ORDER BY g.display_order ASC, g.created_at DESC
+                    LIMIT :limit OFFSET :offset";
+            $stmt = $pdo->prepare($sql);
+        } else {
+            $sql = "SELECT g.id, g.title, g.description, g.image_path, g.category, g.display_order,
+                           g.category as category_name, g.category as category_slug
+                    FROM gallery g
+                    WHERE g.is_active = 1 AND g.category = :category
+                    ORDER BY g.display_order ASC, g.created_at DESC
+                    LIMIT :limit OFFSET :offset";
+            $stmt = $pdo->prepare($sql);
+            $stmt->bindParam(':category', $category, PDO::PARAM_STR);
         }
     }
 
@@ -60,13 +85,20 @@ try {
     $images = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     // Get total count
-    if ($category === 'all') {
-        $countSql = "SELECT COUNT(*) as total FROM gallery g LEFT JOIN categories c ON g.category_id = c.id WHERE g.is_active = 1 AND c.parent_id IS NULL";
+    if ($galleryHasCategoryId && $category === 'all') {
+        $countSql = "SELECT COUNT(*) as total FROM gallery g WHERE g.is_active = 1";
         $countStmt = $pdo->prepare($countSql);
-    } else {
+    } elseif ($galleryHasCategoryId) {
         $countSql = "SELECT COUNT(*) as total FROM gallery g LEFT JOIN categories c ON g.category_id = c.id WHERE g.is_active = 1 AND g.category_id = :category_id";
         $countStmt = $pdo->prepare($countSql);
         $countStmt->bindParam(':category_id', $catId, PDO::PARAM_INT);
+    } elseif ($category === 'all') {
+        $countSql = "SELECT COUNT(*) as total FROM gallery g WHERE g.is_active = 1";
+        $countStmt = $pdo->prepare($countSql);
+    } else {
+        $countSql = "SELECT COUNT(*) as total FROM gallery g WHERE g.is_active = 1 AND g.category = :category";
+        $countStmt = $pdo->prepare($countSql);
+        $countStmt->bindParam(':category', $category, PDO::PARAM_STR);
     }
     $countStmt->execute();
     $totalCount = $countStmt->fetch(PDO::FETCH_ASSOC)['total'];

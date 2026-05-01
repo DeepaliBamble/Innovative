@@ -222,8 +222,14 @@ require_once __DIR__ . '/includes/init.php';
                 <!-- Gallery Grid -->
                 <div class="gallery-grid" id="galleryGrid">
                     <?php
-                    // Fetch all active gallery images with category names
-                    $galleryQuery = "SELECT g.*, c.name as category_name FROM gallery g LEFT JOIN categories c ON g.category_id = c.id WHERE g.is_active = 1 ORDER BY g.display_order, g.created_at DESC";
+                    // Fetch all active gallery images with category names.
+                    $columnStmt = $pdo->query("SHOW COLUMNS FROM gallery LIKE 'category_id'");
+                    $galleryHasCategoryId = (bool) $columnStmt->fetch();
+                    if ($galleryHasCategoryId) {
+                        $galleryQuery = "SELECT g.*, c.name as category_name FROM gallery g LEFT JOIN categories c ON g.category_id = c.id WHERE g.is_active = 1 ORDER BY g.display_order, g.created_at DESC";
+                    } else {
+                        $galleryQuery = "SELECT g.*, g.category as category_name FROM gallery g WHERE g.is_active = 1 ORDER BY g.display_order, g.created_at DESC";
+                    }
                     $galleryStmt = $pdo->prepare($galleryQuery);
                     $galleryStmt->execute();
                     $galleryImages = $galleryStmt->fetchAll();

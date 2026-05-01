@@ -57,8 +57,9 @@ try {
                 <ol>
                     <li>Make sure XAMPP MySQL service is running</li>
                     <li>Open phpMyAdmin: <a href="http://localhost/phpmyadmin" target="_blank">http://localhost/phpmyadmin</a></li>
-                    <li>Create a database named: <code>innovative</code></li>
-                    <li>Import the SQL schema from: <code>sql/schema.sql</code></li>
+                    <li>Create a database named: <code>' . htmlspecialchars(DB_NAME, ENT_QUOTES, 'UTF-8') . '</code></li>
+                    <li>Import the SQL schema from: <code>sql/innovative_homesi_complete.sql</code></li>
+                    <li>For existing databases, also run: <code>sql/migration_admin_panel_fixes.sql</code></li>
                     <li>Check database credentials in: <code>includes/config.php</code></li>
                 </ol>
             </div>

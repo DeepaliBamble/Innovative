@@ -178,6 +178,44 @@ body {
   object-fit: cover;
 }
 
+.admin-tabs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 12px 32px;
+  background: var(--admin-bg-card);
+  border-bottom: 1px solid var(--admin-border);
+  scrollbar-width: thin;
+}
+
+.admin-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  color: var(--admin-text);
+  text-decoration: none;
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  background: #fff;
+  white-space: nowrap;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.admin-tab:hover {
+  border-color: var(--admin-primary-light);
+  color: var(--admin-primary-dark);
+  box-shadow: var(--admin-shadow);
+}
+
+.admin-tab.active {
+  background: var(--admin-primary);
+  border-color: var(--admin-primary);
+  color: #fff;
+}
+
 /* Content Area */
 .admin-content {
   padding: 32px;
