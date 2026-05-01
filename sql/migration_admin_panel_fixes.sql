@@ -18,7 +18,11 @@ CREATE TABLE IF NOT EXISTS `product_categories` (
   CONSTRAINT `product_categories_ibfk_2` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT IGNORE INTO `product_categories` (`product_id`, `category_id`, `is_primary`)
-SELECT `id`, `category_id`, 1
-FROM `products`
-WHERE `category_id` IS NOT NULL;
+INSERT INTO `product_categories` (`product_id`, `category_id`, `is_primary`)
+SELECT p.`id`, p.`category_id`, 1
+FROM `products` p
+LEFT JOIN `product_categories` pc
+  ON pc.`product_id` = p.`id`
+ AND pc.`category_id` = p.`category_id`
+WHERE p.`category_id` IS NOT NULL
+  AND pc.`id` IS NULL;
