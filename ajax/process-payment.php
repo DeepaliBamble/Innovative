@@ -165,13 +165,28 @@ try {
             ]);
         }
 
-        // Clear cart for this user/session
-        if ($order['user_id']) {
-            $clearCartStmt = $pdo->prepare("DELETE FROM cart WHERE user_id = ?");
-            $clearCartStmt->execute([$order['user_id']]);
-        } elseif ($order['session_id']) {
-            $clearCartStmt = $pdo->prepare("DELETE FROM cart WHERE session_id = ?");
-            $clearCartStmt->execute([$order['session_id']]);
+        // Clear cart — but only for normal cart orders. Buy Now orders never
+        // touched the cart, so leave the user's cart contents alone.
+        $isBuyNowOrder = !empty($_SESSION['buy_now_order_ids'])
+            && is_array($_SESSION['buy_now_order_ids'])
+            && in_array((int) $orderId, $_SESSION['buy_now_order_ids'], true);
+
+        if (!$isBuyNowOrder) {
+            if ($order['user_id']) {
+                $clearCartStmt = $pdo->prepare("DELETE FROM cart WHERE user_id = ?");
+                $clearCartStmt->execute([$order['user_id']]);
+            } elseif ($order['session_id']) {
+                $clearCartStmt = $pdo->prepare("DELETE FROM cart WHERE session_id = ?");
+                $clearCartStmt->execute([$order['session_id']]);
+            }
+        }
+
+        // Done with this order's Buy Now marker.
+        if ($isBuyNowOrder) {
+            $_SESSION['buy_now_order_ids'] = array_values(array_diff(
+                $_SESSION['buy_now_order_ids'],
+                [(int) $orderId]
+            ));
         }
 
         // Commit all database changes
