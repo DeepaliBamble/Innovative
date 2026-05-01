@@ -1,17 +1,29 @@
 <?php
 require_once __DIR__ . '/includes/init.php';
 
-// Resolve checkout source: either the staged "Buy Now" product or the cart.
-$isBuyNow  = isBuyNowFlow();
-$cartItems = getCheckoutItems($pdo);
+// Get cart items from database
+if (isLoggedIn()) {
+    $cartStmt = $pdo->prepare("
+        SELECT c.*, p.name, p.slug, p.price, p.sale_price, p.image_path, p.stock_quantity
+        FROM cart c
+        INNER JOIN products p ON c.product_id = p.id
+        WHERE c.user_id = ? AND p.is_active = 1
+    ");
+    $cartStmt->execute([getCurrentUserId()]);
+} else {
+    $cartStmt = $pdo->prepare("
+        SELECT c.*, p.name, p.slug, p.price, p.sale_price, p.image_path, p.stock_quantity
+        FROM cart c
+        INNER JOIN products p ON c.product_id = p.id
+        WHERE c.session_id = ? AND p.is_active = 1
+    ");
+    $cartStmt->execute([session_id()]);
+}
 
+$cartItems = $cartStmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Redirect if cart is empty
 if (empty($cartItems)) {
-    if ($isBuyNow) {
-        // Stale buy-now reference (e.g. product deactivated). Drop it and bounce.
-        unset($_SESSION['buy_now']);
-        setFlashMessage('warning', 'That product is no longer available.');
-        redirect('shop.php');
-    }
     setFlashMessage('warning', 'Your cart is empty. Please add items before checkout.');
     redirect('view-cart.php');
 }
@@ -232,16 +244,6 @@ $razorpayConfig = getRazorpayConfig();
         <section class="flat-spacing">
             <div class="container">
                 <div id="checkout-alert-container"></div>
-
-                <?php if ($isBuyNow): ?>
-                <div class="alert alert-info d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4" role="alert">
-                    <div>
-                        <i class="fas fa-bolt me-2"></i>
-                        <strong>Express checkout</strong> &mdash; you're buying just this one item. Your cart is untouched.
-                    </div>
-                    <a href="view-cart.php" class="text-decoration-underline small">Use my cart instead</a>
-                </div>
-                <?php endif; ?>
 
                 <div class="row">
                     <div class="col-lg-7">

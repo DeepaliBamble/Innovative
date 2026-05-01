@@ -2,9 +2,6 @@
 <?php
 require_once __DIR__ . '/includes/init.php';
 
-// Visiting the cart implies the user is no longer in a Buy Now flow.
-unset($_SESSION['buy_now']);
-
 // Require login before accessing cart page
 if (!isLoggedIn()) {
     // Set absolute path for redirect after login
