@@ -180,40 +180,101 @@ body {
 
 .admin-tabs {
   display: flex;
-  gap: 8px;
+  align-items: center;
+  gap: 4px;
   overflow-x: auto;
-  padding: 12px 32px;
+  overflow-y: hidden;
+  padding: 0 32px;
   background: var(--admin-bg-card);
   border-bottom: 1px solid var(--admin-border);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.02);
   scrollbar-width: thin;
+  scrollbar-color: var(--admin-border) transparent;
+}
+
+.admin-tabs::-webkit-scrollbar {
+  height: 4px;
+}
+
+.admin-tabs::-webkit-scrollbar-thumb {
+  background: var(--admin-border);
+  border-radius: 4px;
 }
 
 .admin-tab {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 9px 14px;
-  color: var(--admin-text);
+  padding: 14px 18px;
+  color: var(--admin-text-light);
   text-decoration: none;
-  border: 1px solid var(--admin-border);
-  border-radius: 8px;
-  background: #fff;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
   white-space: nowrap;
-  font-size: 0.9rem;
+  font-size: 0.875rem;
   font-weight: 500;
-  transition: all 0.2s ease;
+  letter-spacing: 0.01em;
+  position: relative;
+  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.admin-tab i {
+  font-size: 1rem;
+  line-height: 1;
+  opacity: 0.85;
+  transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
 .admin-tab:hover {
-  border-color: var(--admin-primary-light);
   color: var(--admin-primary-dark);
-  box-shadow: var(--admin-shadow);
+  background: rgba(158, 103, 71, 0.04);
+}
+
+.admin-tab:hover i {
+  opacity: 1;
 }
 
 .admin-tab.active {
-  background: var(--admin-primary);
-  border-color: var(--admin-primary);
-  color: #fff;
+  color: var(--admin-primary-dark);
+  border-bottom-color: var(--admin-primary);
+  font-weight: 600;
+  background: linear-gradient(180deg, rgba(158, 103, 71, 0.04) 0%, rgba(158, 103, 71, 0) 100%);
+}
+
+.admin-tab.active i {
+  opacity: 1;
+  color: var(--admin-primary);
+}
+
+.admin-tab:focus-visible {
+  outline: 2px solid var(--admin-primary);
+  outline-offset: -2px;
+  border-radius: 4px;
+}
+
+@media (max-width: 768px) {
+  .admin-tabs {
+    padding: 0 16px;
+  }
+
+  .admin-tab {
+    padding: 12px 14px;
+    font-size: 0.8125rem;
+  }
+
+  .admin-tab span {
+    display: none;
+  }
+
+  .admin-tab i {
+    font-size: 1.15rem;
+  }
+
+  .admin-tab.active span {
+    display: inline;
+  }
 }
 
 /* Content Area */
