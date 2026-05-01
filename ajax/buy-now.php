@@ -9,12 +9,12 @@
 require_once __DIR__ . '/../includes/init.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    redirect('shop.php');
+    redirect('/shop.php');
 }
 
 if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
     setFlashMessage('error', 'Security token expired. Please try again.');
-    redirect('shop.php');
+    redirect('/shop.php');
 }
 
 $productId = isset($_POST['product_id']) ? (int) $_POST['product_id'] : 0;
@@ -23,7 +23,7 @@ if ($quantity < 1) $quantity = 1;
 
 if ($productId <= 0) {
     setFlashMessage('error', 'Invalid product.');
-    redirect('shop.php');
+    redirect('/shop.php');
 }
 
 try {
@@ -33,12 +33,12 @@ try {
 
     if (!$product || (int) $product['is_active'] !== 1) {
         setFlashMessage('error', 'Product not available.');
-        redirect('shop.php');
+        redirect('/shop.php');
     }
 
     if ((int) $product['stock_quantity'] < $quantity) {
         setFlashMessage('error', 'Insufficient stock for this product.');
-        redirect('product-detail.php?id=' . $productId);
+        redirect('/product-detail.php?id=' . $productId);
     }
 
     // Stage the single-product checkout. Cart table is intentionally untouched.
@@ -48,10 +48,10 @@ try {
         'created_at' => time(),
     ];
 
-    redirect('checkout.php');
+    redirect('/checkout.php');
 
 } catch (Throwable $e) {
     error_log('Buy Now error: ' . $e->getMessage());
     setFlashMessage('error', 'Could not start checkout. Please try again.');
-    redirect('product-detail.php?id=' . $productId);
+    redirect('/product-detail.php?id=' . $productId);
 }
