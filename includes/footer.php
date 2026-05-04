@@ -197,3 +197,214 @@
 </div>
 
 <?php include __DIR__ . '/search-modal.php'; ?>
+
+<!-- Customise Service Popup -->
+<div id="customisePopupOverlay" class="customise-popup-overlay" aria-hidden="true">
+    <div class="customise-popup" role="dialog" aria-modal="true" aria-labelledby="customisePopupTitle">
+        <button type="button" class="customise-popup-close" aria-label="Close popup">
+            <i class="icon icon-close"></i>
+        </button>
+        <div class="customise-popup-image">
+            <img src="images/logo/logo.png" alt="Innovative Homesi" loading="lazy">
+        </div>
+        <div class="customise-popup-content">
+            <span class="customise-popup-badge">Bespoke Service</span>
+            <h3 id="customisePopupTitle" class="customise-popup-title">Design Furniture That's Truly Yours</h3>
+            <p class="customise-popup-text">
+                Choose your fabric, colour, size and style. Our craftsmen will build a one-of-a-kind piece, made just for your home.
+            </p>
+            <ul class="customise-popup-features">
+                <li><i class="fa-solid fa-check"></i> Custom fabrics &amp; finishes</li>
+                <li><i class="fa-solid fa-check"></i> Made-to-measure dimensions</li>
+                <li><i class="fa-solid fa-check"></i> Personal design consultation</li>
+            </ul>
+            <a href="customise-service.php" class="tf-btn customise-popup-cta">
+                Explore Customise Service
+                <i class="icon icon-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+.customise-popup-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    z-index: 99998;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.35s ease, visibility 0.35s ease;
+}
+.customise-popup-overlay.is-visible {
+    opacity: 1;
+    visibility: visible;
+}
+.customise-popup {
+    position: relative;
+    background: #faf1e5;
+    border-radius: 14px;
+    max-width: 880px;
+    width: 100%;
+    max-height: 92vh;
+    overflow: hidden;
+    display: flex;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    transform: translateY(20px) scale(0.96);
+    transition: transform 0.35s ease;
+}
+.customise-popup-overlay.is-visible .customise-popup {
+    transform: translateY(0) scale(1);
+}
+.customise-popup-close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255, 255, 255, 0.9);
+    color: #333;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    z-index: 2;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+.customise-popup-close:hover {
+    background: #fff;
+    transform: rotate(90deg);
+}
+.customise-popup-image {
+    flex: 0 0 42%;
+    background: #efe1c8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+}
+.customise-popup-image img {
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+}
+.customise-popup-content {
+    flex: 1;
+    padding: 40px 36px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.customise-popup-badge {
+    display: inline-block;
+    background: #6b4226;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 20px;
+    margin-bottom: 14px;
+    width: fit-content;
+}
+.customise-popup-title {
+    font-size: 26px;
+    line-height: 1.25;
+    color: #2a1a0a;
+    margin: 0 0 12px;
+}
+.customise-popup-text {
+    color: #5a4a3a;
+    font-size: 15px;
+    line-height: 1.6;
+    margin: 0 0 18px;
+}
+.customise-popup-features {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 24px;
+}
+.customise-popup-features li {
+    color: #3a2a1a;
+    font-size: 14px;
+    padding: 4px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.customise-popup-features i {
+    color: #6b4226;
+    font-size: 12px;
+}
+.customise-popup-cta {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+@media (max-width: 768px) {
+    .customise-popup {
+        flex-direction: column;
+        max-width: 420px;
+    }
+    .customise-popup-image {
+        flex: 0 0 auto;
+        padding: 24px;
+    }
+    .customise-popup-image img {
+        max-height: 110px;
+    }
+    .customise-popup-content {
+        padding: 26px 24px 30px;
+    }
+    .customise-popup-title {
+        font-size: 22px;
+    }
+}
+</style>
+
+<script>
+(function () {
+    if (sessionStorage.getItem('customisePopupShown') === '1') return;
+
+    var DELAY_MS = 30000;
+    var overlay = document.getElementById('customisePopupOverlay');
+    if (!overlay) return;
+
+    var closeBtn = overlay.querySelector('.customise-popup-close');
+    var timer = setTimeout(showPopup, DELAY_MS);
+
+    function showPopup() {
+        overlay.classList.add('is-visible');
+        overlay.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+        sessionStorage.setItem('customisePopupShown', '1');
+    }
+
+    function hidePopup() {
+        overlay.classList.remove('is-visible');
+        overlay.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+    }
+
+    closeBtn.addEventListener('click', hidePopup);
+    overlay.addEventListener('click', function (e) {
+        if (e.target === overlay) hidePopup();
+    });
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && overlay.classList.contains('is-visible')) hidePopup();
+    });
+    overlay.querySelector('.customise-popup-cta').addEventListener('click', function () {
+        sessionStorage.setItem('customisePopupShown', '1');
+    });
+})();
+</script>
+<!-- /Customise Service Popup -->
