@@ -1206,7 +1206,7 @@ require_once __DIR__ . '/includes/init.php';
                                 <i class="fa-solid fa-pencil-ruler"></i>
                             </div>
                             <h4>Design</h4>
-                            <p>Our designers create detailed sketches and 3D models, ensuring every detail matches your expectations.</p>
+                            <p>Our designers create detailed sketches, ensuring every detail matches your expectations.</p>
                         </div>
                     </div>
                     <!-- Step 3 -->

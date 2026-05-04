@@ -396,10 +396,24 @@ $page_title = htmlspecialchars($product['name']) . ' - Innovative Homesi';
                                         </div>
                                     </div>
 
-                                    <!-- Short Description -->
-                                    <?php if ($product['short_desc']): ?>
+                                    <!-- Short Description Teaser -->
+                                    <?php
+                                    $teaserSource = $product['short_desc'] ?: $product['description'];
+                                    if ($teaserSource):
+                                        $teaserPlain = trim(preg_replace('/\s+/', ' ', strip_tags($teaserSource)));
+                                        $teaserLimit = 180;
+                                        $needsReadMore = mb_strlen($teaserPlain) > $teaserLimit;
+                                        $teaser = $needsReadMore
+                                            ? rtrim(mb_substr($teaserPlain, 0, $teaserLimit), " \t\n\r\0\x0B.,") . '…'
+                                            : $teaserPlain;
+                                    ?>
                                     <div class="product-short-description mb-4">
-                                        <p><?php echo nl2br(htmlspecialchars($product['short_desc'])); ?></p>
+                                        <p class="mb-2"><?php echo htmlspecialchars($teaser); ?></p>
+                                        <?php if ($needsReadMore): ?>
+                                        <a href="#product-tabs" class="js-read-more fw-semibold" style="color: #9e6747;">
+                                            Read more <i class="icon icon-arrow-right ms-1"></i>
+                                        </a>
+                                        <?php endif; ?>
                                     </div>
                                     <?php endif; ?>
 
@@ -567,21 +581,22 @@ $page_title = htmlspecialchars($product['name']) . ' - Innovative Homesi';
         <!-- /Product Main -->
 
         <!-- Product Description & Specifications -->
-        <section class="flat-spacing-2">
+        <section class="flat-spacing-2" id="product-tabs">
             <div class="container">
                 <div class="row">
                     <div class="col-12">
+                        <?php $specsFirst = !empty($product_attributes); ?>
                         <ul class="nav nav-tabs widget-tab-1" role="tablist">
+                            <?php if ($specsFirst): ?>
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#description"
-                                    type="button" role="tab">Description</button>
-                            </li>
-                            <?php if (!empty($product_attributes)): ?>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#specifications"
+                                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#specifications"
                                     type="button" role="tab">Specifications</button>
                             </li>
                             <?php endif; ?>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link <?php echo $specsFirst ? '' : 'active'; ?>" data-bs-toggle="tab" data-bs-target="#description"
+                                    type="button" role="tab" id="description-tab">Description</button>
+                            </li>
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link" data-bs-toggle="tab" data-bs-target="#shippingPolicy"
                                     type="button" role="tab">Shipping Policy</button>
@@ -592,20 +607,9 @@ $page_title = htmlspecialchars($product['name']) . ' - Innovative Homesi';
                             </li>
                         </ul>
                         <div class="tab-content">
-                            <!-- Description Tab -->
-                            <div class="tab-pane fade show active" id="description" role="tabpanel">
-                                <div class="product-description">
-                                    <?php if ($product['description']): ?>
-                                        <?php echo nl2br(htmlspecialchars($product['description'])); ?>
-                                    <?php else: ?>
-                                        <p>No detailed description available for this product.</p>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
-
                             <!-- Specifications Tab -->
-                            <?php if (!empty($product_attributes)): ?>
-                            <div class="tab-pane fade" id="specifications" role="tabpanel">
+                            <?php if ($specsFirst): ?>
+                            <div class="tab-pane fade show active" id="specifications" role="tabpanel">
                                 <table class="product-attribute-table">
                                     <tbody>
                                         <?php foreach ($product_attributes as $attribute): ?>
@@ -618,6 +622,17 @@ $page_title = htmlspecialchars($product['name']) . ' - Innovative Homesi';
                                 </table>
                             </div>
                             <?php endif; ?>
+
+                            <!-- Description Tab -->
+                            <div class="tab-pane fade <?php echo $specsFirst ? '' : 'show active'; ?>" id="description" role="tabpanel">
+                                <div class="product-description">
+                                    <?php if ($product['description']): ?>
+                                        <?php echo nl2br(htmlspecialchars($product['description'])); ?>
+                                    <?php else: ?>
+                                        <p>No detailed description available for this product.</p>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
 
                             <!-- Shipping Policy Tab -->
                             <div class="tab-pane fade" id="shippingPolicy" role="tabpanel">
@@ -723,6 +738,22 @@ $page_title = htmlspecialchars($product['name']) . ' - Innovative Homesi';
             const increaseBtn = document.querySelector('.btn-increase');
             const addToCartBtn = document.querySelector('.btn-add-to-cart');
             const addToWishlistBtn = document.querySelector('.btn-add-wishlist');
+
+            // "Read more" teaser link: activate Description tab and scroll to it
+            const readMoreLink = document.querySelector('.js-read-more');
+            if (readMoreLink) {
+                readMoreLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const tabBtn = document.getElementById('description-tab');
+                    const tabsSection = document.getElementById('product-tabs');
+                    if (tabBtn && window.bootstrap && bootstrap.Tab) {
+                        bootstrap.Tab.getOrCreateInstance(tabBtn).show();
+                    }
+                    if (tabsSection) {
+                        tabsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                });
+            }
 
             // Quantity controls with stopImmediatePropagation to prevent main.js handlers
             if (decreaseBtn && increaseBtn && quantityInput) {
