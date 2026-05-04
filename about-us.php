@@ -890,7 +890,7 @@ require_once __DIR__ . '/includes/init.php';
                             WHERE COMFORT MEETS <br class="d-none d-sm-block">
                             CRAFTSMANSHIP
                         </h1>
-                        <a href="shop-left-sidebar.php" class="tf-btn animate-btn">
+                        <a href="shop.php" class="tf-btn animate-btn">
                             Our Products
                             <i class="icon icon-caret-right"></i>
                         </a>
@@ -908,7 +908,7 @@ require_once __DIR__ . '/includes/init.php';
                         <h2 class="about-us-heading">Your Home. Your Story. <br>Our Craft.</h2>
                         <p class="about-us-text">
                         At InnovativeHomesi, we take pride in crafting every piece of furniture in our own manufacturing unit. From design to finishing, every step is handled in-house by our skilled team, ensuring complete quality control and consistent craftsmanship.  We do not outsource our production or rely on third-party manufacturers, which allows us to maintain the highest standards and deliver reliable products. <br> <br>Before dispatch, every item undergoes a strict quality inspection to ensure it meets our durability, comfort, and finish standards. This commitment reflects our dedication to trust, excellence, and complete customer satisfaction. </p>
-                        <a href="shop-left-sidebar.php" class="tf-btn animate-btn">
+                        <a href="shop.php" class="tf-btn animate-btn">
                             Explore Our Collection
                             <i class="icon icon-caret-right"></i>
                         </a>

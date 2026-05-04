@@ -218,14 +218,14 @@ try {
                                 <div class="container">
                                     <div class="content-sld_wrap">
                                         <p class="sub-title_sld h6 text-primary fade-item fade-item-1">
-                                            SALE OFF 50%
+                                            UP TO 70% OFF
                                         </p>
                                         <h1 class="title_sld text-display fade-item fade-item-2"  style="color: #9e6747;">
-                                            Modern & minimalistic
+                                            Save Big on Every Order!
                                         </h1>
                                         <p class="sub-text_sld h5 text-black fade-item fade-item-3">
-                                            Blending timeless craftsmanship with modern design. <br class="d-none d-sm-block">
-                                            Built to last, designed to inspire, and made to feel like home.
+                                            Enjoy Up to 70% OFF on top products, plus get an <br class="d-none d-sm-block">
+                                            Extra 10% Discount for New Users. FREE Delivery on All Orders.
                                         </p>
                                         <div class="fade-item fade-item-4">
                                             <a href="shop.php" class="tf-btn animate-btn fw-normal" style="background-color: #9e6747;">
@@ -248,17 +248,17 @@ try {
                                 <div class="container">
                                     <div class="content-sld_wrap">
                                         <p class="sub-title_sld h6 text-primary fade-item fade-item-1">
-                                            SALE OFF 45%
+                                            CUSTOM-MADE FURNITURE
                                         </p>
                                         <h1 class="title_sld text-display fade-item fade-item-2"  style="color: #9e6747;">
-                                            Clean & contemporary
+                                            Create Furniture That Fits Your Style
                                         </h1>
                                         <p class="sub-text_sld h5 text-black fade-item fade-item-3">
-                                            Furniture that seamlessly blends comfort, functionality, and style. <br class="d-none d-sm-block">
-                                            Using high-quality materials and sustainable practices for lasting beauty.
+                                            Customize your sofa and furniture exactly the way you want — from design and size to fabric and finish. <br class="d-none d-sm-block">
+                                            Crafted for comfort, made to match your space perfectly.
                                         </p>
                                         <div class="fade-item fade-item-4">
-                                            <a href="shop.php" class="tf-btn animate-btn fw-normal" style="background-color: #9e6747;">
+                                            <a href="shop.php?category=sofa" class="tf-btn animate-btn fw-normal" style="background-color: #9e6747;">
                                                 Shop now
                                                 <i class="icon icon-arrow-right"></i>
                                             </a>
@@ -278,17 +278,17 @@ try {
                                 <div class="container">
                                     <div class="content-sld_wrap">
                                         <p class="sub-title_sld h6 text-primary fade-item fade-item-1">
-                                            SALE OFF 30%
+                                            HOME DÉCOR COLLECTION
                                         </p>
                                         <h1 class="title_sld text-display fade-item fade-item-2"  style="color: #9e6747;">
-                                            Sleek & Structured
+                                            Elevate Your Space with Beautiful Home Décor
                                         </h1>
                                         <p class="sub-text_sld h5 text-black fade-item fade-item-3">
-                                            From a small workshop with a big dream to a trusted furniture manufacturer. <br class="d-none d-sm-block">
-                                            Creating furniture that tells your story with 15+ years of experience.
+                                            Explore stylish rugs, cozy cushions, elegant vases, and more. <br class="d-none d-sm-block">
+                                            Add warmth, texture, and personality to every corner of your home.
                                         </p>
                                         <div class="fade-item fade-item-4">
-                                            <a href="shop.php" class="tf-btn animate-btn fw-normal" style="background-color: #9e6747;">
+                                            <a href="shop.php?category=decor-and-vases" class="tf-btn animate-btn fw-normal" style="background-color: #9e6747;">
                                                 Shop now
                                                 <i class="icon icon-arrow-right"></i>
                                             </a>
@@ -480,34 +480,34 @@ try {
             <div class="container-full-2">
                 <div class="tf-grid-layout lg-col-2 gap-0">
                     <div class="box-image_V04 hover-img">
-                        <a href="shop.php" class="box-image_image img-style">
+                        <a href="shop.php?category=sofa" class="box-image_image img-style">
                             <img src="images/section/box-image-6.jpg" data-src="images/section/box-image-6.jpg" alt="" class="lazyload">
                         </a>
                         <div class="box-image_content align-items-center text-center">
                             <h2 class="title type-semibold">
-                                <a href="shop.php" class="link">
+                                <a href="shop.php?category=sofa" class="link">
                                     Modern Furniture Collection
                                 </a>
                             </h2>
                             <p class="sub-title h6">Elegant designs crafted to enhance your living space.</p>
-                            <a href="shop.php" class="tf-btn animate-btn" style="background-color: #9e6747;">
+                            <a href="shop.php?category=sofa" class="tf-btn animate-btn" style="background-color: #9e6747;">
                                 Shop now
                                 <i class="icon icon-arrow-right"></i>
                             </a>
                         </div>
                     </div>
                     <div class="box-image_V04 hover-img">
-                        <a href="shop.php" class="box-image_image img-style">
+                        <a href="shop.php?category=tables-storage" class="box-image_image img-style">
                             <img src="images/section/box-image-7.jpg" data-src="images/section/box-image-7.jpg" alt="" class="lazyload">
                         </a>
                         <div class="box-image_content align-items-center text-center">
                             <h2 class="title type-semibold">
-                                <a href="shop.php" class="link">
+                                <a href="shop.php?category=tables-storage" class="link">
                                     Functional Furniture Solutions
                                 </a>
                             </h2>
                             <p class="sub-title h6">Built for comfort, storage, and style.</p>
-                            <a href="shop.php" class="tf-btn animate-btn" style="background-color: #9e6747;">
+                            <a href="shop.php?category=tables-storage" class="tf-btn animate-btn" style="background-color: #9e6747;">
                                 Shop now
                                 <i class="icon icon-arrow-right"></i>
                             </a>
@@ -593,11 +593,11 @@ try {
 
                                     <div class="testimonial-author" style="display: flex; align-items: center; border-top: 2px solid #f0e6dd; padding-top: 1.5rem;">
                                         <div class="author-avatar" style="width: 50px; height: 50px; background: linear-gradient(135deg, #9e6747, #c49069); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.3rem; font-weight: 600; margin-right: 1rem;">
-                                            BS
+                                            AS
                                         </div>
                                         <div>
                                             <p style="color: #333; font-size: 1.1rem; font-weight: 600; margin: 0; display: flex; align-items: center;">
-                                                Brooklyn Simmons
+                                                Ananya Sharma
                                                 <i class="icon-check-circle" style="color: #4caf50; margin-left: 8px; font-size: 18px;"></i>
                                             </p>
                                             <p style="color: #999; font-size: 0.9rem; margin: 0;">Verified Customer</p>
@@ -629,11 +629,11 @@ try {
 
                                     <div class="testimonial-author" style="display: flex; align-items: center; border-top: 2px solid #f0e6dd; padding-top: 1.5rem;">
                                         <div class="author-avatar" style="width: 50px; height: 50px; background: linear-gradient(135deg, #9e6747, #c49069); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.3rem; font-weight: 600; margin-right: 1rem;">
-                                            MS
+                                            RM
                                         </div>
                                         <div>
                                             <p style="color: #333; font-size: 1.1rem; font-weight: 600; margin: 0; display: flex; align-items: center;">
-                                                Mas Shin
+                                                Rohan Mehta
                                                 <i class="icon-check-circle" style="color: #4caf50; margin-left: 8px; font-size: 18px;"></i>
                                             </p>
                                             <p style="color: #999; font-size: 0.9rem; margin: 0;">Verified Customer</p>
