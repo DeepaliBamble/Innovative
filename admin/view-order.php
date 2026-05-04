@@ -28,12 +28,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $pdo->beginTransaction();
 
+        // Detect whether order_status actually changed so we only log real transitions
+        $prevStmt = $pdo->prepare("SELECT order_status FROM orders WHERE id = ?");
+        $prevStmt->execute([$orderId]);
+        $previousStatus = $prevStmt->fetchColumn();
+
         $stmt = $pdo->prepare("UPDATE orders SET order_status = ?, payment_status = ?, updated_at = NOW() WHERE id = ?");
         $stmt->execute([$orderStatus, $paymentStatus, $orderId]);
 
-        if ($trackingMessage !== '') {
+        if ($previousStatus !== $orderStatus || $trackingMessage !== '') {
             $trackStmt = $pdo->prepare("INSERT INTO order_tracking (order_id, status, message, created_by, created_at) VALUES (?, ?, ?, ?, NOW())");
-            $trackStmt->execute([$orderId, $orderStatus, $trackingMessage, $_SESSION['admin_name'] ?? 'admin']);
+            $trackStmt->execute([
+                $orderId,
+                $orderStatus,
+                $trackingMessage !== '' ? $trackingMessage : null,
+                $_SESSION['admin_name'] ?? 'admin',
+            ]);
         }
 
         $pdo->commit();

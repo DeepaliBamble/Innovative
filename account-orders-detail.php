@@ -57,6 +57,16 @@ $itemsStmt = $pdo->prepare('
 $itemsStmt->execute([$orderId]);
 $orderItems = $itemsStmt->fetchAll();
 
+// Fetch order status history (chronological)
+$trackingStmt = $pdo->prepare('
+    SELECT status, message, created_by, created_at
+    FROM order_tracking
+    WHERE order_id = ?
+    ORDER BY created_at ASC, id ASC
+');
+$trackingStmt->execute([$orderId]);
+$orderTracking = $trackingStmt->fetchAll();
+
 // Get first item for display
 $firstItem = $orderItems[0] ?? null;
 
@@ -156,13 +166,8 @@ if ($order['address_line1']) {
                         <div class="sidebar-account sidebar-content-wrap sticky-top">
                             <div class="account-author">
                                 <div class="author_avatar">
-                                    <div class="image">
-                                        <img id="imgDash" class="lazyload" src="images/avatar/avatar-4.jpg" data-src="images/avatar/avatar-4.jpg"
-                                            alt="Avatar">
-                                    </div>
-                                    <input type="file" id="fileInputDash" accept="image/*" style="display: none;">
-                                    <div class="btn-change_img box-icon" id="changeImgDash">
-                                        <i class="icon icon-camera"></i>
+                                    <div class="image author_avatar-initial" style="width:120px;height:120px;border-radius:50%;background:linear-gradient(135deg,#9e6747,#c49069);color:#fff;display:flex;align-items:center;justify-content:center;font-size:2.75rem;font-weight:600;margin:0 auto;">
+                                        <?php echo htmlspecialchars(mb_strtoupper(mb_substr(trim($user['name']), 0, 1))); ?>
                                     </div>
                                 </div>
                                 <h4 class="author_name"><?php echo htmlspecialchars($user['name']); ?></h4>
@@ -265,13 +270,6 @@ if ($order['address_line1']) {
                                         </a>
                                     </li>
                                     <li class="nav-tab-item" role="presentation">
-                                        <a href="#courier" data-bs-toggle="tab" class="tf-btn-line tf-btn-tab">
-                                            <span class="h4">
-                                                Courier
-                                            </span>
-                                        </a>
-                                    </li>
-                                    <li class="nav-tab-item" role="presentation">
                                         <a href="#receiver" data-bs-toggle="tab" class="tf-btn-line tf-btn-tab">
                                             <span class="h4">
                                                 Receiver
@@ -281,59 +279,55 @@ if ($order['address_line1']) {
                                 </ul>
                                 <div class="tab-content overflow-hidden">
                                     <div class="tab-pane active show" id="order-history" role="tabpanel">
+                                        <?php
+                                        $statusMeta = [
+                                            'pending'    => ['label' => 'Order placed',       'icon' => 'icon-check-1'],
+                                            'processing' => ['label' => 'Order processing',   'icon' => 'icon-check-1'],
+                                            'shipped'    => ['label' => 'Product shipped',    'icon' => 'icon-truck'],
+                                            'delivered'  => ['label' => 'Product delivered',  'icon' => 'icon-check-1'],
+                                            'cancelled'  => ['label' => 'Order cancelled',    'icon' => 'icon-close'],
+                                            'refunded'   => ['label' => 'Order refunded',     'icon' => 'icon-arrow-counter-clockwise'],
+                                        ];
+                                        ?>
                                         <div class="order-timeline">
+                                            <?php if (empty($orderTracking)): ?>
                                             <div class="timeline-step completed">
                                                 <div class="timeline_icon">
-                                                    <span class="icon">
-                                                        <i class="icon-check-1"></i>
-                                                    </span>
-                                                </div>
-                                                <div class="timeline_content">
-                                                    <h5 class="step-title fw-semibold">Product shipped</h5>
-                                                    <h6 class="step-date fw-normal">April 3, 2025 - 10:52</h6>
-                                                    <p class="step-detail h6">
-                                                        <span class="fw-semibold text-black">Shipping carrier:</span> DHL Home - Logistics
-                                                    </p>
-                                                    <p class="step-detail h6">
-                                                        <span class="fw-semibold text-black">Estimated delivery date:</span> April 6, 2025 - 06:42
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <div class="timeline-step completed">
-                                                <div class="timeline_icon">
-                                                    <span class="icon">
-                                                        <i class="icon-truck"></i>
-                                                    </span>
-                                                </div>
-                                                <div class="timeline_content">
-                                                    <h5 class="step-title fw-semibold">Product returned</h5>
-                                                    <h6 class="step-date fw-normal">April 4, 2025 - 14:30</h6>
-                                                    <p class="step-detail h6">Return method: UPS Pickup</p>
-                                                    <p class="step-detail h6">Return authorization: RA987654</p>
-                                                </div>
-                                            </div>
-                                            <div class="timeline-step">
-                                                <div class="timeline_icon">
-                                                    <span class="icon">
-                                                        <i class="icon-check-1"></i>
-                                                    </span>
-                                                </div>
-                                                <div class="timeline_content">
-                                                    <h5 class="step-title fw-semibold">Product delivered</h5>
-                                                    <h6 class="step-date fw-normal mb-0">April 6, 2025 - 07:15</h6>
-                                                </div>
-                                            </div>
-                                            <div class="timeline-step">
-                                                <div class="timeline_icon">
-                                                    <span class="icon">
-                                                        <i class="icon-check-1"></i>
-                                                    </span>
+                                                    <span class="icon"><i class="icon-check-1"></i></span>
                                                 </div>
                                                 <div class="timeline_content">
                                                     <h5 class="step-title fw-semibold">Order placed</h5>
-                                                    <h6 class="step-date fw-normal mb-0">April 6, 2025 - 07:15</h6>
+                                                    <h6 class="step-date fw-normal mb-0">
+                                                        <?php echo formatDate($order['created_at'], 'F j, Y - H:i'); ?>
+                                                    </h6>
+                                                    <p class="step-detail h6 mt-2 mb-0">
+                                                        Order #<?php echo htmlspecialchars($order['order_number']); ?>
+                                                    </p>
                                                 </div>
                                             </div>
+                                            <?php else: foreach ($orderTracking as $event):
+                                                $meta = $statusMeta[$event['status']] ?? [
+                                                    'label' => ucfirst($event['status']),
+                                                    'icon'  => 'icon-check-1',
+                                                ];
+                                            ?>
+                                            <div class="timeline-step completed">
+                                                <div class="timeline_icon">
+                                                    <span class="icon"><i class="<?php echo $meta['icon']; ?>"></i></span>
+                                                </div>
+                                                <div class="timeline_content">
+                                                    <h5 class="step-title fw-semibold"><?php echo htmlspecialchars($meta['label']); ?></h5>
+                                                    <h6 class="step-date fw-normal mb-0">
+                                                        <?php echo formatDate($event['created_at'], 'F j, Y - H:i'); ?>
+                                                    </h6>
+                                                    <?php if (!empty($event['message'])): ?>
+                                                    <p class="step-detail h6 mt-2 mb-0">
+                                                        <?php echo htmlspecialchars($event['message']); ?>
+                                                    </p>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </div>
+                                            <?php endforeach; endif; ?>
                                         </div>
                                     </div>
                                     <div class="tab-pane" id="item-detail" role="tabpanel">
@@ -382,16 +376,6 @@ if ($order['address_line1']) {
                                                 <span class="fw-semibold h6 text-black"><?php echo formatPrice($order['total_amount']); ?></span>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="tab-pane" id="courier" role="tabpanel">
-                                        <p class="h6 text-courier h6">
-                                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer convallis velit erat, at bibendum leo
-                                            lacinia faucibus. Donec quis eleifend enim. Phasellus hendrerit pellentesque augue ac scelerisque. Nunc
-                                            tristique maximus dignissim. Sed porta facilisis augue, iaculis ullamcorper magna fringilla nec. In hac
-                                            habitasse platea dictumst. Aenean quam lectus, vulputate non ultrices nec, ornare a velit. Vestibulum
-                                            lobortis felis non fringilla cursus. Suspendisse odio est, fermentum quis sodales ut, hendrerit ut velit.
-                                            Pellentesque pellentesque ligula et elit placerat, quis finibus quam consequat.
-                                        </p>
                                     </div>
                                     <div class="tab-pane" id="receiver" role="tabpanel">
                                         <div class="order-receiver">

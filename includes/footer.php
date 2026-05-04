@@ -50,7 +50,7 @@
                             <ul class="footer-menu-list" style="gap: 2px;">
                                 <li><a href="about-us.php" class="link h6">About us</a></li>
                                 <li><a href="blogs.php" class="link h6">Blogs</a></li>
-                                <li><a href="track-order.php" class="link h6">Track order</a></li>
+                                <li><a href="customise-service.php" class="link h6">Customise Service</a></li>
                                 <li><a href="gallery.php" class="link h6">Gallery</a></li>
                                 <li><a href="wishlist.php" class="link h6">My wishlist</a></li>
 
