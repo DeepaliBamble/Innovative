@@ -1868,14 +1868,19 @@ header.header-sticky {
     padding-right: 12px;
     max-width: 100%;
   }
-  .tf-header .col-xl-2:first-of-type,
+  .tf-header .col-xl-2:first-of-type {
+    flex: 0 0 auto;
+    width: 7%;
+    padding-right: 0;
+  }
   .tf-header .col-xl-2:last-of-type {
     flex: 0 0 auto;
-    width: 12%;
+    width: 11%;
   }
   .tf-header .col-xl-8 {
     flex: 0 0 auto;
-    width: 76%;
+    width: 82%;
+    padding-left: 8px;
   }
   .tf-header .logo-site {
     justify-content: flex-start !important;
@@ -1886,7 +1891,8 @@ header.header-sticky {
   }
   .tf-header .box-nav-menu {
     gap: 14px;
-    justify-content: center;
+    justify-content: flex-start;
+    padding-left: 4px;
   }
   .tf-header .item-link {
     font-size: 13px;
