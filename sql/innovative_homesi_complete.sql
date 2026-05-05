@@ -141,7 +141,8 @@ INSERT INTO `categories` (`id`, `name`, `slug`, `description`, `image_path`, `pa
 (29, 'Decor & Vases', 'decor-and-vases', NULL, NULL, NULL, 6, 1, '2025-12-06 10:51:15', '2025-12-06 11:00:38'),
 (30, 'Vases', 'vases', NULL, NULL, 29, 1, 1, '2025-12-06 10:51:15', '2025-12-06 10:51:15'),
 (31, 'Lamps', 'lamps', NULL, NULL, 29, 2, 1, '2025-12-06 10:51:15', '2025-12-06 10:51:15'),
-(32, 'Wall Art', 'wall-art', NULL, NULL, 29, 3, 1, '2025-12-06 10:51:15', '2025-12-06 10:51:15');
+(32, 'Wall Art', 'wall-art', NULL, NULL, 29, 3, 1, '2025-12-06 10:51:15', '2025-12-06 10:51:15'),
+(33, 'Accessories & Hardware', 'accessories-and-hardware', 'Furniture accessories and hardware.', NULL, NULL, 7, 1, '2026-05-05 00:00:00', '2026-05-05 00:00:00');
 
 CREATE TABLE `products` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -691,7 +692,7 @@ ALTER TABLE `addresses` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 ALTER TABLE `blogs` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 ALTER TABLE `blog_comments` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 ALTER TABLE `cart` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-ALTER TABLE `categories` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
+ALTER TABLE `categories` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
 ALTER TABLE `contact_messages` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 ALTER TABLE `customise_enquiries` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 ALTER TABLE `coupons` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
@@ -725,7 +726,7 @@ COMMIT;
 -- Database: innovative_homesi
 -- Tables: 27
 -- Default Users: Admin (admin@innovative.com) | Customer (customer@test.com)
--- Categories: 32 (6 parent, 26 child)
+-- Categories: 33 (7 parent, 26 child)
 -- Blog Posts: 3 sample articles
 --
 -- IMPORTANT: Change default passwords after first login!
