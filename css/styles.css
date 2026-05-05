@@ -1864,24 +1864,36 @@ header.header-sticky {
 /* Header-scoped layout tweaks: tighten left/right padding, shrink logo column, give nav more room */
 @media (min-width: 1200px) {
   .tf-header > .container {
-    padding-left: 12px;
-    padding-right: 12px;
+    padding-left: 16px;
+    padding-right: 16px;
     max-width: 100%;
+  }
+  .tf-header > .container > .row {
+    flex-wrap: nowrap;
+    --bs-gutter-x: 0;
+    margin-left: 0;
+    margin-right: 0;
+  }
+  .tf-header > .container > .row > [class*="col-"] {
+    padding-left: 0;
+    padding-right: 0;
   }
   .tf-header .col-xl-2:first-of-type {
     flex: 0 0 auto;
-    width: 8%;
-    padding-right: 0;
+    width: 9%;
+    min-width: 70px;
   }
   .tf-header .col-xl-2:last-of-type {
     flex: 0 0 auto;
     width: 14%;
+    min-width: 140px;
   }
   .tf-header .col-xl-8 {
-    flex: 0 0 auto;
-    width: 78%;
-    padding-left: 8px;
+    flex: 1 1 auto;
+    width: auto;
     min-width: 0;
+    padding-left: 12px;
+    padding-right: 12px;
   }
   .tf-header .logo-site {
     justify-content: flex-start !important;
@@ -1892,8 +1904,7 @@ header.header-sticky {
   }
   .tf-header .box-nav-menu {
     gap: 10px;
-    justify-content: flex-start;
-    padding-left: 4px;
+    justify-content: center;
     flex-wrap: nowrap;
   }
   .tf-header .item-link {
@@ -1901,12 +1912,14 @@ header.header-sticky {
     line-height: 18px;
     gap: 3px;
     letter-spacing: 0.1px;
+    white-space: nowrap;
   }
   .tf-header .item-link .icon {
     font-size: 9px;
   }
   .tf-header .nav-icon-list {
     justify-content: flex-end;
+    flex-wrap: nowrap;
   }
 }
 
@@ -1926,12 +1939,6 @@ header.header-sticky {
 }
 
 @media (min-width: 1600px) {
-  .tf-header .col-xl-2:last-of-type {
-    width: 12%;
-  }
-  .tf-header .col-xl-8 {
-    width: 80%;
-  }
   .tf-header .box-nav-menu {
     gap: 20px;
   }
