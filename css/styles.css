@@ -1913,6 +1913,8 @@ header.header-sticky {
     gap: 3px;
     letter-spacing: 0.1px;
     white-space: nowrap;
+    padding-top: 40px;
+    padding-bottom: 40px;
   }
   .tf-header .item-link .icon {
     font-size: 9px;
@@ -17069,7 +17071,7 @@ html:not([dir=rtl]) .noUi-horizontal .noUi-handle {
 
 .page_content {
   position: absolute;
-  top: 60px;
+  top: 100px;
   left: 0;
   right: 0;
   bottom: 0;
@@ -17079,7 +17081,7 @@ html:not([dir=rtl]) .noUi-horizontal .noUi-handle {
 }
 
 .s-page-title {
-  padding: 60px 0px;
+  padding: 100px 0px 60px;
   background-color: var(--bg-9);
 }
 .s-page-title .content {
@@ -17105,20 +17107,20 @@ html:not([dir=rtl]) .noUi-horizontal .noUi-handle {
   padding: 0;
 }
 .s-page-title.style-2 .content {
-  padding-top: 16px;
+  padding-top: 100px;
   padding-bottom: 49px;
   text-align: left;
   border-top: 1px solid var(--line-8);
 }
 @media (min-width: 992px) {
   .s-page-title {
-    padding: 80px 0px;
+    padding: 120px 0px 80px;
   }
 }
 @media (min-width: 1200px) {
   .s-page-title {
-    padding-top: 111px;
-    padding-bottom: 110px;
+    padding-top: 150px;
+    padding-bottom: 100px;
   }
   .s-page-title .title-page {
     line-height: 67px;
