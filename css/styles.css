@@ -2448,7 +2448,7 @@ header.header-sticky {
   display: flex;
   align-items: center;
   justify-content: end;
-  gap: 12px;
+  gap: 6px;
 }
 
 .nav-icon-list li {
@@ -2457,7 +2457,7 @@ header.header-sticky {
 
 .nav-icon-list .shop-cart {
   position: relative;
-  margin-right: 12px;
+  margin-right: 6px;
 }
 
 .nav-icon-list .count {
@@ -2480,13 +2480,13 @@ header.header-sticky {
 
 @media (min-width: 768px) {
   .nav-icon-list .shop-cart {
-    margin-right: 12px;
+    margin-right: 6px;
   }
 }
 
 @media (min-width: 1200px) {
   .nav-icon-list {
-    gap: 24px;
+    gap: 12px;
   }
 }
 

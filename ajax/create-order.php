@@ -175,7 +175,7 @@ try {
 
     try {
         // Generate unique order number
-        $orderNumber = generateOrderNumber();
+        $orderNumber = generateOrderNumber($pdo);
 
         // Create order in database
         $orderStmt = $pdo->prepare("

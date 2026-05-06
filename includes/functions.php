@@ -251,10 +251,27 @@ function calculateOrderTotal($subtotal, $tax = 0, $shipping = 0, $discount = 0) 
 }
 
 /**
- * Generate order number
+ * Generate the next sequential order number for today.
+ * Format: ORD-YYYYMMDD-A#### (sequence resets each day, starts at A1001).
  */
-function generateOrderNumber() {
-    return 'ORD-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -6));
+function generateOrderNumber(PDO $pdo) {
+    $datePart = date('Ymd');
+    $prefix   = 'ORD-' . $datePart . '-A';
+
+    $stmt = $pdo->prepare(
+        "SELECT order_number FROM orders
+         WHERE order_number LIKE :prefix
+         ORDER BY id DESC LIMIT 1"
+    );
+    $stmt->execute([':prefix' => $prefix . '%']);
+    $last = $stmt->fetchColumn();
+
+    $next = 1001;
+    if ($last !== false && preg_match('/-A(\d+)$/', $last, $m)) {
+        $next = ((int) $m[1]) + 1;
+    }
+
+    return $prefix . str_pad((string) $next, 4, '0', STR_PAD_LEFT);
 }
 
 /**
