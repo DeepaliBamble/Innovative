@@ -27,13 +27,13 @@ try {
     error_log('Error fetching latest products: ' . $e->getMessage());
 }
 
-// Fetch categories for Shop By Category section - limit to 6 main categories
+// Fetch categories for Shop By Category section
 try {
     $stmt = $pdo->query("SELECT id, name, slug, image_path, description
                          FROM categories
                          WHERE is_active = 1 AND parent_id IS NULL
                          ORDER BY display_order ASC, name ASC
-                         LIMIT 6");
+                         LIMIT 7");
     $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     $categories = [];
@@ -353,7 +353,8 @@ try {
                             'cate-20.jpg',
                             'cate-21.jpg',
                             'cate-22.jpg',
-                            'cate-23.jpg'
+                            'cate-23.jpg',
+                            'cate-24.jpg'
                         ];
 
                         if (!empty($categories)):
