@@ -62,6 +62,48 @@ require_once __DIR__ . '/includes/init.php';
     <link rel="apple-touch-icon-precomposed" href="images/logo/favicon.svg">
 
     <style>
+        .page-title-customise {
+            padding: 70px 0 60px;
+            margin-top: 24px;
+            border-top: 1px solid var(--line);
+        }
+
+        .page-title-customise .title-page {
+            margin-bottom: 18px;
+            line-height: 1.15;
+        }
+
+        .page-title-customise .breadcrumbs-page {
+            margin-top: 6px;
+        }
+
+        .page-title-customise p {
+            margin-top: 18px !important;
+            color: var(--text);
+            opacity: 0.85;
+        }
+
+        @media (min-width: 992px) {
+            .page-title-customise {
+                padding: 90px 0 80px;
+                margin-top: 32px;
+            }
+        }
+
+        @media (min-width: 1200px) {
+            .page-title-customise {
+                padding: 110px 0 95px;
+                margin-top: 40px;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .page-title-customise {
+                padding: 50px 0 40px;
+                margin-top: 16px;
+            }
+        }
+
         .customise-feature {
             padding: 40px 30px;
             border-radius: 12px;
@@ -240,7 +282,7 @@ require_once __DIR__ . '/includes/init.php';
         <?php include 'includes/header.php'; ?>
 
         <!-- Page Title Banner -->
-        <section class="s-page-title" style="background: var(--linear-5);">
+        <section class="s-page-title page-title-customise" style="background: var(--linear-5);">
             <div class="container text-center">
                 <div class="content">
                     <h1 class="title-page w-bold">CREATE YOUR PERFECT PIECE</h1>
