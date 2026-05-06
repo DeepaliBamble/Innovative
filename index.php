@@ -501,18 +501,18 @@ try {
             <div class="container-full-2">
                 <div class="tf-grid-layout lg-col-2 gap-0">
                     <div class="box-image_V04 hover-img">
-                        <a href="shop.php?category=sofa" class="box-image_image img-style">
+                        <a href="shop.php?category=extendable-sofa" class="box-image_image img-style">
                             <img src="images/section/box-image-6.jpg" data-src="images/section/box-image-6.jpg" alt=""
                                 class="lazyload">
                         </a>
                         <div class="box-image_content align-items-center text-center">
                             <h2 class="title type-semibold">
-                                <a href="shop.php?category=sofa" class="link">
+                                <a href="shop.php?category=extendable-sofa" class="link">
                                     Modern Furniture Collection
                                 </a>
                             </h2>
                             <p class="sub-title h6">Elegant designs crafted to enhance your living space.</p>
-                            <a href="shop.php?category=sofa" class="tf-btn animate-btn"
+                            <a href="shop.php?category=extendable-sofa" class="tf-btn animate-btn"
                                 style="background-color: #9e6747;">
                                 Shop now
                                 <i class="icon icon-arrow-right"></i>

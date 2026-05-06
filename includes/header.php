@@ -66,11 +66,6 @@
             </div>
             <div class="col-xl-2 col-md-4 col-3">
                 <ul class="nav-icon-list">
-                    <li class="d-none d-md-flex">
-                        <a class="nav-icon-item link" href="#search" data-bs-toggle="modal" aria-label="Search">
-                            <i class="icon icon-magnifying-glass"></i>
-                        </a>
-                    </li>
                     <li class="d-none d-lg-flex">
                         <?php if (isLoggedIn()): ?>
                         <a class="nav-icon-item link" href="account-page.php" aria-label="My account"><i class="icon icon-user"></i></a>
