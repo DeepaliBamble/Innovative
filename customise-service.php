@@ -506,7 +506,7 @@ require_once __DIR__ . '/includes/init.php';
                                 Sofas & Seating
                             </h3>
                             <p class="mb-4" style="color: var(--text); font-size: 0.95rem;">
-                                3 Seater Sofa • L Shape Sofa • U Shape Sofa • Sofa Cum Bed • Modern Sofa • Recliner Sofa
+                                3 Seater Sofa • L Shape Sofa • U Shape Sofa • Sofa Cum Bed • Extendable Sofa • Recliner Sofa
                             </p>
                             <div class="row g-3">
                                 <div class="col-md-3 col-sm-6">

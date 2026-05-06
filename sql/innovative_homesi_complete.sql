@@ -116,7 +116,7 @@ INSERT INTO `categories` (`id`, `name`, `slug`, `description`, `image_path`, `pa
 (3, 'L Shape Sofa', 'l-shape-sofa', NULL, NULL, 1, 2, 1, '2025-12-06 10:51:15', '2025-12-06 10:51:15'),
 (4, 'Sofa Cum Bed', 'sofa-cum-bed', NULL, NULL, 1, 3, 1, '2025-12-06 10:51:15', '2025-12-06 10:51:15'),
 (5, 'U Shape Sofa', 'u-shape-sofa', NULL, NULL, 1, 4, 1, '2025-12-06 10:51:15', '2025-12-06 10:51:15'),
-(6, 'Modern Sofa', 'modern-sofa', NULL, NULL, 1, 5, 1, '2025-12-06 10:51:15', '2025-12-06 10:51:15'),
+(6, 'Extendable Sofa', 'extendable-sofa', NULL, NULL, 1, 5, 1, '2025-12-06 10:51:15', '2025-12-06 10:51:15'),
 (7, 'Recliner Sofa', 'recliner-sofa', NULL, NULL, 1, 6, 1, '2025-12-06 10:51:15', '2025-12-06 10:51:15'),
 (8, 'Chairs', 'chairs', NULL, NULL, NULL, 2, 1, '2025-12-06 10:51:15', '2025-12-06 10:59:09'),
 (9, 'Dining Chair', 'dining-chair', NULL, NULL, 8, 1, 1, '2025-12-06 10:51:15', '2025-12-06 10:51:15'),
