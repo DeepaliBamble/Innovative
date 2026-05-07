@@ -55,6 +55,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 unset($_SESSION['pending_admin_id'], $_SESSION['pending_admin_email'],
                       $_SESSION['pending_admin_name'], $_SESSION['pending_admin_step'],
                       $_SESSION['rate_limit_admin_login']);
+                // Issue a 30-day remember-me cookie so the admin doesn't need to
+                // re-OTP every time the PHP session expires.
+                storeRememberToken($pdo, $adminId);
                 error_log('Admin login OK for ' . $adminEmail . ' from ' . ($_SERVER['REMOTE_ADDR'] ?? '?'));
                 redirect('dashboard.php');
             }

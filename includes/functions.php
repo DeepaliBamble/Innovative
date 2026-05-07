@@ -338,7 +338,9 @@ function clearRememberToken($pdo) {
  * @param PDO $pdo
  */
 function autoLoginFromCookie($pdo) {
-    if (isLoggedIn()) return;
+    // Customer and admin sessions live in separate keys, so re-run for admin
+    // even when a customer session already exists.
+    if (isLoggedIn() && isAdmin()) return;
 
     $token = $_COOKIE['remember_token'] ?? '';
     if (empty($token)) return;
@@ -360,13 +362,23 @@ function autoLoginFromCookie($pdo) {
             return;
         }
 
-        // Restore session
-        $_SESSION['user_id']      = $row['user_id'];
-        $_SESSION['user_name']    = $row['name'];
-        $_SESSION['user_email']   = $row['email'];
-        $_SESSION['user_is_admin'] = $row['is_admin'];
-        $_SESSION['logged_in']    = true;
-        $_SESSION['login_time']   = time();
+        if (!isLoggedIn()) {
+            $_SESSION['user_id']       = $row['user_id'];
+            $_SESSION['user_name']     = $row['name'];
+            $_SESSION['user_email']    = $row['email'];
+            $_SESSION['user_is_admin'] = $row['is_admin'];
+            $_SESSION['logged_in']     = true;
+            $_SESSION['login_time']    = time();
+        }
+
+        // Admin gating reads $_SESSION['admin_id'] specifically — restore it
+        // here so admins don't have to re-OTP after the PHP session expires.
+        if ($row['is_admin'] == 1 && empty($_SESSION['admin_id'])) {
+            $_SESSION['admin_id']       = $row['user_id'];
+            $_SESSION['admin_name']     = $row['name'];
+            $_SESSION['admin_email']    = $row['email'];
+            $_SESSION['admin_login_at'] = time();
+        }
 
         // Rotate token for security
         $stmt = $pdo->prepare('DELETE FROM remember_tokens WHERE token_hash = ?');

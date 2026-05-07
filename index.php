@@ -227,7 +227,7 @@ try {
                             <div class="sld_content text-center">
                                 <div class="container">
                                     <div class="content-sld_wrap">
-                                        <p class="sub-title_sld h6 text-primary fade-item fade-item-1">
+                                        <p class="sub-title_sld h5 text-primary fade-item fade-item-1">
                                             UP TO 70% OFF
                                         </p>
                                         <h1 class="title_sld text-display fade-item fade-item-2"
@@ -262,7 +262,7 @@ try {
                             <div class="sld_content text-center">
                                 <div class="container">
                                     <div class="content-sld_wrap">
-                                        <p class="sub-title_sld h6 text-primary fade-item fade-item-1">
+                                        <p class="sub-title_sld h5 text-primary fade-item fade-item-1">
                                             CUSTOM-MADE FURNITURE
                                         </p>
                                         <h1 class="title_sld text-display fade-item fade-item-2"
@@ -297,7 +297,7 @@ try {
                             <div class="sld_content text-center">
                                 <div class="container">
                                     <div class="content-sld_wrap">
-                                        <p class="sub-title_sld h6 text-primary fade-item fade-item-1">
+                                        <p class="sub-title_sld h5 text-primary fade-item fade-item-1">
                                             HOME DÉCOR COLLECTION
                                         </p>
                                         <h1 class="title_sld text-display fade-item fade-item-2"
