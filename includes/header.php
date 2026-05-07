@@ -14,7 +14,7 @@
             </div>
             <div class="col-xl-8 d-none d-xl-block">
                 <nav class="box-navigation" role="navigation" aria-label="Main navigation">
-                    <ul class="box-nav-menu" style="justify-content: center;">
+                    <ul class="box-nav-menu" style="justify-content: flex-start; padding-left: 30px;">
                         <li class="menu-item">
                             <a href="index.php" class="item-link">Home</a>
                         </li>
@@ -66,6 +66,9 @@
             </div>
             <div class="col-xl-2 col-md-4 col-3">
                 <ul class="nav-icon-list">
+                    <li class="d-none d-sm-flex">
+                        <a class="nav-icon-item link" href="#search" data-bs-toggle="modal" aria-label="Search"><i class="icon icon-magnifying-glass"></i></a>
+                    </li>
                     <li class="d-none d-lg-flex">
                         <?php if (isLoggedIn()): ?>
                         <a class="nav-icon-item link" href="account-page.php" aria-label="My account"><i class="icon icon-user"></i></a>
