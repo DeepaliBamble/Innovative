@@ -4114,19 +4114,19 @@ header.header-sticky {
 
 @media (max-width: 1439px) {
   .tf-slideshow .slider-wrap {
-    height: 650px;
+    height: 550px;
   }
 }
 
 @media (max-width: 767px) {
   .tf-slideshow .slider-wrap {
-    height: 600px;
+    height: 450px;
   }
 }
 
 @media (max-width: 575px) {
   .tf-slideshow .slider-wrap {
-    height: 450px;
+    height: 280px;
   }
 }
 
@@ -4151,13 +4151,13 @@ header.header-sticky {
 
 @media (max-width: 767px) {
   .tf-slideshow-2 .slider-wrap {
-    height: 400px;
+    height: 350px;
   }
 }
 
 @media (max-width: 575px) {
   .tf-slideshow-2 .slider-wrap {
-    height: 350px;
+    height: 280px;
   }
 }
 
@@ -17555,6 +17555,20 @@ html:not([dir=rtl]) .noUi-horizontal .noUi-handle {
 
   100% {
     transform: scale(1);
+  }
+}
+
+@media (max-width: 767px) {
+  @keyframes tf-animate-zoom-in-out {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.03);
+    }
+    100% {
+      transform: scale(1);
+    }
   }
 }
 
