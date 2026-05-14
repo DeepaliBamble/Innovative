@@ -457,6 +457,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 </div>
 
+<!-- SortableJS for image reordering -->
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+
 <script>
 // Validate at least one category is selected before submit
 document.getElementById('productForm').addEventListener('submit', function(e) {
@@ -669,18 +672,44 @@ function displayAdditionalImages() {
     additionalImagesContainer.innerHTML = '';
     additionalImagesList.forEach((path, index) => {
         const col = document.createElement('div');
-        col.className = 'col-4';
+        col.className = 'col-4 image-sort-item';
+        col.setAttribute('data-path', path);
         col.innerHTML = `
-            <div class="position-relative">
-                <img src="../${path}" class="img-thumbnail" style="width: 100%; height: 120px; object-fit: cover;">
+            <div class="position-relative border rounded p-1">
+                <img src="../${path}" class="img-thumbnail border-0" style="width: 100%; height: 120px; object-fit: cover; cursor: move;">
                 <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1"
                         onclick="removeAdditionalImage(${index})">
                     <i class="fas fa-times"></i>
                 </button>
+                <div class="position-absolute bottom-0 start-0 m-1">
+                    <span class="badge bg-dark opacity-75">${index + 1}</span>
+                </div>
             </div>
         `;
         additionalImagesContainer.appendChild(col);
     });
+
+    // Initialize/Re-initialize Sortable
+    if (window.additionalImagesSortable) {
+        // Sortable is already initialized
+    } else {
+        window.additionalImagesSortable = new Sortable(additionalImagesContainer, {
+            animation: 150,
+            ghostClass: 'bg-light',
+            onEnd: function() {
+                // Update additionalImagesList based on new DOM order
+                const newOrder = [];
+                additionalImagesContainer.querySelectorAll('.image-sort-item').forEach(el => {
+                    newOrder.push(el.getAttribute('data-path'));
+                });
+                additionalImagesList = newOrder;
+                additionalImages.value = additionalImagesList.join(',');
+                
+                // Refresh to update badges
+                displayAdditionalImages();
+            }
+        });
+    }
 }
 
 function removeAdditionalImage(index) {
