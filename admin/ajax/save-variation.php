@@ -60,10 +60,10 @@ try {
         }
 
         $file = $_FILES['variation_image'];
-        $allowed_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        $allowed_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/avif'];
 
         if (!in_array($file['type'], $allowed_types)) {
-            throw new Exception('Invalid file type. Only JPG, PNG, GIF, and WebP are allowed');
+            throw new Exception('Invalid file type. Only JPG, PNG, GIF, WebP, and AVIF are allowed');
         }
 
         // Generate unique filename

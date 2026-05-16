@@ -61,13 +61,13 @@ if (!is_writable($uploadDir)) {
 }
 
 // Validate file type
-$allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+$allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/avif'];
 $finfo = finfo_open(FILEINFO_MIME_TYPE);
 $fileType = finfo_file($finfo, $file['tmp_name']);
 finfo_close($finfo);
 
 if (!in_array($fileType, $allowedTypes)) {
-    echo json_encode(['success' => false, 'error' => 'Invalid file type: ' . $fileType . '. Only JPG, PNG, GIF, and WebP are allowed.']);
+    echo json_encode(['success' => false, 'error' => 'Invalid file type: ' . $fileType . '. Only JPG, PNG, GIF, WebP, and AVIF are allowed.']);
     exit;
 }
 
@@ -86,7 +86,8 @@ if (empty($extension)) {
         'image/jpeg' => 'jpg',
         'image/png' => 'png',
         'image/gif' => 'gif',
-        'image/webp' => 'webp'
+        'image/webp' => 'webp',
+        'image/avif' => 'avif'
     ];
     $extension = $mimeToExt[$fileType] ?? 'jpg';
 }

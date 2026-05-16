@@ -490,9 +490,9 @@ include 'includes/header.php';
         // Handle blog image upload
         window.handleBlogImageUpload = function(file) {
             // Validate file type
-            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/avif'];
             if (!allowedTypes.includes(file.type)) {
-                alert('Invalid file type. Only JPG, PNG, GIF, and WebP are allowed.');
+                alert('Invalid file type. Only JPG, PNG, GIF, WebP, and AVIF are allowed.');
                 return;
             }
 

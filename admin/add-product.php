@@ -571,9 +571,9 @@ function handleImageUpload(file, isMain) {
     console.log('Starting upload for:', file.name, 'Size:', file.size, 'Type:', file.type);
 
     // Validate file
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/avif'];
     if (!allowedTypes.includes(file.type)) {
-        alert('Invalid file type. Only JPG, PNG, GIF, and WebP are allowed.');
+        alert('Invalid file type. Only JPG, PNG, GIF, WebP, and AVIF are allowed.');
         console.error('Invalid file type:', file.type);
         return;
     }

@@ -605,9 +605,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Handle file upload
     function handleFileUpload(file) {
         // Validate file type
-        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/avif'];
         if (!allowedTypes.includes(file.type)) {
-            alert('Invalid file type. Only JPG, PNG, GIF, and WebP are allowed.');
+            alert('Invalid file type. Only JPG, PNG, GIF, WebP, and AVIF are allowed.');
             return;
         }
 
@@ -696,7 +696,7 @@ function setupEditUpload(imageId) {
                 const file = e.target.files[0];
 
                 // Validate
-                const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+                const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/avif'];
                 if (!allowedTypes.includes(file.type)) {
                     alert('Invalid file type.');
                     return;
