@@ -235,7 +235,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <div id="mainImagePlaceholder" style="<?= !empty($_POST['image_path']) ? 'display: none;' : '' ?>">
                                         <div class="border rounded p-4 text-center" style="cursor: pointer; background: #f8f9fa;"
                                              onclick="document.getElementById('mainImageUpload').click()">
-                                            <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-2"></i>
+                                            <i class="bi bi-cloud-upload fa-3x text-muted mb-2"></i>
                                             <p class="mb-0">Click to upload main product image</p>
                                             <small class="text-muted">JPG, PNG, WebP (Max 5MB)</small>
                                         </div>
@@ -268,7 +268,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                                     <div class="border rounded p-3 text-center" style="cursor: pointer; background: #f8f9fa;"
                                          onclick="document.getElementById('additionalImagesUpload').click()">
-                                        <i class="fas fa-images fa-2x text-muted mb-2"></i>
+                                        <i class="bi bi-images fa-2x text-muted mb-2"></i>
                                         <p class="mb-0">Click to upload additional images</p>
                                         <small class="text-muted">Select multiple images</small>
                                     </div>
@@ -283,7 +283,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <div class="card-header d-flex justify-content-between align-items-center">
                                 <h5 class="mb-0">Product Specifications</h5>
                                 <button type="button" class="btn btn-sm btn-primary" id="addAttributeBtn">
-                                    <i class="fas fa-plus"></i> Add Specification
+                                    <i class="bi bi-plus"></i> Add Specification
                                 </button>
                             </div>
                             <div class="card-body">
@@ -317,7 +317,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <small class="text-muted">Optional discount price</small>
                                     <div id="discountBadge" class="mt-2" style="display: none;">
                                         <span class="badge bg-danger fs-6">
-                                            <i class="fas fa-tag me-1"></i>
+                                            <i class="bi bi-tag me-1"></i>
                                             <span id="discountPercent">0</span>% OFF
                                         </span>
                                         <small class="text-success ms-2">Customer saves ₹<span id="savingsAmount">0</span></small>
@@ -332,7 +332,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <small class="text-muted">For profit calculation (not shown to customers)</small>
                                     <div id="profitBadge" class="mt-2" style="display: none;">
                                         <span class="badge bg-success fs-6">
-                                            <i class="fas fa-chart-line me-1"></i>
+                                            <i class="bi bi-graph-up me-1"></i>
                                             Profit: ₹<span id="profitAmount">0</span>
                                             (<span id="profitPercent">0</span>%)
                                         </span>
@@ -443,10 +443,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="card">
                             <div class="card-body">
                                 <button type="submit" class="btn btn-success w-100 mb-2">
-                                    <i class="fas fa-save"></i> Create Product
+                                    <i class="bi bi-floppy"></i> Create Product
                                 </button>
                                 <a href="products.php" class="btn btn-secondary w-100">
-                                    <i class="fas fa-times"></i> Cancel
+                                    <i class="bi bi-x-lg"></i> Cancel
                                 </a>
                             </div>
                         </div>
@@ -523,10 +523,10 @@ function calculatePricing() {
         const badge = profitBadge.querySelector('.badge');
         if (profit < 0) {
             badge.className = 'badge bg-danger fs-6';
-            badge.innerHTML = `<i class="fas fa-chart-line-down me-1"></i> Loss: ₹${Math.abs(profit).toLocaleString('en-IN')} (${Math.abs(profitPercentVal)}%)`;
+            badge.innerHTML = `<i class="bi bi-graph-down me-1"></i> Loss: ₹${Math.abs(profit).toLocaleString('en-IN')} (${Math.abs(profitPercentVal)}%)`;
         } else {
             badge.className = 'badge bg-success fs-6';
-            badge.innerHTML = `<i class="fas fa-chart-line me-1"></i> Profit: ₹${profit.toLocaleString('en-IN')} (${profitPercentVal}%)`;
+            badge.innerHTML = `<i class="bi bi-graph-up me-1"></i> Profit: ₹${profit.toLocaleString('en-IN')} (${profitPercentVal}%)`;
         }
     } else {
         profitBadge.style.display = 'none';
@@ -679,7 +679,7 @@ function displayAdditionalImages() {
                 <img src="../${path}" class="img-thumbnail border-0" style="width: 100%; height: 120px; object-fit: cover; cursor: move;">
                 <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1"
                         onclick="removeAdditionalImage(${index})">
-                    <i class="fas fa-times"></i>
+                    <i class="bi bi-x-lg"></i>
                 </button>
                 <div class="position-absolute bottom-0 start-0 m-1">
                     <span class="badge bg-dark opacity-75">${index + 1}</span>
@@ -739,7 +739,7 @@ function addAttributeRow(name = '', value = '') {
     row.className = 'row mb-2 attribute-row align-items-center';
     row.innerHTML = `
         <div class="col-auto" style="cursor:grab;">
-            <span class="attr-drag-handle text-muted" title="Drag to reorder"><i class="fas fa-grip-vertical"></i></span>
+            <span class="attr-drag-handle text-muted" title="Drag to reorder"><i class="bi bi-grip-vertical"></i></span>
         </div>
         <div class="col">
             <input type="text" class="form-control" name="attribute_name[]" placeholder="e.g., Dimensions" value="${name}">
@@ -749,7 +749,7 @@ function addAttributeRow(name = '', value = '') {
         </div>
         <div class="col-auto">
             <button type="button" class="btn btn-sm btn-danger" onclick="this.closest('.attribute-row').remove()">
-                <i class="fas fa-trash"></i>
+                <i class="bi bi-trash"></i>
             </button>
         </div>
     `;
