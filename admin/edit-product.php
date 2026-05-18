@@ -771,18 +771,28 @@ addAttributeBtn.addEventListener('click', function() {
     addAttributeRow();
 });
 
+// Initialize SortableJS on attributes container
+window.attributesSortable = new Sortable(attributesContainer, {
+    handle: '.attr-drag-handle',
+    animation: 150,
+    ghostClass: 'bg-light'
+});
+
 function addAttributeRow(name = '', value = '') {
     const row = document.createElement('div');
-    row.className = 'row mb-2 attribute-row';
+    row.className = 'row mb-2 attribute-row align-items-center';
     row.innerHTML = `
-        <div class="col-5">
+        <div class="col-auto" style="cursor:grab;">
+            <span class="attr-drag-handle text-muted" title="Drag to reorder"><i class="fas fa-grip-vertical"></i></span>
+        </div>
+        <div class="col">
             <input type="text" class="form-control" name="attribute_name[]" placeholder="e.g., Dimensions" value="${name}">
         </div>
-        <div class="col-5">
+        <div class="col">
             <input type="text" class="form-control" name="attribute_value[]" placeholder="e.g., 200cm x 90cm x 85cm" value="${value}">
         </div>
-        <div class="col-2">
-            <button type="button" class="btn btn-sm btn-danger w-100" onclick="this.closest('.attribute-row').remove()">
+        <div class="col-auto">
+            <button type="button" class="btn btn-sm btn-danger" onclick="this.closest('.attribute-row').remove()">
                 <i class="fas fa-trash"></i>
             </button>
         </div>
