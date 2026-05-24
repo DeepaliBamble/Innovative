@@ -78,6 +78,12 @@ $current_page = basename($_SERVER['PHP_SELF']);
                         </a>
                     </li>
                     <li>
+                        <a href="coupons.php" class="<?= $current_page === 'coupons.php' ? 'active' : '' ?>">
+                            <i class="bi bi-ticket-perforated"></i>
+                            <span>Coupons</span>
+                        </a>
+                    </li>
+                    <li>
                         <a href="users.php" class="<?= in_array($current_page, ['users.php', 'edit-user.php']) ? 'active' : '' ?>">
                             <i class="bi bi-people"></i>
                             <span>Users</span>

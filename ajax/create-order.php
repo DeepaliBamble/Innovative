@@ -132,7 +132,9 @@ try {
 
     // Apply coupon if provided
     $discountAmount = 0;
+    $appliedCoupon = null;
     if (!empty($couponCode)) {
+        $couponCode = strtoupper($couponCode);
         $couponStmt = $pdo->prepare("
             SELECT * FROM coupons
             WHERE code = ?
@@ -144,17 +146,38 @@ try {
         $couponStmt->execute([$couponCode]);
         $coupon = $couponStmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($coupon) {
-            if ($subtotal >= $coupon['min_purchase_amount']) {
-                if ($coupon['discount_type'] === 'percentage') {
-                    $discountAmount = ($subtotal * $coupon['discount_value']) / 100;
-                    if ($coupon['max_discount_amount'] && $discountAmount > $coupon['max_discount_amount']) {
-                        $discountAmount = $coupon['max_discount_amount'];
-                    }
-                } else {
-                    $discountAmount = $coupon['discount_value'];
+        if ($coupon && $subtotal >= (float)$coupon['min_purchase_amount']) {
+            // Per-user limit check
+            $perUserLimit = isset($coupon['per_user_limit']) ? (int)$coupon['per_user_limit'] : 0;
+            $userBlocked = false;
+            if ($perUserLimit > 0 && $userId !== null) {
+                $u = $pdo->prepare("SELECT COUNT(*) FROM coupon_usage WHERE coupon_id = ? AND user_id = ?");
+                $u->execute([$coupon['id'], $userId]);
+                if ((int)$u->fetchColumn() >= $perUserLimit) {
+                    $userBlocked = true;
                 }
             }
+
+            if (!$userBlocked) {
+                if ($coupon['discount_type'] === 'percentage') {
+                    $discountAmount = ($subtotal * (float)$coupon['discount_value']) / 100;
+                    if (!empty($coupon['max_discount_amount']) && $discountAmount > (float)$coupon['max_discount_amount']) {
+                        $discountAmount = (float)$coupon['max_discount_amount'];
+                    }
+                } else {
+                    $discountAmount = (float)$coupon['discount_value'];
+                }
+                if ($discountAmount > $subtotal) {
+                    $discountAmount = $subtotal;
+                }
+                $appliedCoupon = $coupon;
+            } else {
+                // Coupon dropped silently — keep code on record but no discount
+                $couponCode = '';
+            }
+        } else {
+            // Coupon invalid / min not met — strip the code so it's not stored falsely
+            $couponCode = '';
         }
     }
 
@@ -265,13 +288,25 @@ try {
         }
 
         // Update coupon usage if applicable
-        if ($discountAmount > 0 && !empty($couponCode)) {
+        if ($discountAmount > 0 && $appliedCoupon) {
             $updateCouponStmt = $pdo->prepare("
                 UPDATE coupons
                 SET used_count = used_count + 1
-                WHERE code = ?
+                WHERE id = ?
             ");
-            $updateCouponStmt->execute([$couponCode]);
+            $updateCouponStmt->execute([$appliedCoupon['id']]);
+
+            $logUsageStmt = $pdo->prepare("
+                INSERT INTO coupon_usage (coupon_id, user_id, email, order_id, discount_amount, used_at)
+                VALUES (?, ?, ?, ?, ?, NOW())
+            ");
+            $logUsageStmt->execute([
+                $appliedCoupon['id'],
+                $userId,
+                $email,
+                $orderId,
+                $discountAmount,
+            ]);
         }
 
         // Create Razorpay order

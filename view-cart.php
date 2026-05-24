@@ -112,6 +112,8 @@ try {
 
 <body>
 
+    <input type="hidden" id="csrf_token" value="<?= htmlspecialchars(generateCsrfToken()) ?>">
+
     <!-- Scroll Top -->
     <button id="goTop">
         <span class="border-progress"></span>
@@ -251,7 +253,22 @@ try {
                                     <!-- Static demo product rows removed -->
                                 </tbody>
                             </table>
-                            <!-- Coupon and discount sections removed -->
+                            <!-- Coupon Code (Optional) -->
+                            <?php if (!empty($cartItems)): ?>
+                            <div class="wrap-coupon mt-4 p-3" style="background:#f8f8f8;border-radius:6px;">
+                                <h6 class="mb-2">Have a coupon? <span class="text-primary">Enter your code</span></h6>
+                                <div class="d-flex" style="gap:8px;">
+                                    <input type="text" id="cart-coupon-code-input" class="form-control" placeholder="Enter coupon code" style="max-width:260px;text-transform:uppercase;">
+                                    <button class="tf-btn animate-btn" type="button" id="cart-apply-coupon-btn">
+                                        Apply
+                                    </button>
+                                    <button class="tf-btn btn-white animate-btn" type="button" id="cart-remove-coupon-btn" style="display:none;">
+                                        Remove
+                                    </button>
+                                </div>
+                                <div id="cart-coupon-message" class="mt-2 small"></div>
+                            </div>
+                            <?php endif; ?>
                         </form>
                     </div>
                     <div class="col-xxl-3 col-xl-4">
@@ -260,7 +277,11 @@ try {
                                 <h4 class="title fw-semibold">Order Summary</h4>
                                 <div class="subtotal h6 text-button d-flex justify-content-between align-items-center">
                                     <h6 class="fw-bold">Subtotal</h6>
-                                    <span class="total cart-subtotal">₹<?php echo number_format($subtotal, 0); ?></span>
+                                    <span class="total cart-subtotal" data-subtotal="<?php echo (float)$subtotal; ?>">₹<?php echo number_format($subtotal, 0); ?></span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center" id="cart-discount-row" style="display:none !important;">
+                                    <h6 class="fw-bold mb-0">Discount <span id="cart-discount-code" class="text-success small fw-normal"></span></h6>
+                                    <span class="text-success" id="cart-discount-amount">-₹0</span>
                                 </div>
                                 <?php if ($subtotal > 0): ?>
                                 <div class="ship">
@@ -277,7 +298,7 @@ try {
                                 </div>
                                 <h5 class="total-order d-flex justify-content-between align-items-center">
                                     <span>Total</span>
-                                    <span class="total each-total-price cart-total" id="cart-total-amount"><?php echo '₹' . number_format($total, 0); ?></span>
+                                    <span class="total each-total-price cart-total" id="cart-total-amount" data-base-total="<?php echo (float)$total; ?>"><?php echo '₹' . number_format($total, 0); ?></span>
                                 </h5>
                                 <?php endif; ?>
                                 <div class="list-ver">
@@ -612,6 +633,97 @@ try {
             font-size: 14px;
         }
     </style>
+
+    <!-- Cart Coupon Script -->
+    <script>
+    (function() {
+        const applyBtn = document.getElementById('cart-apply-coupon-btn');
+        const removeBtn = document.getElementById('cart-remove-coupon-btn');
+        const input = document.getElementById('cart-coupon-code-input');
+        const messageEl = document.getElementById('cart-coupon-message');
+        const discountRow = document.getElementById('cart-discount-row');
+        const discountAmountEl = document.getElementById('cart-discount-amount');
+        const discountCodeEl = document.getElementById('cart-discount-code');
+        const totalEl = document.getElementById('cart-total-amount');
+        const csrfEl = document.getElementById('csrf_token');
+
+        if (!applyBtn) return;
+
+        function getBaseTotal() {
+            return parseFloat(totalEl.getAttribute('data-base-total')) || 0;
+        }
+
+        function formatINR(n) {
+            return '₹' + Number(Math.round(n)).toLocaleString('en-IN');
+        }
+
+        function setDiscount(code, discount) {
+            discountRow.style.cssText = 'display:flex !important;';
+            discountCodeEl.textContent = code ? '(' + code + ')' : '';
+            discountAmountEl.textContent = '-' + formatINR(discount);
+            const newTotal = Math.max(0, getBaseTotal() - discount);
+            totalEl.textContent = formatINR(newTotal);
+            totalEl.setAttribute('data-applied-discount', discount);
+            if (removeBtn) removeBtn.style.display = '';
+        }
+
+        function clearDiscount() {
+            discountRow.style.cssText = 'display:none !important;';
+            discountCodeEl.textContent = '';
+            discountAmountEl.textContent = '-₹0';
+            totalEl.textContent = formatINR(getBaseTotal());
+            totalEl.removeAttribute('data-applied-discount');
+            if (removeBtn) removeBtn.style.display = 'none';
+        }
+
+        applyBtn.addEventListener('click', function() {
+            const code = (input.value || '').trim().toUpperCase();
+            if (!code) {
+                messageEl.innerHTML = '<span class="text-danger">Please enter a coupon code.</span>';
+                return;
+            }
+
+            const original = applyBtn.innerHTML;
+            applyBtn.disabled = true;
+            applyBtn.innerHTML = 'Applying...';
+            messageEl.innerHTML = '';
+
+            const fd = new FormData();
+            fd.append('coupon_code', code);
+            fd.append('csrf_token', csrfEl ? csrfEl.value : '');
+
+            fetch('ajax/validate-coupon.php', { method: 'POST', body: fd })
+                .then(r => r.json())
+                .then(data => {
+                    applyBtn.disabled = false;
+                    applyBtn.innerHTML = original;
+                    if (data.success) {
+                        messageEl.innerHTML = '<span class="text-success">' + data.message + '</span>';
+                        setDiscount(data.coupon.code, data.discount_amount);
+                        input.value = data.coupon.code;
+                        input.readOnly = true;
+                    } else {
+                        messageEl.innerHTML = '<span class="text-danger">' + (data.message || 'Could not apply coupon.') + '</span>';
+                        clearDiscount();
+                    }
+                })
+                .catch(() => {
+                    applyBtn.disabled = false;
+                    applyBtn.innerHTML = original;
+                    messageEl.innerHTML = '<span class="text-danger">Failed to validate coupon. Please try again.</span>';
+                });
+        });
+
+        if (removeBtn) {
+            removeBtn.addEventListener('click', function() {
+                input.value = '';
+                input.readOnly = false;
+                messageEl.innerHTML = '';
+                clearDiscount();
+            });
+        }
+    })();
+    </script>
 </body>
 
 </html>

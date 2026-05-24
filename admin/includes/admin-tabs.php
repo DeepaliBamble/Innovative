@@ -18,6 +18,12 @@ $adminTabs = [
         'pages' => ['orders.php', 'view-order.php'],
         'href' => 'orders.php',
     ],
+    'coupons' => [
+        'label' => 'Coupons',
+        'icon' => 'bi-ticket-perforated',
+        'pages' => ['coupons.php'],
+        'href' => 'coupons.php',
+    ],
     'customers' => [
         'label' => 'Customers',
         'icon' => 'bi-people',

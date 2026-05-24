@@ -513,7 +513,8 @@ $razorpayConfig = getRazorpayConfig();
                     
                     const formData = new FormData();
                     formData.append('coupon_code', code);
-                    
+                    formData.append('csrf_token', document.getElementById('csrf_token') ? document.getElementById('csrf_token').value : '');
+
                     fetch('ajax/validate-coupon.php', {
                         method: 'POST',
                         body: formData
