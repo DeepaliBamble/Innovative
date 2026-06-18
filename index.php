@@ -64,6 +64,40 @@ try {
     $lookbookProducts = [];
     error_log('Error fetching lookbook products: ' . $e->getMessage());
 }
+
+// Fetch featured category cards for home page collections.
+// Each card uses a real product image from that category (or its sub-categories).
+$featuredCategorySlugs = ['sofa-cum-bed', 'accent-chair', 'console-table', 'beds'];
+$featuredCategories = [];
+try {
+    $catStmt = $pdo->prepare("SELECT id, name FROM categories WHERE slug = ? AND is_active = 1 LIMIT 1");
+    $catImgStmt = $pdo->prepare("
+        SELECT p.image_path
+        FROM products p
+        WHERE p.is_active = 1
+          AND p.image_path IS NOT NULL AND p.image_path <> ''
+          AND (p.category_id = ? OR p.category_id IN (SELECT id FROM categories WHERE parent_id = ?))
+        ORDER BY p.is_featured DESC, p.created_at DESC
+        LIMIT 1
+    ");
+    foreach ($featuredCategorySlugs as $slug) {
+        $catStmt->execute([$slug]);
+        $cat = $catStmt->fetch(PDO::FETCH_ASSOC);
+        if (!$cat) {
+            continue;
+        }
+        $catImgStmt->execute([$cat['id'], $cat['id']]);
+        $image = $catImgStmt->fetchColumn();
+        $featuredCategories[] = [
+            'name'  => $cat['name'],
+            'image' => $image ?: 'images/products/default.jpg',
+            'url'   => 'shop.php?category=' . $slug,
+        ];
+    }
+} catch (PDOException $e) {
+    $featuredCategories = [];
+    error_log('Error fetching featured categories: ' . $e->getMessage());
+}
 ?>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en-US">
@@ -777,98 +811,147 @@ try {
             });
         </script>
         <!-- /Testimonial -->
-        <!-- Featured Categories -->
-        <section class="themesFlat">
-            <div class="container-full-2">
-                <div class="tf-grid-layout lg-col-2 gap-0">
-                    <div class="box-image_V04 hover-img">
-                        <a href="shop.php?category=sofa-cum-bed" class="box-image_image img-style">
-                            <img src="images/section/box-image-27.jpg" data-src="images/section/box-image-27.jpg"
-                                alt="Sofa Cum Bed" class="lazyload">
-                        </a>
-                        <div class="box-image_content align-items-center text-center">
-                            <h2 class="title type-semibold">
-                                <a href="shop.php?category=sofa-cum-bed" class="link">
-                                    Sofa Cum Bed
-                                </a>
-                            </h2>
-                            <p class="sub-title h6">Space-saving comfort that doubles as a cozy bed.</p>
-                            <a href="shop.php?category=sofa-cum-bed" class="tf-btn animate-btn"
-                                style="background-color: #9e6747;">
-                                Shop now
-                                <i class="icon icon-arrow-right"></i>
+        <?php if (!empty($featuredCategories)): ?>
+        <!-- Featured Collections -->
+        <style>
+            .featured-collections .collection-card {
+                position: relative;
+                display: block;
+                border-radius: 16px;
+                overflow: hidden;
+                height: 440px;
+                box-shadow: 0 12px 30px rgba(40, 25, 15, 0.10);
+            }
+
+            .featured-collections .collection-card_img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                transition: transform 0.7s ease;
+            }
+
+            .featured-collections .collection-card:hover .collection-card_img {
+                transform: scale(1.07);
+            }
+
+            .featured-collections .collection-card_overlay {
+                position: absolute;
+                inset: 0;
+                background: linear-gradient(to top, rgba(46, 28, 18, 0.72) 0%, rgba(46, 28, 18, 0.15) 45%, rgba(46, 28, 18, 0) 70%);
+                transition: background 0.4s ease;
+            }
+
+            .featured-collections .collection-card:hover .collection-card_overlay {
+                background: linear-gradient(to top, rgba(46, 28, 18, 0.85) 0%, rgba(46, 28, 18, 0.32) 55%, rgba(46, 28, 18, 0.05) 80%);
+            }
+
+            .featured-collections .collection-card_body {
+                position: absolute;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                z-index: 2;
+                padding: 30px 32px;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .featured-collections .collection-card_name {
+                color: #fff;
+                font-size: 1.65rem;
+                font-weight: 600;
+                line-height: 1.2;
+                letter-spacing: 0.2px;
+            }
+
+            .featured-collections .collection-card_cta {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                color: #fff;
+                font-size: 0.95rem;
+                font-weight: 500;
+                opacity: 0.9;
+                transition: gap 0.3s ease, opacity 0.3s ease;
+            }
+
+            .featured-collections .collection-card:hover .collection-card_cta {
+                gap: 14px;
+                opacity: 1;
+            }
+
+            .featured-collections .collection-card_cta i {
+                font-size: 0.8rem;
+            }
+
+            @media (max-width: 767px) {
+                .featured-collections .collection-card {
+                    height: 340px;
+                }
+
+                .featured-collections .collection-card_name {
+                    font-size: 1.4rem;
+                }
+            }
+        </style>
+        <section class="flat-spacing featured-collections">
+            <div class="container">
+                <div class="sect-title text-center wow fadeInUp">
+                    <h1 class="title mb-8" style="color: #9e6747;">Explore Our Collections</h1>
+                    <p class="s-subtitle h6" style="text-transform: none;">Handpicked categories crafted to bring comfort
+                        and character to every corner of your home.</p>
+                </div>
+                <div class="row g-4 wow fadeInUp">
+                    <?php foreach (array_slice($featuredCategories, 0, 2) as $fc):
+                        $fcName = htmlspecialchars($fc['name']);
+                        $fcImage = htmlspecialchars($fc['image']);
+                        $fcUrl = htmlspecialchars($fc['url']);
+                        ?>
+                        <div class="col-12 col-md-6">
+                            <a href="<?php echo $fcUrl; ?>" class="collection-card">
+                                <img class="lazyload collection-card_img" src="<?php echo $fcImage; ?>"
+                                    data-src="<?php echo $fcImage; ?>" alt="<?php echo $fcName; ?>">
+                                <span class="collection-card_overlay"></span>
+                                <span class="collection-card_body">
+                                    <span class="collection-card_name"><?php echo $fcName; ?></span>
+                                    <span class="collection-card_cta">Shop Now <i class="icon icon-arrow-right"></i></span>
+                                </span>
                             </a>
                         </div>
-                    </div>
-                    <div class="box-image_V04 hover-img">
-                        <a href="shop.php?category=accent-chair" class="box-image_image img-style">
-                            <img src="images/section/box-image-28.jpg" data-src="images/section/box-image-28.jpg"
-                                alt="Accent Chair" class="lazyload">
-                        </a>
-                        <div class="box-image_content align-items-center text-center">
-                            <h2 class="title type-semibold">
-                                <a href="shop.php?category=accent-chair" class="link">
-                                    Accent Chair
-                                </a>
-                            </h2>
-                            <p class="sub-title h6">Statement seating to elevate any corner of your home.</p>
-                            <a href="shop.php?category=accent-chair" class="tf-btn animate-btn"
-                                style="background-color: #9e6747;">
-                                Shop now
-                                <i class="icon icon-arrow-right"></i>
-                            </a>
-                        </div>
-                    </div>
+                    <?php endforeach; ?>
                 </div>
             </div>
         </section>
-        <!-- /Featured Categories -->
-        <!-- Featured Categories 2 -->
-        <section class="themesFlat">
-            <div class="container-full-2">
-                <div class="tf-grid-layout lg-col-2 gap-0">
-                    <div class="box-image_V04 hover-img">
-                        <a href="shop.php?category=console-table" class="box-image_image img-style">
-                            <img src="images/section/box-image-29.jpg" data-src="images/section/box-image-29.jpg"
-                                alt="Console Table" class="lazyload">
-                        </a>
-                        <div class="box-image_content align-items-center text-center">
-                            <h2 class="title type-semibold">
-                                <a href="shop.php?category=console-table" class="link">
-                                    Console Table
-                                </a>
-                            </h2>
-                            <p class="sub-title h6">Sleek surfaces that bring function and flair to your space.</p>
-                            <a href="shop.php?category=console-table" class="tf-btn animate-btn"
-                                style="background-color: #9e6747;">
-                                Shop now
-                                <i class="icon icon-arrow-right"></i>
+        <!-- /Featured Collections -->
+        <?php if (count($featuredCategories) > 2): ?>
+        <!-- Featured Collections 2 -->
+        <section class="flat-spacing pt-0 featured-collections">
+            <div class="container">
+                <div class="row g-4 wow fadeInUp">
+                    <?php foreach (array_slice($featuredCategories, 2, 2) as $fc):
+                        $fcName = htmlspecialchars($fc['name']);
+                        $fcImage = htmlspecialchars($fc['image']);
+                        $fcUrl = htmlspecialchars($fc['url']);
+                        ?>
+                        <div class="col-12 col-md-6">
+                            <a href="<?php echo $fcUrl; ?>" class="collection-card">
+                                <img class="lazyload collection-card_img" src="<?php echo $fcImage; ?>"
+                                    data-src="<?php echo $fcImage; ?>" alt="<?php echo $fcName; ?>">
+                                <span class="collection-card_overlay"></span>
+                                <span class="collection-card_body">
+                                    <span class="collection-card_name"><?php echo $fcName; ?></span>
+                                    <span class="collection-card_cta">Shop Now <i class="icon icon-arrow-right"></i></span>
+                                </span>
                             </a>
                         </div>
-                    </div>
-                    <div class="box-image_V04 hover-img">
-                        <a href="shop.php?category=beds" class="box-image_image img-style">
-                            <img src="images/section/box-image-6.jpg" data-src="images/section/box-image-6.jpg"
-                                alt="Beds" class="lazyload">
-                        </a>
-                        <div class="box-image_content align-items-center text-center">
-                            <h2 class="title type-semibold">
-                                <a href="shop.php?category=beds" class="link">
-                                    Beds
-                                </a>
-                            </h2>
-                            <p class="sub-title h6">Restful designs crafted for the perfect night's sleep.</p>
-                            <a href="shop.php?category=beds" class="tf-btn animate-btn"
-                                style="background-color: #9e6747;">
-                                Shop now
-                                <i class="icon icon-arrow-right"></i>
-                            </a>
-                        </div>
-                    </div>
+                    <?php endforeach; ?>
                 </div>
             </div>
         </section>
-        <!-- /Featured Categories 2 -->
+        <!-- /Featured Collections 2 -->
+        <?php endif; ?>
+        <?php endif; ?>
         <!-- Box Icon -->
         <div class="themesFlat">
             <div class="container">
