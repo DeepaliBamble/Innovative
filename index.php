@@ -503,7 +503,7 @@ try {
                 <div class="tf-grid-layout lg-col-2 gap-0">
                     <div class="box-image_V04 hover-img">
                         <a href="shop.php?category=extendable-sofa" class="box-image_image img-style">
-                            <img src="images/section/box-image-6.jpg" data-src="images/section/box-image-6.jpg" alt=""
+                            <img src="images/section/sample.webp" data-src="images/section/sample.webp" alt=""
                                 class="lazyload">
                         </a>
                         <div class="box-image_content align-items-center text-center">
@@ -777,6 +777,98 @@ try {
             });
         </script>
         <!-- /Testimonial -->
+        <!-- Featured Categories -->
+        <section class="themesFlat">
+            <div class="container-full-2">
+                <div class="tf-grid-layout lg-col-2 gap-0">
+                    <div class="box-image_V04 hover-img">
+                        <a href="shop.php?category=sofa-cum-bed" class="box-image_image img-style">
+                            <img src="images/section/box-image-27.jpg" data-src="images/section/box-image-27.jpg"
+                                alt="Sofa Cum Bed" class="lazyload">
+                        </a>
+                        <div class="box-image_content align-items-center text-center">
+                            <h2 class="title type-semibold">
+                                <a href="shop.php?category=sofa-cum-bed" class="link">
+                                    Sofa Cum Bed
+                                </a>
+                            </h2>
+                            <p class="sub-title h6">Space-saving comfort that doubles as a cozy bed.</p>
+                            <a href="shop.php?category=sofa-cum-bed" class="tf-btn animate-btn"
+                                style="background-color: #9e6747;">
+                                Shop now
+                                <i class="icon icon-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="box-image_V04 hover-img">
+                        <a href="shop.php?category=accent-chair" class="box-image_image img-style">
+                            <img src="images/section/box-image-28.jpg" data-src="images/section/box-image-28.jpg"
+                                alt="Accent Chair" class="lazyload">
+                        </a>
+                        <div class="box-image_content align-items-center text-center">
+                            <h2 class="title type-semibold">
+                                <a href="shop.php?category=accent-chair" class="link">
+                                    Accent Chair
+                                </a>
+                            </h2>
+                            <p class="sub-title h6">Statement seating to elevate any corner of your home.</p>
+                            <a href="shop.php?category=accent-chair" class="tf-btn animate-btn"
+                                style="background-color: #9e6747;">
+                                Shop now
+                                <i class="icon icon-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- /Featured Categories -->
+        <!-- Featured Categories 2 -->
+        <section class="themesFlat">
+            <div class="container-full-2">
+                <div class="tf-grid-layout lg-col-2 gap-0">
+                    <div class="box-image_V04 hover-img">
+                        <a href="shop.php?category=console-table" class="box-image_image img-style">
+                            <img src="images/section/box-image-29.jpg" data-src="images/section/box-image-29.jpg"
+                                alt="Console Table" class="lazyload">
+                        </a>
+                        <div class="box-image_content align-items-center text-center">
+                            <h2 class="title type-semibold">
+                                <a href="shop.php?category=console-table" class="link">
+                                    Console Table
+                                </a>
+                            </h2>
+                            <p class="sub-title h6">Sleek surfaces that bring function and flair to your space.</p>
+                            <a href="shop.php?category=console-table" class="tf-btn animate-btn"
+                                style="background-color: #9e6747;">
+                                Shop now
+                                <i class="icon icon-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="box-image_V04 hover-img">
+                        <a href="shop.php?category=beds" class="box-image_image img-style">
+                            <img src="images/section/box-image-6.jpg" data-src="images/section/box-image-6.jpg"
+                                alt="Beds" class="lazyload">
+                        </a>
+                        <div class="box-image_content align-items-center text-center">
+                            <h2 class="title type-semibold">
+                                <a href="shop.php?category=beds" class="link">
+                                    Beds
+                                </a>
+                            </h2>
+                            <p class="sub-title h6">Restful designs crafted for the perfect night's sleep.</p>
+                            <a href="shop.php?category=beds" class="tf-btn animate-btn"
+                                style="background-color: #9e6747;">
+                                Shop now
+                                <i class="icon icon-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- /Featured Categories 2 -->
         <!-- Box Icon -->
         <div class="themesFlat">
             <div class="container">
