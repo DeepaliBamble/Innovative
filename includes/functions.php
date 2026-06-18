@@ -401,9 +401,10 @@ function autoLoginFromCookie($pdo) {
 function getActivePromoCoupons($pdo, $limit = 3) {
     try {
         $stmt = $pdo->prepare("
-            SELECT code, description, discount_type, discount_value, min_purchase_amount, max_discount_amount
+            SELECT code, description, discount_type, discount_value, min_purchase_amount, max_discount_amount, new_user_only
             FROM coupons
             WHERE is_active = 1
+              AND show_on_site = 1
               AND (valid_from IS NULL OR valid_from <= NOW())
               AND (valid_until IS NULL OR valid_until >= NOW())
               AND (usage_limit IS NULL OR used_count < usage_limit)

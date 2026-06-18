@@ -100,6 +100,26 @@ try {
         exit;
     }
 
+    // New-user-only coupons: require a logged-in account with no prior paid orders
+    if (!empty($coupon['new_user_only'])) {
+        if ($userId === null) {
+            echo json_encode([
+                'success' => false,
+                'message' => 'Please log in or create an account to use this new-customer coupon.'
+            ]);
+            exit;
+        }
+        $priorStmt = $pdo->prepare("SELECT COUNT(*) FROM orders WHERE user_id = ? AND payment_status = 'paid'");
+        $priorStmt->execute([$userId]);
+        if ((int)$priorStmt->fetchColumn() > 0) {
+            echo json_encode([
+                'success' => false,
+                'message' => 'This coupon is valid only on your first order.'
+            ]);
+            exit;
+        }
+    }
+
     // Per-user usage limit (only enforceable for logged-in users)
     $perUserLimit = isset($coupon['per_user_limit']) ? (int)$coupon['per_user_limit'] : 0;
     if ($perUserLimit > 0 && $userId !== null) {

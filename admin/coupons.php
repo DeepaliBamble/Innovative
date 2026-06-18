@@ -23,11 +23,13 @@ function readCouponInput(array $src): array {
     $validFrom = trim($src['valid_from'] ?? '');
     $validUntil = trim($src['valid_until'] ?? '');
     $isActive = !empty($src['is_active']) ? 1 : 0;
+    $newUserOnly = !empty($src['new_user_only']) ? 1 : 0;
+    $showOnSite = !empty($src['show_on_site']) ? 1 : 0;
 
     return compact(
         'code', 'description', 'discountType', 'discountValue',
         'minPurchase', 'maxDiscount', 'usageLimit', 'perUserLimit',
-        'validFrom', 'validUntil', 'isActive'
+        'validFrom', 'validUntil', 'isActive', 'newUserOnly', 'showOnSite'
     );
 }
 
@@ -97,13 +99,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt = $pdo->prepare("
                     INSERT INTO coupons (code, description, discount_type, discount_value,
                         min_purchase_amount, max_discount_amount, usage_limit, per_user_limit,
-                        valid_from, valid_until, is_active)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        valid_from, valid_until, is_active, new_user_only, show_on_site)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ");
                 $stmt->execute([
                     $d['code'], $d['description'], $d['discountType'], $d['discountValue'],
                     $d['minPurchase'], $d['maxDiscount'], $d['usageLimit'], $d['perUserLimit'],
-                    $validFromSql, $validUntilSql, $d['isActive']
+                    $validFromSql, $validUntilSql, $d['isActive'], $d['newUserOnly'], $d['showOnSite']
                 ]);
                 $success_message = 'Coupon created successfully.';
             } else {
@@ -112,13 +114,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     UPDATE coupons SET
                         code = ?, description = ?, discount_type = ?, discount_value = ?,
                         min_purchase_amount = ?, max_discount_amount = ?, usage_limit = ?,
-                        per_user_limit = ?, valid_from = ?, valid_until = ?, is_active = ?
+                        per_user_limit = ?, valid_from = ?, valid_until = ?, is_active = ?,
+                        new_user_only = ?, show_on_site = ?
                     WHERE id = ?
                 ");
                 $stmt->execute([
                     $d['code'], $d['description'], $d['discountType'], $d['discountValue'],
                     $d['minPurchase'], $d['maxDiscount'], $d['usageLimit'], $d['perUserLimit'],
-                    $validFromSql, $validUntilSql, $d['isActive'], $couponId
+                    $validFromSql, $validUntilSql, $d['isActive'], $d['newUserOnly'], $d['showOnSite'], $couponId
                 ]);
                 $success_message = 'Coupon updated successfully.';
             }
@@ -137,6 +140,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'valid_from' => $d['validFrom'],
                 'valid_until' => $d['validUntil'],
                 'is_active' => $d['isActive'],
+                'new_user_only' => $d['newUserOnly'],
+                'show_on_site' => $d['showOnSite'],
                 'used_count' => 0,
             ];
         }
@@ -170,6 +175,8 @@ if (isset($_GET['edit']) && !$editing) {
             'valid_from' => $row['valid_from'] ? date('Y-m-d\TH:i', strtotime($row['valid_from'])) : '',
             'valid_until' => $row['valid_until'] ? date('Y-m-d\TH:i', strtotime($row['valid_until'])) : '',
             'is_active' => (int)$row['is_active'],
+            'new_user_only' => (int)($row['new_user_only'] ?? 0),
+            'show_on_site' => (int)($row['show_on_site'] ?? 0),
             'used_count' => (int)$row['used_count'],
         ];
     }
@@ -344,6 +351,20 @@ include 'includes/header.php';
                         <label class="form-check-label" for="is_active">Active</label>
                     </div>
                 </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" name="new_user_only" id="new_user_only" value="1"
+                               <?= !empty($editing['new_user_only']) ? 'checked' : '' ?>>
+                        <label class="form-check-label" for="new_user_only">New customers only (first order)</label>
+                    </div>
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" name="show_on_site" id="show_on_site" value="1"
+                               <?= !empty($editing['show_on_site']) ? 'checked' : '' ?>>
+                        <label class="form-check-label" for="show_on_site">Show on site (advertise in cart/checkout)</label>
+                    </div>
+                </div>
 
                 <div class="col-12">
                     <button type="submit" class="btn btn-primary">
@@ -421,6 +442,12 @@ include 'includes/header.php';
                                             <span class="badge bg-danger">Expired</span>
                                         <?php else: ?>
                                             <span class="badge bg-success">Active</span>
+                                        <?php endif; ?>
+                                        <?php if (!empty($c['new_user_only'])): ?>
+                                            <br><span class="badge bg-info mt-1">New customers</span>
+                                        <?php endif; ?>
+                                        <?php if (!empty($c['show_on_site'])): ?>
+                                            <br><span class="badge bg-primary mt-1">On site</span>
                                         <?php endif; ?>
                                     </td>
                                     <td class="text-end">

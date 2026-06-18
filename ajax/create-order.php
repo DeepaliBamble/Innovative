@@ -194,6 +194,19 @@ try {
                 }
             }
 
+            // New-user-only coupons: require a logged-in account with no prior paid orders
+            if (!empty($coupon['new_user_only'])) {
+                if ($userId === null) {
+                    $userBlocked = true;
+                } else {
+                    $prior = $pdo->prepare("SELECT COUNT(*) FROM orders WHERE user_id = ? AND payment_status = 'paid'");
+                    $prior->execute([$userId]);
+                    if ((int)$prior->fetchColumn() > 0) {
+                        $userBlocked = true;
+                    }
+                }
+            }
+
             if (!$userBlocked) {
                 if ($coupon['discount_type'] === 'percentage') {
                     $discountAmount = ($subtotal * (float)$coupon['discount_value']) / 100;

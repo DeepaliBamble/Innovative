@@ -267,6 +267,9 @@ $razorpayConfig = getRazorpayConfig();
                                                     <span style="font-size:1.1em;">🎉</span>
                                                     Use code <strong style="color:#9e6747;letter-spacing:.5px;"><?= htmlspecialchars($pc['code']) ?></strong>
                                                     — <?= htmlspecialchars(formatCouponOffer($pc)) ?>
+                                                    <?php if (!empty($pc['new_user_only'])): ?>
+                                                        <span style="color:#8a8a8a;">· new customers, first order (login required)</span>
+                                                    <?php endif; ?>
                                                 </div>
                                                 <a href="javascript:void(0);" class="apply-promo-code fw-medium" data-code="<?= htmlspecialchars($pc['code']) ?>" data-input="coupon-code-input" data-btn="apply-coupon-btn" style="color:#9e6747;white-space:nowrap;margin-left:12px;">Apply</a>
                                             </div>
