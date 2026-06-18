@@ -36,7 +36,6 @@ foreach ($cartItems as $item) {
 }
 
 $shippingCost = 0; // Free shipping by default
-$expressShippingCost = 5.00;
 $taxAmount = 0; // No tax for now
 $total = $subtotal + $shippingCost + $taxAmount;
 
@@ -414,18 +413,11 @@ $razorpayConfig = getRazorpayConfig();
                                 <!-- Shipping Method -->
                                 <div class="box-ip-shipping">
                                     <h2 class="title type-semibold">Shipping Method</h2>
-                                    <label for="freeship" class="check-ship mb-12">
+                                    <label for="freeship" class="check-ship">
                                         <input type="radio" id="freeship" class="tf-check-rounded style-2 line-black" name="shipping_method" value="standard" checked>
                                         <span class="text h6">
                                             <span>Free shipping (Standard Delivery)</span>
                                             <span class="price">₹0.00</span>
-                                        </span>
-                                    </label>
-                                    <label for="express" class="check-ship">
-                                        <input type="radio" id="express" class="tf-check-rounded style-2 line-black" name="shipping_method" value="express">
-                                        <span class="text h6">
-                                            <span>Express shipping (2-3 Business Days)</span>
-                                            <span class="price fw-medium">₹<?= number_format($expressShippingCost, 2) ?></span>
                                         </span>
                                     </label>
                                 </div>
@@ -691,19 +683,6 @@ $razorpayConfig = getRazorpayConfig();
                 });
             });
 
-            // Shipping method change handler
-            document.querySelectorAll('input[name="shipping_method"]').forEach(radio => {
-                radio.addEventListener('change', function() {
-                    if (this.value === 'express') {
-                        shippingCost = <?= $expressShippingCost ?>;
-                        document.getElementById('order-shipping').textContent = '₹' + shippingCost.toFixed(2);
-                    } else {
-                        shippingCost = 0;
-                        document.getElementById('order-shipping').textContent = 'Free';
-                    }
-                    updateTotal();
-                });
-            });
 
             // Billing address "same as shipping" toggle
             const billingSame = document.getElementById('billing_same');
