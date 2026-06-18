@@ -61,6 +61,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $pdo->prepare("UPDATE orders SET order_status = ?, payment_status = ?, updated_at = NOW() WHERE id = ?");
         $stmt->execute([$orderStatus, $paymentStatus, $orderId]);
 
+        // When an order is marked fully paid (e.g. after collecting the balance of a
+        // partial-payment order), clear the balance so the customer's account reflects it.
+        if ($paymentStatus === 'paid') {
+            $pdo->prepare("UPDATE orders SET amount_paid = total_amount, balance_due = 0 WHERE id = ?")->execute([$orderId]);
+        }
+
         if ($previousStatus !== $orderStatus || $trackingMessage !== '') {
             $trackStmt = $pdo->prepare("INSERT INTO order_tracking (order_id, status, message, created_by, created_at) VALUES (?, ?, ?, ?, NOW())");
             $trackStmt->execute([

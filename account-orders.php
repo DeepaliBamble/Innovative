@@ -33,6 +33,7 @@ $pagination = paginate($totalOrders, $ordersPerPage, $page);
 // Fetch orders with first product info
 $ordersStmt = $pdo->prepare('
     SELECT o.id, o.order_number, o.total_amount, o.order_status, o.created_at,
+           o.payment_status, o.payment_type, o.balance_due,
            oi.product_name, oi.quantity,
            p.image_path, c.name as category_name
     FROM orders o
@@ -426,13 +427,14 @@ $orders = $ordersStmt->fetchAll();
                                             <th>Products</th>
                                             <th>Pricing</th>
                                             <th>Status</th>
+                                            <th>Payment</th>
                                             <th>Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <?php if (empty($orders)): ?>
                                         <tr>
-                                            <td colspan="5" class="text-center py-4">
+                                            <td colspan="6" class="text-center py-4">
                                                 <p class="h6">No orders yet. <a href="shop.php" class="link">Start shopping</a></p>
                                             </td>
                                         </tr>
@@ -485,6 +487,16 @@ $orders = $ordersStmt->fetchAll();
                                                 <div class="tb-order_status <?php echo $statusClass; ?>">
                                                     <?php echo $statusLabel; ?>
                                                 </div>
+                                            </td>
+                                            <td>
+                                                <?php if (($order['payment_status'] ?? '') === 'paid'): ?>
+                                                    <div class="tb-order_status stt-complete">Paid</div>
+                                                <?php elseif (($order['payment_status'] ?? '') === 'partial'): ?>
+                                                    <div class="tb-order_status stt-delivery">Partial</div>
+                                                    <p class="prd_select text-small mb-0">Balance <?php echo formatPrice($order['balance_due']); ?> on delivery</p>
+                                                <?php else: ?>
+                                                    <div class="tb-order_status stt-pending"><?php echo ucfirst($order['payment_status'] ?? 'pending'); ?></div>
+                                                <?php endif; ?>
                                             </td>
                                             <td class="tb-order_action">
                                                 <a href="account-orders-detail.php?id=<?php echo $order['id']; ?>" class="link fw-semibold">

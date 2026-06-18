@@ -375,6 +375,21 @@ if ($order['address_line1']) {
                                                 <span>Order total</span>
                                                 <span class="fw-semibold h6 text-black"><?php echo formatPrice($order['total_amount']); ?></span>
                                             </div>
+                                            <?php if (($order['payment_type'] ?? 'full') === 'partial' && $order['payment_status'] === 'partial'): ?>
+                                            <div class="prd-order_total" style="color:#9e6747;">
+                                                <span>Advance paid (50%)</span>
+                                                <span class="fw-semibold h6"><?php echo formatPrice($order['amount_paid']); ?></span>
+                                            </div>
+                                            <div class="prd-order_total">
+                                                <span>Balance due on delivery</span>
+                                                <span class="fw-semibold h6 text-black"><?php echo formatPrice($order['balance_due']); ?></span>
+                                            </div>
+                                            <?php elseif (($order['payment_type'] ?? 'full') === 'partial' && $order['payment_status'] === 'paid'): ?>
+                                            <div class="prd-order_total" style="color:#1a7d3c;">
+                                                <span>Paid in full</span>
+                                                <span class="fw-semibold h6">50% advance + balance collected</span>
+                                            </div>
+                                            <?php endif; ?>
                                         </div>
                                     </div>
                                     <div class="tab-pane" id="receiver" role="tabpanel">
@@ -397,7 +412,15 @@ if ($order['address_line1']) {
                                             </div>
                                             <div class="recerver_text h6">
                                                 <span class="text">Payment Status:</span>
-                                                <span class="text_info"><?php echo ucfirst($order['payment_status']); ?></span>
+                                                <span class="text_info">
+                                                    <?php
+                                                    if ($order['payment_status'] === 'partial') {
+                                                        echo 'Partial — balance ' . formatPrice($order['balance_due']) . ' due on delivery';
+                                                    } else {
+                                                        echo ucfirst($order['payment_status']);
+                                                    }
+                                                    ?>
+                                                </span>
                                             </div>
                                             <?php if ($order['shipping_name']): ?>
                                             <div class="recerver_text h6">
