@@ -267,6 +267,21 @@ try {
                                     </button>
                                 </div>
                                 <div id="cart-coupon-message" class="mt-2 small"></div>
+                                <?php $promoCoupons = getActivePromoCoupons($pdo); ?>
+                                <?php if (!empty($promoCoupons)): ?>
+                                    <div class="available-coupons mt-3">
+                                        <?php foreach ($promoCoupons as $pc): ?>
+                                            <div class="coupon-offer d-flex align-items-center justify-content-between" style="border:1px dashed #d4a574;background:#fff8f0;border-radius:8px;padding:10px 14px;margin-bottom:8px;">
+                                                <div style="font-size:.85rem;line-height:1.4;">
+                                                    <span style="font-size:1.1em;">🎉</span>
+                                                    Use code <strong style="color:#9e6747;letter-spacing:.5px;"><?= htmlspecialchars($pc['code']) ?></strong>
+                                                    — <?= htmlspecialchars(formatCouponOffer($pc)) ?>
+                                                </div>
+                                                <a href="javascript:void(0);" class="apply-promo-code fw-medium" data-code="<?= htmlspecialchars($pc['code']) ?>" style="color:#9e6747;white-space:nowrap;margin-left:12px;">Apply</a>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                <?php endif; ?>
                             </div>
                             <?php endif; ?>
                         </form>
@@ -722,6 +737,15 @@ try {
                 clearDiscount();
             });
         }
+
+        // One-click apply for promoted coupon codes
+        document.querySelectorAll('.apply-promo-code').forEach(function(link) {
+            link.addEventListener('click', function() {
+                input.readOnly = false;
+                input.value = this.getAttribute('data-code');
+                applyBtn.click();
+            });
+        });
     })();
     </script>
 </body>

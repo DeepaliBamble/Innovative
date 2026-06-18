@@ -389,3 +389,53 @@ function autoLoginFromCookie($pdo) {
         error_log('Auto-login error: ' . $e->getMessage());
     }
 }
+
+/**
+ * Return active coupons that are currently valid and not globally exhausted,
+ * for surfacing as on-site promos (e.g. the new-user welcome code).
+ *
+ * @param PDO $pdo
+ * @param int $limit
+ * @return array
+ */
+function getActivePromoCoupons($pdo, $limit = 3) {
+    try {
+        $stmt = $pdo->prepare("
+            SELECT code, description, discount_type, discount_value, min_purchase_amount, max_discount_amount
+            FROM coupons
+            WHERE is_active = 1
+              AND (valid_from IS NULL OR valid_from <= NOW())
+              AND (valid_until IS NULL OR valid_until >= NOW())
+              AND (usage_limit IS NULL OR used_count < usage_limit)
+            ORDER BY created_at ASC
+            LIMIT " . (int)$limit . "
+        ");
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log('Error fetching promo coupons: ' . $e->getMessage());
+        return [];
+    }
+}
+
+/**
+ * Build a human-readable offer label for a coupon row, e.g.
+ * "10% off (up to ₹1,500.00)" or "₹500.00 off on orders over ₹2,000.00".
+ *
+ * @param array $c Coupon row
+ * @return string
+ */
+function formatCouponOffer($c) {
+    if (($c['discount_type'] ?? '') === 'percentage') {
+        $offer = rtrim(rtrim(number_format((float)$c['discount_value'], 2), '0'), '.') . '% off';
+        if (!empty($c['max_discount_amount'])) {
+            $offer .= ' (up to ' . formatPrice((float)$c['max_discount_amount']) . ')';
+        }
+    } else {
+        $offer = formatPrice((float)$c['discount_value']) . ' off';
+    }
+    if (!empty($c['min_purchase_amount']) && (float)$c['min_purchase_amount'] > 0) {
+        $offer .= ' on orders over ' . formatPrice((float)$c['min_purchase_amount']);
+    }
+    return $offer;
+}

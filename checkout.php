@@ -258,6 +258,21 @@ $razorpayConfig = getRazorpayConfig();
                                     </button>
                                 </div>
                                 <div id="coupon-message" class="mt-2"></div>
+                                <?php $promoCoupons = getActivePromoCoupons($pdo); ?>
+                                <?php if (!empty($promoCoupons)): ?>
+                                    <div class="available-coupons mt-3">
+                                        <?php foreach ($promoCoupons as $pc): ?>
+                                            <div class="coupon-offer d-flex align-items-center justify-content-between" style="border:1px dashed #d4a574;background:#fff8f0;border-radius:8px;padding:10px 14px;margin-bottom:8px;">
+                                                <div style="font-size:.9rem;line-height:1.4;">
+                                                    <span style="font-size:1.1em;">🎉</span>
+                                                    Use code <strong style="color:#9e6747;letter-spacing:.5px;"><?= htmlspecialchars($pc['code']) ?></strong>
+                                                    — <?= htmlspecialchars(formatCouponOffer($pc)) ?>
+                                                </div>
+                                                <a href="javascript:void(0);" class="apply-promo-code fw-medium" data-code="<?= htmlspecialchars($pc['code']) ?>" data-input="coupon-code-input" data-btn="apply-coupon-btn" style="color:#9e6747;white-space:nowrap;margin-left:12px;">Apply</a>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                <?php endif; ?>
                             </div>
 
                             <!-- Checkout Form -->
@@ -629,6 +644,16 @@ $razorpayConfig = getRazorpayConfig();
                     });
                 });
             }
+
+            // One-click apply for promoted coupon codes
+            document.querySelectorAll('.apply-promo-code').forEach(function(link) {
+                link.addEventListener('click', function() {
+                    const inputEl = document.getElementById(this.getAttribute('data-input'));
+                    const btnEl = document.getElementById(this.getAttribute('data-btn'));
+                    if (inputEl) inputEl.value = this.getAttribute('data-code');
+                    if (btnEl) btnEl.click();
+                });
+            });
 
             // Shipping method change handler
             document.querySelectorAll('input[name="shipping_method"]').forEach(radio => {
