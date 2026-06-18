@@ -242,6 +242,15 @@ try {
         throw new Exception('Invalid order total.');
     }
 
+    // Payment option: 50% partial advance is only allowed on orders over this total.
+    $partialMinTotal = 10000;
+    $paymentType = ($_POST['payment_type'] ?? 'full') === 'partial' ? 'partial' : 'full';
+    if ($paymentType === 'partial' && $totalAmount <= $partialMinTotal) {
+        $paymentType = 'full'; // not eligible — charge full
+    }
+    // Amount to charge online now (advance for partial, full otherwise).
+    $amountToCharge = $paymentType === 'partial' ? round($totalAmount * 0.5, 2) : $totalAmount;
+
     // Start transaction
     $pdo->beginTransaction();
 
@@ -287,8 +296,9 @@ try {
                 billing_state,
                 billing_postal_code,
                 billing_country,
+                payment_type,
                 created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'razorpay', 'pending', 'pending', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'razorpay', 'pending', 'pending', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
         ");
 
         $orderStmt->execute([
@@ -323,7 +333,8 @@ try {
             $billingCity,
             $billingState,
             $billingPostal,
-            $billingCountry
+            $billingCountry,
+            $paymentType
         ]);
 
         $orderId = $pdo->lastInsertId();
@@ -385,7 +396,7 @@ try {
             'phone' => $phone
         ];
 
-        $razorpayOrder = createRazorpayOrder($totalAmount, $orderId, $customerDetails);
+        $razorpayOrder = createRazorpayOrder($amountToCharge, $orderId, $customerDetails);
 
         if (!$razorpayOrder || !isset($razorpayOrder['id'])) {
             throw new Exception('Failed to create payment gateway order. Please check your configuration.');
@@ -410,7 +421,7 @@ try {
                 created_at
             ) VALUES (?, ?, 'pending', ?, 'INR', NOW())
         ");
-        $paymentStmt->execute([$orderId, $razorpayOrder['id'], $totalAmount]);
+        $paymentStmt->execute([$orderId, $razorpayOrder['id'], $amountToCharge]);
 
         // Add order tracking entry
         $trackingStmt = $pdo->prepare("
@@ -432,7 +443,9 @@ try {
             'order_id' => $orderId,
             'order_number' => $orderNumber,
             'razorpay_order_id' => $razorpayOrder['id'],
-            'amount' => $totalAmount,
+            'amount' => $amountToCharge,
+            'total_amount' => $totalAmount,
+            'payment_type' => $paymentType,
             'currency' => 'INR',
             'razorpay_key_id' => RAZORPAY_KEY_ID,
             'customer' => [

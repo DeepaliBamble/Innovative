@@ -430,6 +430,29 @@ $razorpayConfig = getRazorpayConfig();
                                     </label>
                                 </div>
 
+                                <!-- Payment Option (full vs 50% partial) -->
+                                <div class="box-ip-shipping" id="payment-option-box" style="display:none;">
+                                    <h2 class="title type-semibold">Payment Option</h2>
+                                    <label for="pay_full" class="check-ship mb-12">
+                                        <input type="radio" id="pay_full" class="tf-check-rounded style-2 line-black" name="payment_type" value="full" checked>
+                                        <span class="text h6">
+                                            <span>Pay full amount now</span>
+                                            <span class="price fw-medium" id="pay-full-amount">₹0.00</span>
+                                        </span>
+                                    </label>
+                                    <label for="pay_partial" class="check-ship">
+                                        <input type="radio" id="pay_partial" class="tf-check-rounded style-2 line-black" name="payment_type" value="partial">
+                                        <span class="text h6">
+                                            <span>Pay 50% now, balance on delivery</span>
+                                            <span class="price fw-medium" id="pay-partial-amount">₹0.00</span>
+                                        </span>
+                                    </label>
+                                    <p class="h6 mt-2 mb-0" id="partial-note" style="display:none;color:#9e6747;">
+                                        Pay <strong id="partial-now-text">₹0.00</strong> now to confirm your order. The remaining
+                                        <strong id="partial-balance-text">₹0.00</strong> is payable on delivery.
+                                    </p>
+                                </div>
+
                                 <!-- Payment Method -->
                                 <div class="box-ip-payment">
                                     <h2 class="title type-semibold">Payment Method</h2>
@@ -521,6 +544,16 @@ $razorpayConfig = getRazorpayConfig();
                                     <span>Total</span>
                                     <span id="order-total">₹<?= number_format($total, 2) ?></span>
                                 </div>
+                                <ul class="list-total" id="partial-summary" style="display:none;margin-top:10px;">
+                                    <li class="total-item h6">
+                                        <span class="fw-bold" style="color:#9e6747;">Pay now (50%)</span>
+                                        <span id="order-paynow" style="color:#9e6747;">₹0.00</span>
+                                    </li>
+                                    <li class="total-item h6">
+                                        <span class="fw-bold text-black">Balance on delivery</span>
+                                        <span id="order-balance">₹0.00</span>
+                                    </li>
+                                </ul>
                             </div>
                         </div>
                     </div>
@@ -707,7 +740,54 @@ $razorpayConfig = getRazorpayConfig();
             function updateTotal() {
                 const total = subtotal + shippingCost - discountAmount;
                 document.getElementById('order-total').textContent = '₹' + total.toFixed(2);
+                updatePaymentOption();
             }
+
+            // 50% partial payment is only offered when the order total exceeds this.
+            const PARTIAL_MIN_TOTAL = 10000;
+
+            function currentTotal() {
+                return subtotal + shippingCost - discountAmount;
+            }
+
+            // Show/hide the partial-payment option and refresh the amounts shown.
+            function updatePaymentOption() {
+                const total = currentTotal();
+                const box = document.getElementById('payment-option-box');
+                const eligible = total > PARTIAL_MIN_TOTAL;
+                const partialRadio = document.getElementById('pay_partial');
+                const fullRadio = document.getElementById('pay_full');
+                if (!box) return;
+
+                box.style.display = eligible ? 'block' : 'none';
+                if (!eligible && partialRadio && partialRadio.checked) {
+                    fullRadio.checked = true; // revert if no longer eligible
+                }
+
+                const half = Math.round(total * 0.5 * 100) / 100;
+                const balance = Math.round((total - half) * 100) / 100;
+                const fullAmtEl = document.getElementById('pay-full-amount');
+                const partAmtEl = document.getElementById('pay-partial-amount');
+                if (fullAmtEl) fullAmtEl.textContent = '₹' + total.toFixed(2);
+                if (partAmtEl) partAmtEl.textContent = '₹' + half.toFixed(2);
+
+                const isPartial = eligible && partialRadio && partialRadio.checked;
+                const note = document.getElementById('partial-note');
+                const summary = document.getElementById('partial-summary');
+                if (note) note.style.display = isPartial ? 'block' : 'none';
+                if (summary) summary.style.display = isPartial ? 'block' : 'none';
+                if (isPartial) {
+                    document.getElementById('partial-now-text').textContent = '₹' + half.toFixed(2);
+                    document.getElementById('partial-balance-text').textContent = '₹' + balance.toFixed(2);
+                    document.getElementById('order-paynow').textContent = '₹' + half.toFixed(2);
+                    document.getElementById('order-balance').textContent = '₹' + balance.toFixed(2);
+                }
+            }
+
+            document.querySelectorAll('input[name="payment_type"]').forEach(function(radio) {
+                radio.addEventListener('change', updatePaymentOption);
+            });
+            updatePaymentOption();
 
             // Show alert
             function showAlert(message, type = 'danger') {

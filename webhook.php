@@ -125,27 +125,36 @@ function handlePaymentCaptured($pdo, $razorpayOrderId, $razorpayPaymentId, $even
         return 'order_not_found';
     }
 
-    // Already paid — nothing to do
-    if ($order['payment_status'] === 'paid') {
+    // Already settled (full or partial advance) — nothing to do
+    if (in_array($order['payment_status'], ['paid', 'partial'], true)) {
         return 'already_paid';
     }
 
     $orderId = $order['id'];
     $razorpaySignature = $event['payload']['payment']['entity']['id'] ?? '';
 
+    // Partial orders capture a 50% advance now; balance is collected on delivery.
+    $isPartial = (($order['payment_type'] ?? 'full') === 'partial');
+    $orderTotal = (float) $order['total_amount'];
+    $amountPaid = $isPartial ? round($orderTotal * 0.5, 2) : $orderTotal;
+    $balanceDue = round($orderTotal - $amountPaid, 2);
+    $newPayStatus = $isPartial ? 'partial' : 'paid';
+
     $pdo->beginTransaction();
     try {
-        // Mark order as paid
+        // Mark order as paid/partial
         $pdo->prepare("
             UPDATE orders
-            SET payment_status = 'paid',
+            SET payment_status = ?,
                 payment_method = 'razorpay',
                 razorpay_payment_id = ?,
                 order_status = 'processing',
+                amount_paid = ?,
+                balance_due = ?,
                 paid_at = NOW(),
                 updated_at = NOW()
             WHERE id = ?
-        ")->execute([$razorpayPaymentId, $orderId]);
+        ")->execute([$newPayStatus, $razorpayPaymentId, $amountPaid, $balanceDue, $orderId]);
 
         // Update payment record
         $pdo->prepare("
@@ -221,8 +230,8 @@ function handlePaymentFailed($pdo, $razorpayOrderId, $razorpayPaymentId, $event)
         return 'order_not_found';
     }
 
-    // Don't overwrite a successful payment
-    if ($order['payment_status'] === 'paid') {
+    // Don't overwrite a successful payment (full or partial advance)
+    if (in_array($order['payment_status'], ['paid', 'partial'], true)) {
         return 'already_paid';
     }
 

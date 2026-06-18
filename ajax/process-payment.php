@@ -81,9 +81,9 @@ try {
     }
 
     // Webhook race: if Razorpay's server-to-server webhook reached us first
-    // and already marked this order paid, just return success — don't throw,
-    // because the catch block would otherwise wrongly cancel a paid order.
-    if ($order['payment_status'] === 'paid') {
+    // and already marked this order paid/partial, just return success — don't throw,
+    // because the catch block would otherwise wrongly cancel a confirmed order.
+    if (in_array($order['payment_status'], ['paid', 'partial'], true)) {
         $orderToken = generateOrderAccessToken($orderId, $order['order_number']);
         echo json_encode([
             'success' => true,
@@ -100,19 +100,32 @@ try {
     $pdo->beginTransaction();
 
     try {
+        // Resolve settlement: a partial order captures a 50% advance now, with the
+        // balance collected on delivery; a full order is settled in one go.
+        $isPartial = (($order['payment_type'] ?? 'full') === 'partial');
+        $orderTotal = (float) $order['total_amount'];
+        $amountPaid = $isPartial ? round($orderTotal * 0.5, 2) : $orderTotal;
+        $balanceDue = round($orderTotal - $amountPaid, 2);
+        $newPayStatus = $isPartial ? 'partial' : 'paid';
+        $trackMsg = $isPartial
+            ? 'Advance (50%) received; order is being processed. Balance due on delivery.'
+            : 'Payment verified and order is being processed';
+
         // Update order status
         $updateOrderStmt = $pdo->prepare("
             UPDATE orders
-            SET payment_status = 'paid',
+            SET payment_status = ?,
                 payment_method = 'razorpay',
                 razorpay_payment_id = ?,
                 razorpay_order_id = ?,
                 order_status = 'processing',
+                amount_paid = ?,
+                balance_due = ?,
                 paid_at = NOW(),
                 updated_at = NOW()
             WHERE id = ?
         ");
-        $updateOrderStmt->execute([$razorpayPaymentId, $razorpayOrderId, $orderId]);
+        $updateOrderStmt->execute([$newPayStatus, $razorpayPaymentId, $razorpayOrderId, $amountPaid, $balanceDue, $orderId]);
 
         // Update payment record
         $updatePaymentStmt = $pdo->prepare("
@@ -138,9 +151,9 @@ try {
                 status,
                 message,
                 created_by
-            ) VALUES (?, 'processing', 'Payment verified and order is being processed', 'system')
+            ) VALUES (?, 'processing', ?, 'system')
         ");
-        $trackingStmt->execute([$orderId]);
+        $trackingStmt->execute([$orderId, $trackMsg]);
 
         // Reduce stock quantity for ordered products
         $itemsStmt = $pdo->prepare("
@@ -229,7 +242,7 @@ try {
             $checkStmt->execute([$orderId]);
             $currentStatus = $checkStmt->fetchColumn();
 
-            if ($currentStatus !== 'paid') {
+            if (!in_array($currentStatus, ['paid', 'partial'], true)) {
                 $failStmt = $pdo->prepare("
                     UPDATE payments
                     SET payment_status = 'failed',
@@ -244,7 +257,7 @@ try {
                     SET payment_status = 'failed',
                         order_status = 'cancelled',
                         updated_at = NOW()
-                    WHERE id = ? AND payment_status <> 'paid'
+                    WHERE id = ? AND payment_status NOT IN ('paid', 'partial')
                 ");
                 $failOrderStmt->execute([$orderId]);
 

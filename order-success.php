@@ -15,7 +15,7 @@ $orderStmt = $pdo->prepare("
     SELECT o.*, u.name as user_name, u.email as user_email
     FROM orders o
     LEFT JOIN users u ON o.user_id = u.id
-    WHERE o.id = ? AND o.payment_status = 'paid'
+    WHERE o.id = ? AND o.payment_status IN ('paid', 'partial')
 ");
 $orderStmt->execute([$orderId]);
 $order = $orderStmt->fetch(PDO::FETCH_ASSOC);
@@ -330,10 +330,28 @@ $orderItems = $itemsStmt->fetchAll(PDO::FETCH_ASSOC);
                                             <td colspan="3" class="text-end"><strong class="h5">Total:</strong></td>
                                             <td class="text-end"><strong class="h5">₹<?= number_format($order['total_amount'], 2) ?></strong></td>
                                         </tr>
+                                        <?php if (($order['payment_type'] ?? 'full') === 'partial'): ?>
+                                        <tr>
+                                            <td colspan="3" class="text-end" style="color:#9e6747;">Advance paid (50%):</td>
+                                            <td class="text-end" style="color:#9e6747;">₹<?= number_format($order['amount_paid'], 2) ?></td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="3" class="text-end"><strong>Balance due on delivery:</strong></td>
+                                            <td class="text-end"><strong>₹<?= number_format($order['balance_due'], 2) ?></strong></td>
+                                        </tr>
+                                        <?php endif; ?>
                                     </tfoot>
                                 </table>
                             </div>
                         </div>
+                        <?php if (($order['payment_type'] ?? 'full') === 'partial'): ?>
+                        <div class="order-summary-box" style="background:#fff8f0;border:1px solid #e8d5c4;">
+                            <p class="mb-0"><strong>Partial payment:</strong> You paid a 50% advance of
+                                <strong>₹<?= number_format($order['amount_paid'], 2) ?></strong> online.
+                                The remaining <strong>₹<?= number_format($order['balance_due'], 2) ?></strong>
+                                is payable on delivery.</p>
+                        </div>
+                        <?php endif; ?>
 
                         <!-- Order Notes -->
                         <?php if (!empty($order['notes'])): ?>

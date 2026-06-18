@@ -13,7 +13,32 @@ $error_message = $_SESSION['error_message'] ?? '';
 unset($_SESSION['success_message'], $_SESSION['error_message']);
 
 $validOrderStatuses = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
-$validPaymentStatuses = ['pending', 'paid', 'failed', 'refunded'];
+$validPaymentStatuses = ['pending', 'paid', 'partial', 'failed', 'refunded'];
+
+// Mark the on-delivery balance of a partial-payment order as collected.
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'collect_balance') {
+    try {
+        $o = $pdo->prepare("SELECT order_status, payment_status FROM orders WHERE id = ?");
+        $o->execute([$orderId]);
+        $row = $o->fetch(PDO::FETCH_ASSOC);
+        if ($row && $row['payment_status'] === 'partial') {
+            $pdo->beginTransaction();
+            $pdo->prepare("UPDATE orders SET payment_status = 'paid', amount_paid = total_amount, balance_due = 0, updated_at = NOW() WHERE id = ?")
+                ->execute([$orderId]);
+            $pdo->prepare("INSERT INTO order_tracking (order_id, status, message, created_by, created_at) VALUES (?, ?, ?, ?, NOW())")
+                ->execute([$orderId, $row['order_status'], 'Balance collected on delivery; payment completed.', $_SESSION['admin_name'] ?? 'admin']);
+            $pdo->commit();
+            $_SESSION['success_message'] = 'Balance marked as collected. Order is now fully paid.';
+        } else {
+            $_SESSION['error_message'] = 'This order is not awaiting a balance payment.';
+        }
+    } catch (Exception $e) {
+        if ($pdo->inTransaction()) { $pdo->rollBack(); }
+        error_log('Collect balance failed: ' . $e->getMessage());
+        $_SESSION['error_message'] = 'Could not record balance collection.';
+    }
+    redirect('view-order.php?id=' . $orderId);
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $orderStatus = $_POST['order_status'] ?? '';
@@ -234,6 +259,19 @@ include 'includes/header.php';
                 <div class="d-flex justify-content-between"><span>Discount</span><strong>-₹<?= number_format((float) $order['discount_amount'], 2) ?></strong></div>
                 <hr>
                 <div class="d-flex justify-content-between" style="font-size: 1.1rem;"><span>Total</span><strong>₹<?= number_format((float) $order['total_amount'], 2) ?></strong></div>
+                <?php if (($order['payment_type'] ?? 'full') === 'partial'): ?>
+                    <div class="d-flex justify-content-between" style="color:#9e6747;"><span>Payment type</span><strong>50% Partial (balance on delivery)</strong></div>
+                    <div class="d-flex justify-content-between"><span>Advance paid</span><strong>₹<?= number_format((float) $order['amount_paid'], 2) ?></strong></div>
+                    <div class="d-flex justify-content-between"><span>Balance due</span><strong>₹<?= number_format((float) $order['balance_due'], 2) ?></strong></div>
+                    <?php if ($order['payment_status'] === 'partial'): ?>
+                        <form method="POST" onsubmit="return confirm('Mark the balance of ₹<?= number_format((float) $order['balance_due'], 2) ?> as collected? This marks the order fully paid.');">
+                            <input type="hidden" name="action" value="collect_balance">
+                            <button type="submit" class="btn btn-success btn-sm w-100 mt-2">
+                                <i class="bi bi-cash-coin me-1"></i> Mark balance collected
+                            </button>
+                        </form>
+                    <?php endif; ?>
+                <?php endif; ?>
             </div>
         </div>
 
