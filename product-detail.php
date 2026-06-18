@@ -540,11 +540,11 @@ $page_title = htmlspecialchars($product['name']) . ' - Innovative Homesi';
                                     <div class="tf-product-delivery-return mb-4">
                                         <a href="shippingpolicy.php" class="product-delivery text-decoration-none">
                                             <i class="fas fa-truck"></i>
-                                            <p>Estimated delivery: <span class="fw-bold">10-15 business days</span></p>
+                                            <p>Estimated delivery: <span class="fw-bold">15-20 days</span> (final date confirmed by call)</p>
                                         </a>
                                         <a href="refund&returnspolicy.php" class="product-delivery text-decoration-none">
                                             <i class="fas fa-undo-alt"></i>
-                                            <p>Return within <span class="fw-bold">10 days</span> of purchase</p>
+                                            <p>Return within <span class="fw-bold">7 days</span> of delivery</p>
                                         </a>
                                         <div class="product-delivery">
                                             <i class="fas fa-shield-alt"></i>
@@ -637,7 +637,7 @@ $page_title = htmlspecialchars($product['name']) . ' - Innovative Homesi';
                             <!-- Shipping Policy Tab -->
                             <div class="tab-pane fade" id="shippingPolicy" role="tabpanel">
                                 <div class="shipping-policy-summary">
-                                    <p><i class="fas fa-truck me-2" style="color:#d4a574;"></i> We deliver across India with an estimated delivery time of <strong>10–15 business days</strong> depending on your location.</p>
+                                    <p><i class="fas fa-truck me-2" style="color:#d4a574;"></i> We deliver across India with an estimated delivery time of <strong>15–20 days</strong> depending on your location. Final delivery dates will be confirmed with you by phone.</p>
                                     <p>Shipping charges are calculated at checkout based on the delivery address and order weight. Orders above a certain value may qualify for <strong>free shipping</strong>.</p>
                                     <p>All orders are carefully packed to ensure your furniture arrives in perfect condition.</p>
                                     <a href="shippingpolicy.php" class="tf-btn animate-btn mt-3" style="display:inline-flex; align-items:center; gap:8px;">
@@ -649,7 +649,7 @@ $page_title = htmlspecialchars($product['name']) . ' - Innovative Homesi';
                             <!-- Refund & Returns Policy Tab -->
                             <div class="tab-pane fade" id="returnsPolicy" role="tabpanel">
                                 <div class="shipping-policy-summary">
-                                    <p><i class="fas fa-undo-alt me-2" style="color:#d4a574;"></i> We offer hassle-free returns within <strong>10 days</strong> of delivery if the product is unused and in its original packaging.</p>
+                                    <p><i class="fas fa-undo-alt me-2" style="color:#d4a574;"></i> We offer hassle-free returns within <strong>7 days</strong> of delivery if the product is unused and in its original packaging.</p>
                                     <p>Refunds are processed within <strong>7–10 business days</strong> after we receive and inspect the returned item.</p>
                                     <p>Please note that customized or made-to-order furniture may not be eligible for returns unless there is a manufacturing defect.</p>
                                     <a href="refund&returnspolicy.php" class="tf-btn animate-btn mt-3" style="display:inline-flex; align-items:center; gap:8px;">

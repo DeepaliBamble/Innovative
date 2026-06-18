@@ -179,6 +179,7 @@ require_once __DIR__ . '/includes/init.php';
                                         </tbody>
                                     </table>
                                 </div>
+                                <p>The overall estimated delivery timeline is typically <strong>15-20 days</strong> from order confirmation. Our team will call you to confirm the final delivery date before dispatch.</p>
                                 <p class="text-muted"><em>Note: Delivery timelines are estimates and may vary based on product availability, location accessibility, weather conditions, and unforeseen circumstances.</em></p>
 
                                 <h3>3.2 Express Delivery</h3>

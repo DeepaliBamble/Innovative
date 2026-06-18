@@ -794,8 +794,8 @@ try {
                                     <i class="icon-package"></i>
                                 </span>
                                 <div class="content">
-                                    <h4 class="title fw-normal">10 days return</h4>
-                                    <p class="text">10 day money back guarantee</p>
+                                    <h4 class="title fw-normal">7 days return</h4>
+                                    <p class="text">7 day money back guarantee</p>
                                 </div>
                             </div>
                         </div>
