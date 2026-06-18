@@ -67,7 +67,14 @@ try {
 
 // Fetch featured category cards for home page collections.
 // Each card uses a real product image from that category (or its sub-categories).
-$featuredCategorySlugs = ['sofa-cum-bed', 'accent-chair', 'console-table', 'beds'];
+// 'image_slug' overrides which (sub)category the representative image is pulled from,
+// so e.g. "Beds" shows an actual bed rather than a bedside table from a sibling sub-category.
+$featuredCategoryDefs = [
+    ['slug' => 'sofa-cum-bed'],
+    ['slug' => 'accent-chair'],
+    ['slug' => 'console-table'],
+    ['slug' => 'beds', 'image_slug' => 'beds-and-frames'],
+];
 $featuredCategories = [];
 try {
     $catStmt = $pdo->prepare("SELECT id, name FROM categories WHERE slug = ? AND is_active = 1 LIMIT 1");
@@ -80,18 +87,27 @@ try {
         ORDER BY p.is_featured DESC, p.created_at DESC
         LIMIT 1
     ");
-    foreach ($featuredCategorySlugs as $slug) {
-        $catStmt->execute([$slug]);
+    foreach ($featuredCategoryDefs as $def) {
+        $catStmt->execute([$def['slug']]);
         $cat = $catStmt->fetch(PDO::FETCH_ASSOC);
         if (!$cat) {
             continue;
         }
-        $catImgStmt->execute([$cat['id'], $cat['id']]);
+        // Resolve which category to source the representative image from.
+        $imageCatId = $cat['id'];
+        if (!empty($def['image_slug'])) {
+            $catStmt->execute([$def['image_slug']]);
+            $imgCat = $catStmt->fetch(PDO::FETCH_ASSOC);
+            if ($imgCat) {
+                $imageCatId = $imgCat['id'];
+            }
+        }
+        $catImgStmt->execute([$imageCatId, $imageCatId]);
         $image = $catImgStmt->fetchColumn();
         $featuredCategories[] = [
             'name'  => $cat['name'],
             'image' => $image ?: 'images/products/default.jpg',
-            'url'   => 'shop.php?category=' . $slug,
+            'url'   => 'shop.php?category=' . $def['slug'],
         ];
     }
 } catch (PDOException $e) {
