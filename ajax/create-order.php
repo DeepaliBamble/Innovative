@@ -63,6 +63,19 @@ try {
     $shippingMethod = sanitize($_POST['shipping_method'] ?? 'standard');
     $couponCode = sanitize($_POST['coupon_code'] ?? '');
 
+    // Business / GST details (optional)
+    $businessName = sanitize($_POST['business_name'] ?? '');
+    $gstNumber = strtoupper(trim(sanitize($_POST['gst_number'] ?? '')));
+
+    // Billing address (checkbox present => same as shipping)
+    $billingSame = isset($_POST['billing_same']);
+    $billingFullName = sanitize($_POST['billing_full_name'] ?? '');
+    $billingStreet = sanitize($_POST['billing_street'] ?? '');
+    $billingCity = sanitize($_POST['billing_city'] ?? '');
+    $billingState = sanitize($_POST['billing_state'] ?? '');
+    $billingPostal = sanitize($_POST['billing_postal_code'] ?? '');
+    $billingCountry = sanitize($_POST['billing_country'] ?? 'India');
+
     // Validate required fields
     if (empty($firstName) || empty($lastName)) {
         throw new Exception('First name and last name are required.');
@@ -80,7 +93,30 @@ try {
         throw new Exception('Complete shipping address is required.');
     }
 
+    // Validate GSTIN format only when provided (optional)
+    if ($gstNumber !== '' && !preg_match('/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/', $gstNumber)) {
+        throw new Exception('Please enter a valid 15-character GSTIN.');
+    }
+
     $customerName = $firstName . ' ' . $lastName;
+
+    // Resolve billing address: mirror shipping when "same as shipping" is checked.
+    if ($billingSame) {
+        $billingFullName = $customerName;
+        $billingStreet = $street;
+        $billingCity = $city;
+        $billingState = $state;
+        $billingPostal = $postalCode;
+        $billingCountry = $country;
+    } else {
+        if (empty($billingCountry) || empty($billingCity) || empty($billingState) || empty($billingStreet) || empty($billingPostal)) {
+            throw new Exception('Complete billing address is required.');
+        }
+        if (empty($billingFullName)) {
+            $billingFullName = $customerName;
+        }
+    }
+    $billingSameFlag = $billingSame ? 1 : 0;
 
     // Get cart items with security check
     if (isLoggedIn()) {
@@ -228,8 +264,18 @@ try {
                 payment_status,
                 order_status,
                 notes,
+                business_name,
+                gst_number,
+                billing_same_as_shipping,
+                billing_full_name,
+                billing_address_line1,
+                billing_address_line2,
+                billing_city,
+                billing_state,
+                billing_postal_code,
+                billing_country,
                 created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'razorpay', 'pending', 'pending', ?, NOW())
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'razorpay', 'pending', 'pending', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
         ");
 
         $orderStmt->execute([
@@ -254,7 +300,17 @@ try {
             $discountAmount,
             $totalAmount,
             $couponCode,
-            $notes
+            $notes,
+            $businessName,
+            $gstNumber,
+            $billingSameFlag,
+            $billingFullName,
+            $billingStreet,
+            '', // billing address line 2
+            $billingCity,
+            $billingState,
+            $billingPostal,
+            $billingCountry
         ]);
 
         $orderId = $pdo->lastInsertId();

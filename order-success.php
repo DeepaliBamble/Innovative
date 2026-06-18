@@ -231,6 +231,39 @@ $orderItems = $itemsStmt->fetchAll(PDO::FETCH_ASSOC);
                             <p class="mb-0"><strong>Phone:</strong> <?= htmlspecialchars($order['shipping_phone']) ?></p>
                         </div>
 
+                        <!-- Billing Address -->
+                        <div class="order-summary-box">
+                            <h3 class="mb-4">Billing Address</h3>
+                            <?php if (!empty($order['billing_same_as_shipping'])): ?>
+                                <p class="mb-0 text-muted">Same as shipping address</p>
+                            <?php else: ?>
+                                <p class="mb-1"><strong><?= htmlspecialchars($order['billing_full_name'] ?? '') ?></strong></p>
+                                <p class="mb-1"><?= htmlspecialchars($order['billing_address_line1'] ?? '') ?></p>
+                                <?php if (!empty($order['billing_address_line2'])): ?>
+                                    <p class="mb-1"><?= htmlspecialchars($order['billing_address_line2']) ?></p>
+                                <?php endif; ?>
+                                <p class="mb-1">
+                                    <?= htmlspecialchars($order['billing_city'] ?? '') ?>,
+                                    <?= htmlspecialchars($order['billing_state'] ?? '') ?>
+                                    <?= htmlspecialchars($order['billing_postal_code'] ?? '') ?>
+                                </p>
+                                <p class="mb-0"><?= htmlspecialchars($order['billing_country'] ?? 'India') ?></p>
+                            <?php endif; ?>
+                        </div>
+
+                        <?php if (!empty($order['business_name']) || !empty($order['gst_number'])): ?>
+                        <!-- Business / GST Details -->
+                        <div class="order-summary-box">
+                            <h3 class="mb-4">Business / GST Details</h3>
+                            <?php if (!empty($order['business_name'])): ?>
+                                <p class="mb-1"><strong>Business Name:</strong> <?= htmlspecialchars($order['business_name']) ?></p>
+                            <?php endif; ?>
+                            <?php if (!empty($order['gst_number'])): ?>
+                                <p class="mb-0"><strong>GSTIN:</strong> <?= htmlspecialchars($order['gst_number']) ?></p>
+                            <?php endif; ?>
+                        </div>
+                        <?php endif; ?>
+
                         <!-- Order Items -->
                         <div class="order-summary-box">
                             <h3 class="mb-4">Order Items</h3>

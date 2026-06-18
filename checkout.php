@@ -330,6 +330,69 @@ $razorpayConfig = getRazorpayConfig();
                                     </div>
                                 </div>
 
+                                <!-- Billing Address -->
+                                <div class="box-ip-checkout">
+                                    <h2 class="title type-semibold">Billing Address</h2>
+                                    <div class="form_content">
+                                        <fieldset class="d-flex align-items-center gap-2" style="margin-bottom: 16px;">
+                                            <input type="checkbox" id="billing_same" name="billing_same" value="1" checked style="width:18px;height:18px;cursor:pointer;">
+                                            <label for="billing_same" style="cursor:pointer;margin:0;">Billing address same as shipping address</label>
+                                        </fieldset>
+                                        <div id="billing-fields" style="display: none;">
+                                            <fieldset class="form-field">
+                                                <input type="text" name="billing_full_name" id="billing_full_name" placeholder="Full name">
+                                            </fieldset>
+                                            <fieldset class="form-field">
+                                                <div class="tf-select">
+                                                    <select class="w-100" id="billing_country" name="billing_country">
+                                                        <option value="" disabled selected>Choose country / Region *</option>
+                                                        <option value="India">India</option>
+                                                        <option value="United States">United States</option>
+                                                        <option value="United Kingdom">United Kingdom</option>
+                                                        <option value="Canada">Canada</option>
+                                                        <option value="Australia">Australia</option>
+                                                    </select>
+                                                </div>
+                                                <span class="error-message">Please select a country</span>
+                                            </fieldset>
+                                            <div class="cols tf-grid-layout sm-col-2">
+                                                <fieldset class="form-field">
+                                                    <input type="text" name="billing_city" id="billing_city" placeholder="Town/City *">
+                                                    <span class="error-message">City is required</span>
+                                                </fieldset>
+                                                <fieldset class="form-field">
+                                                    <input type="text" name="billing_state" id="billing_state" placeholder="State *">
+                                                    <span class="error-message">State is required</span>
+                                                </fieldset>
+                                            </div>
+                                            <fieldset class="form-field">
+                                                <input type="text" name="billing_street" id="billing_street" placeholder="Street Address *">
+                                                <span class="error-message">Street address is required</span>
+                                            </fieldset>
+                                            <fieldset class="form-field">
+                                                <input type="text" name="billing_postal_code" id="billing_postal_code" placeholder="Postal code *">
+                                                <span class="error-message">Postal code is required</span>
+                                            </fieldset>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Business / GST Details -->
+                                <div class="box-ip-checkout">
+                                    <h2 class="title type-semibold">Business / GST Details <span style="font-weight:400;font-size:.7em;color:#8a8a8a;">(optional)</span></h2>
+                                    <div class="form_content">
+                                        <div class="cols tf-grid-layout sm-col-2">
+                                            <fieldset class="form-field">
+                                                <input type="text" name="business_name" id="business_name" placeholder="Business name">
+                                            </fieldset>
+                                            <fieldset class="form-field">
+                                                <input type="text" name="gst_number" id="gst_number" placeholder="GSTIN (15 characters)" maxlength="15" style="text-transform:uppercase;">
+                                                <span class="error-message">Please enter a valid 15-character GSTIN</span>
+                                            </fieldset>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <!-- Shipping Method -->
                                 <div class="box-ip-shipping">
                                     <h2 class="title type-semibold">Shipping Method</h2>
@@ -581,6 +644,37 @@ $razorpayConfig = getRazorpayConfig();
                 });
             });
 
+            // Billing address "same as shipping" toggle
+            const billingSame = document.getElementById('billing_same');
+            const billingFields = document.getElementById('billing-fields');
+            const billingRequiredIds = ['billing_country', 'billing_city', 'billing_state', 'billing_street', 'billing_postal_code'];
+
+            function toggleBillingFields() {
+                const showSeparate = billingSame && !billingSame.checked;
+                if (billingFields) {
+                    billingFields.style.display = showSeparate ? 'block' : 'none';
+                }
+                billingRequiredIds.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (!el) return;
+                    if (showSeparate) {
+                        el.setAttribute('required', 'required');
+                    } else {
+                        el.removeAttribute('required');
+                        const container = el.closest('.form-field');
+                        if (container) {
+                            container.classList.remove('error');
+                            const errorMsg = container.querySelector('.error-message');
+                            if (errorMsg) errorMsg.style.display = 'none';
+                        }
+                    }
+                });
+            }
+            if (billingSame) {
+                billingSame.addEventListener('change', toggleBillingFields);
+                toggleBillingFields();
+            }
+
             // Update total
             function updateTotal() {
                 const total = subtotal + shippingCost - discountAmount;
@@ -618,6 +712,26 @@ $razorpayConfig = getRazorpayConfig();
                         if (errorMsg) errorMsg.style.display = 'none';
                     }
                 });
+
+                // Validate GSTIN format only when provided (optional field)
+                const gstField = document.getElementById('gst_number');
+                if (gstField && gstField.value.trim()) {
+                    const gstVal = gstField.value.trim().toUpperCase();
+                    const gstPattern = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+                    const gstContainer = gstField.closest('.form-field');
+                    if (!gstPattern.test(gstVal)) {
+                        if (gstContainer) {
+                            gstContainer.classList.add('error');
+                            const errorMsg = gstContainer.querySelector('.error-message');
+                            if (errorMsg) errorMsg.style.display = 'block';
+                        }
+                        isValid = false;
+                    } else if (gstContainer) {
+                        gstContainer.classList.remove('error');
+                        const errorMsg = gstContainer.querySelector('.error-message');
+                        if (errorMsg) errorMsg.style.display = 'none';
+                    }
+                }
 
                 // Validate terms checkbox
                 const agreeCheckbox = document.getElementById('agree');

@@ -238,6 +238,22 @@ function sendOrderConfirmationEmail($order, $orderItems) {
         $order['shipping_country']       ?? '',
     ]));
 
+    // Billing address: only shown separately when it differs from shipping.
+    $billingAddr = '';
+    if (empty($order['billing_same_as_shipping'])) {
+        $billingAddr = htmlspecialchars(implode(', ', array_filter([
+            $order['billing_full_name']     ?? '',
+            $order['billing_address_line1'] ?? '',
+            $order['billing_address_line2'] ?? '',
+            $order['billing_city']          ?? '',
+            $order['billing_state']         ?? '',
+            $order['billing_postal_code']   ?? '',
+            $order['billing_country']       ?? '',
+        ])), ENT_QUOTES);
+    }
+    $bizName = htmlspecialchars($order['business_name'] ?? '', ENT_QUOTES);
+    $gstNo   = htmlspecialchars($order['gst_number'] ?? '', ENT_QUOTES);
+
     $subject = "Order Confirmed #{$orderNumber} - Innovative Homesi";
 
     $message = "
@@ -300,6 +316,19 @@ function sendOrderConfirmationEmail($order, $orderItems) {
         <div class='section'>
             <h3 style='margin-top:0;'>Delivery Address</h3>
             <p style='margin:0;'>{$shippingAddr}</p>
+        </div>" : '') . "
+
+        " . ($billingAddr ? "
+        <div class='section'>
+            <h3 style='margin-top:0;'>Billing Address</h3>
+            <p style='margin:0;'>{$billingAddr}</p>
+        </div>" : '') . "
+
+        " . (($bizName || $gstNo) ? "
+        <div class='section'>
+            <h3 style='margin-top:0;'>Business / GST Details</h3>
+            " . ($bizName ? "<p style='margin:0 0 4px;'><strong>Business:</strong> {$bizName}</p>" : '') . "
+            " . ($gstNo ? "<p style='margin:0;'><strong>GSTIN:</strong> {$gstNo}</p>" : '') . "
         </div>" : '') . "
 
         <div style='text-align:center;margin-top:20px;'>
