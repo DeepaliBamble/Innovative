@@ -547,6 +547,14 @@ try {
             </div>
         </section>
         <!-- /New Product -->
+        <!-- Info Banner -->
+        <section class="flat-spacing pt-0">
+            <div class="container">
+                <img class="lazyload w-100" src="images/section/info.jpeg" data-src="images/section/info.jpeg"
+                    alt="" style="border-radius: 12px; display: block;">
+            </div>
+        </section>
+        <!-- /Info Banner -->
         <!-- Box Image -->
         <section class="themesFlat">
             <div class="container-full-2">
