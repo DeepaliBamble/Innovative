@@ -550,8 +550,12 @@ try {
         <!-- Info Banner -->
         <section class="flat-spacing pt-0">
             <div class="container">
-                <img class="lazyload w-100" src="images/section/info.jpeg" data-src="images/section/info.jpeg"
-                    alt="" style="border-radius: 12px; display: block;">
+                <a href="customise-service.php"
+                    aria-label="Turn your design into reality — talk to our expert about custom furniture">
+                    <img class="lazyload w-100" src="images/section/info.jpeg" data-src="images/section/info.jpeg"
+                        alt="Turn your design into reality — custom furniture made exactly the way you envision"
+                        style="border-radius: 12px; display: block;">
+                </a>
             </div>
         </section>
         <!-- /Info Banner -->
@@ -651,13 +655,9 @@ try {
                     </div>
                     <div class="flex-pay-content">
                         <h2>Flexible Payment Options Available</h2>
-                        <p>Start your custom furniture project with a partial payment—no need to pay the full amount
+                        <p>Bring home your dream furniture with easy partial payments — no need to pay the full amount
                             upfront.</p>
                     </div>
-                    <a href="customise-service.php" class="tf-btn animate-btn flex-pay-cta">
-                        Start Your Project
-                        <i class="icon icon-arrow-right"></i>
-                    </a>
                 </div>
             </div>
         </section>
