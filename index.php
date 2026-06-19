@@ -555,6 +555,113 @@ try {
             </div>
         </section>
         <!-- /Info Banner -->
+        <!-- Flexible Payment Highlight -->
+        <style>
+            .flex-pay-banner {
+                background: linear-gradient(120deg, #9e6747 0%, #b9805d 100%);
+                border-radius: 18px;
+                padding: 40px 48px;
+                display: flex;
+                align-items: center;
+                gap: 28px;
+                flex-wrap: wrap;
+                justify-content: center;
+                box-shadow: 0 14px 36px rgba(158, 103, 71, 0.25);
+            }
+
+            .flex-pay-badge {
+                flex: 0 0 auto;
+                width: 96px;
+                height: 96px;
+                border-radius: 50%;
+                background: rgba(255, 255, 255, 0.15);
+                border: 2px dashed rgba(255, 255, 255, 0.65);
+                color: #fff;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                line-height: 1;
+            }
+
+            .flex-pay-badge .num {
+                font-size: 1.7rem;
+                font-weight: 700;
+            }
+
+            .flex-pay-badge .lbl {
+                font-size: 0.62rem;
+                letter-spacing: 1px;
+                text-transform: uppercase;
+                margin-top: 3px;
+                opacity: 0.9;
+            }
+
+            .flex-pay-content {
+                flex: 1 1 440px;
+                color: #fff;
+            }
+
+            .flex-pay-content h2 {
+                color: #fff;
+                font-size: 1.7rem;
+                font-weight: 600;
+                margin: 0 0 8px;
+            }
+
+            .flex-pay-content p {
+                color: rgba(255, 255, 255, 0.92);
+                margin: 0;
+                font-size: 1rem;
+            }
+
+            .flex-pay-banner .flex-pay-cta {
+                flex: 0 0 auto;
+                background: #fff;
+                color: #9e6747;
+            }
+
+            .flex-pay-banner .flex-pay-cta:hover {
+                background: #f5ece5;
+                color: #9e6747;
+            }
+
+            @media (max-width: 767px) {
+                .flex-pay-banner {
+                    padding: 30px 22px;
+                    gap: 18px;
+                    text-align: center;
+                }
+
+                .flex-pay-content {
+                    flex-basis: 100%;
+                }
+
+                .flex-pay-content h2 {
+                    font-size: 1.35rem;
+                }
+            }
+        </style>
+        <section class="flat-spacing pt-0">
+            <div class="container">
+                <div class="flex-pay-banner wow fadeInUp">
+                    <div class="flex-pay-badge">
+                        <span class="num">50%</span>
+                        <span class="lbl">Pay Now</span>
+                    </div>
+                    <div class="flex-pay-content">
+                        <h2>Flexible Payment Options Available</h2>
+                        <p>Start your custom furniture project with a partial payment—no need to pay the full amount
+                            upfront.</p>
+                    </div>
+                    <a href="customise-service.php" class="tf-btn animate-btn flex-pay-cta">
+                        Start Your Project
+                        <i class="icon icon-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+        <!-- /Flexible Payment Highlight -->
         <!-- Box Image -->
         <section class="themesFlat">
             <div class="container-full-2">
