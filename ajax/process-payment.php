@@ -187,6 +187,9 @@ try {
             $clearCartStmt->execute([$order['session_id']]);
         }
 
+        // Drop any applied coupons now the order is paid
+        unset($_SESSION['applied_coupons']);
+
         // Commit all database changes
         $pdo->commit();
 

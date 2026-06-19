@@ -37,147 +37,56 @@ if ($couponCode === '') {
 }
 
 try {
-    // Compute the current cart subtotal server-side (never trust client value)
-    if (isLoggedIn()) {
-        $userId = getCurrentUserId();
-        $cartStmt = $pdo->prepare("
-            SELECT c.quantity, p.price, p.sale_price
-            FROM cart c
-            INNER JOIN products p ON c.product_id = p.id
-            WHERE c.user_id = ? AND p.is_active = 1
-        ");
-        $cartStmt->execute([$userId]);
-    } else {
-        $userId = null;
-        $cartStmt = $pdo->prepare("
-            SELECT c.quantity, p.price, p.sale_price
-            FROM cart c
-            INNER JOIN products p ON c.product_id = p.id
-            WHERE c.session_id = ? AND p.is_active = 1
-        ");
-        $cartStmt->execute([session_id()]);
-    }
-
-    $cartRows = $cartStmt->fetchAll(PDO::FETCH_ASSOC);
-    $subtotal = 0.0;
-    foreach ($cartRows as $row) {
-        $price = !empty($row['sale_price']) ? (float)$row['sale_price'] : (float)$row['price'];
-        $subtotal += $price * (int)$row['quantity'];
-    }
+    $userId = isLoggedIn() ? getCurrentUserId() : null;
+    $subtotal = getCartSubtotal($pdo, $userId);
 
     if ($subtotal <= 0) {
         echo json_encode(['success' => false, 'message' => 'Your cart is empty. Add items before applying a coupon.']);
         exit;
     }
 
-    // Look up the coupon
-    $stmt = $pdo->prepare("
-        SELECT *
-        FROM coupons
-        WHERE code = ?
-          AND is_active = 1
-          AND (valid_from IS NULL OR valid_from <= NOW())
-          AND (valid_until IS NULL OR valid_until >= NOW())
-          AND (usage_limit IS NULL OR used_count < usage_limit)
-    ");
-    $stmt->execute([$couponCode]);
-    $coupon = $stmt->fetch(PDO::FETCH_ASSOC);
+    // Current set of applied codes (server-side source of truth)
+    $appliedCodes = isset($_SESSION['applied_coupons']) && is_array($_SESSION['applied_coupons'])
+        ? $_SESSION['applied_coupons'] : [];
 
-    if (!$coupon) {
-        echo json_encode(['success' => false, 'message' => 'Invalid or expired coupon code.']);
+    // Already applied?
+    if (in_array($couponCode, array_map('strtoupper', $appliedCodes), true)) {
+        echo json_encode(['success' => false, 'message' => 'This coupon is already applied.']);
         exit;
     }
 
-    // Enforce minimum purchase amount
-    $minPurchase = (float)($coupon['min_purchase_amount'] ?? 0);
-    if ($minPurchase > 0 && $subtotal < $minPurchase) {
-        $shortBy = $minPurchase - $subtotal;
-        echo json_encode([
-            'success' => false,
-            'message' => 'This coupon requires a minimum purchase of ' . formatPrice($minPurchase)
-                . '. Add ' . formatPrice($shortBy) . ' more to your cart.'
-        ]);
+    // Trial = existing applied codes + the new candidate (candidate evaluated last)
+    $trialCodes = array_merge($appliedCodes, [$couponCode]);
+    $result = evaluateCoupons($pdo, $trialCodes, $subtotal, $userId);
+
+    // Was the new candidate accepted?
+    $acceptedCodes = array_column($result['applied'], 'code');
+    $candidateAccepted = in_array($couponCode, array_map('strtoupper', $acceptedCodes), true);
+
+    if (!$candidateAccepted) {
+        // Find the rejection reason for this specific code
+        $reason = 'Could not apply this coupon.';
+        foreach ($result['rejected'] as $r) {
+            if (strtoupper($r['code']) === $couponCode) {
+                $reason = $r['reason'];
+                break;
+            }
+        }
+        echo json_encode(['success' => false, 'message' => $reason]);
         exit;
     }
 
-    // New-user-only coupons: require a logged-in account with no prior paid orders
-    if (!empty($coupon['new_user_only'])) {
-        if ($userId === null) {
-            echo json_encode([
-                'success' => false,
-                'message' => 'Please log in or create an account to use this new-customer coupon.'
-            ]);
-            exit;
-        }
-        $priorStmt = $pdo->prepare("SELECT COUNT(*) FROM orders WHERE user_id = ? AND payment_status = 'paid'");
-        $priorStmt->execute([$userId]);
-        if ((int)$priorStmt->fetchColumn() > 0) {
-            echo json_encode([
-                'success' => false,
-                'message' => 'This coupon is valid only on your first order.'
-            ]);
-            exit;
-        }
-    }
-
-    // Per-user usage limit (only enforceable for logged-in users)
-    $perUserLimit = isset($coupon['per_user_limit']) ? (int)$coupon['per_user_limit'] : 0;
-    if ($perUserLimit > 0 && $userId !== null) {
-        $usageStmt = $pdo->prepare("SELECT COUNT(*) FROM coupon_usage WHERE coupon_id = ? AND user_id = ?");
-        $usageStmt->execute([$coupon['id'], $userId]);
-        $timesUsed = (int)$usageStmt->fetchColumn();
-        if ($timesUsed >= $perUserLimit) {
-            echo json_encode([
-                'success' => false,
-                'message' => 'You have already used this coupon the maximum number of times.'
-            ]);
-            exit;
-        }
-    }
-
-    // Compute the actual discount this coupon will apply right now
-    if ($coupon['discount_type'] === 'percentage') {
-        $discount = ($subtotal * (float)$coupon['discount_value']) / 100.0;
-        if (!empty($coupon['max_discount_amount']) && $discount > (float)$coupon['max_discount_amount']) {
-            $discount = (float)$coupon['max_discount_amount'];
-        }
-    } else {
-        $discount = (float)$coupon['discount_value'];
-    }
-    // Never let discount exceed subtotal
-    if ($discount > $subtotal) {
-        $discount = $subtotal;
-    }
-
-    // Store in session for checkout to use
-    $_SESSION['applied_coupon'] = [
-        'id' => (int)$coupon['id'],
-        'code' => $coupon['code'],
-        'discount_type' => $coupon['discount_type'],
-        'discount_value' => (float)$coupon['discount_value'],
-        'min_purchase_amount' => $minPurchase,
-        'max_discount_amount' => $coupon['max_discount_amount'] !== null ? (float)$coupon['max_discount_amount'] : null,
-    ];
-
-    if ($coupon['discount_type'] === 'percentage') {
-        $discountText = rtrim(rtrim(number_format((float)$coupon['discount_value'], 2), '0'), '.') . '% off';
-    } else {
-        $discountText = formatPrice((float)$coupon['discount_value']) . ' off';
-    }
+    // Persist the accepted set of codes
+    $_SESSION['applied_coupons'] = array_column($result['applied'], 'code');
 
     echo json_encode([
         'success' => true,
-        'message' => "Coupon applied! You get {$discountText}.",
-        'coupon' => [
-            'code' => $coupon['code'],
-            'discount_type' => $coupon['discount_type'],
-            'discount_value' => (float)$coupon['discount_value'],
-            'min_purchase_amount' => $minPurchase,
-            'max_discount_amount' => $coupon['max_discount_amount'] !== null ? (float)$coupon['max_discount_amount'] : null,
-        ],
-        'discount_amount' => round($discount, 2),
-        'subtotal' => round($subtotal, 2),
-        'total' => round($subtotal - $discount, 2),
+        'message' => 'Coupon applied!',
+        'applied' => $result['applied'],
+        'discount_amount' => $result['total_discount'],
+        'subtotal' => $result['subtotal'],
+        'total' => round($result['subtotal'] - $result['total_discount'], 2),
+        'max_coupons' => MAX_STACKED_COUPONS,
     ]);
 
 } catch (PDOException $e) {

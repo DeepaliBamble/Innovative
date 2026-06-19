@@ -440,3 +440,186 @@ function formatCouponOffer($c) {
     }
     return $offer;
 }
+
+/**
+ * Maximum number of coupons a single order may stack.
+ */
+if (!defined('MAX_STACKED_COUPONS')) {
+    define('MAX_STACKED_COUPONS', 2);
+}
+
+/**
+ * Compute the current cart subtotal server-side (never trust a client value).
+ *
+ * @param PDO      $pdo
+ * @param int|null $userId Logged-in user id, or null for a guest (uses session_id)
+ * @return float
+ */
+function getCartSubtotal(PDO $pdo, ?int $userId): float {
+    if ($userId !== null) {
+        $stmt = $pdo->prepare("
+            SELECT c.quantity, p.price, p.sale_price
+            FROM cart c INNER JOIN products p ON c.product_id = p.id
+            WHERE c.user_id = ? AND p.is_active = 1
+        ");
+        $stmt->execute([$userId]);
+    } else {
+        $stmt = $pdo->prepare("
+            SELECT c.quantity, p.price, p.sale_price
+            FROM cart c INNER JOIN products p ON c.product_id = p.id
+            WHERE c.session_id = ? AND p.is_active = 1
+        ");
+        $stmt->execute([session_id()]);
+    }
+
+    $subtotal = 0.0;
+    foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+        $price = !empty($row['sale_price']) ? (float)$row['sale_price'] : (float)$row['price'];
+        $subtotal += $price * (int)$row['quantity'];
+    }
+    return $subtotal;
+}
+
+/**
+ * Evaluate a set of coupon codes against a cart subtotal and apply stacking rules.
+ * This is the single source of truth used by validate-coupon, remove-coupon and
+ * create-order so the live preview and the charged amount always agree.
+ *
+ * Rules:
+ *  - Codes are de-duplicated (case-insensitive) and processed in the given order.
+ *  - At most $maxCoupons coupons may apply.
+ *  - An "exclusive" coupon cannot be combined with any other coupon.
+ *  - Each coupon's discount is computed on the ORIGINAL subtotal (additive), but the
+ *    running total is capped so the combined discount never exceeds the subtotal.
+ *  - Per-coupon checks still apply: active, date window, global usage limit,
+ *    new_user_only, per_user_limit and minimum purchase.
+ *
+ * @param PDO      $pdo
+ * @param array    $codes      Coupon codes (strings), in the order the user applied them
+ * @param float    $subtotal   Cart subtotal (server-computed)
+ * @param int|null $userId     Logged-in user id, or null for guests
+ * @param int      $maxCoupons Max number of coupons that may stack
+ * @return array   ['applied' => [...], 'rejected' => [...], 'total_discount' => float, 'subtotal' => float]
+ */
+function evaluateCoupons(PDO $pdo, array $codes, float $subtotal, ?int $userId, int $maxCoupons = MAX_STACKED_COUPONS): array {
+    $applied = [];
+    $rejected = [];
+    $seen = [];
+    $runningDiscount = 0.0;
+
+    foreach ($codes as $rawCode) {
+        $code = strtoupper(trim((string)$rawCode));
+        if ($code === '' || isset($seen[$code])) {
+            continue; // skip blanks and duplicates
+        }
+        $seen[$code] = true;
+
+        $stmt = $pdo->prepare("
+            SELECT * FROM coupons
+            WHERE code = ?
+              AND is_active = 1
+              AND (valid_from IS NULL OR valid_from <= NOW())
+              AND (valid_until IS NULL OR valid_until >= NOW())
+              AND (usage_limit IS NULL OR used_count < usage_limit)
+        ");
+        $stmt->execute([$code]);
+        $coupon = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$coupon) {
+            $rejected[] = ['code' => $code, 'reason' => 'Invalid or expired coupon code.'];
+            continue;
+        }
+
+        // Minimum purchase
+        $minPurchase = (float)($coupon['min_purchase_amount'] ?? 0);
+        if ($minPurchase > 0 && $subtotal < $minPurchase) {
+            $rejected[] = ['code' => $code, 'reason' => '"' . $code . '" needs a minimum purchase of ' . formatPrice($minPurchase) . '.'];
+            continue;
+        }
+
+        // New-customer-only coupons
+        if (!empty($coupon['new_user_only'])) {
+            if ($userId === null) {
+                $rejected[] = ['code' => $code, 'reason' => 'Please log in to use the new-customer coupon "' . $code . '".'];
+                continue;
+            }
+            $priorStmt = $pdo->prepare("SELECT COUNT(*) FROM orders WHERE user_id = ? AND payment_status = 'paid'");
+            $priorStmt->execute([$userId]);
+            if ((int)$priorStmt->fetchColumn() > 0) {
+                $rejected[] = ['code' => $code, 'reason' => '"' . $code . '" is valid only on your first order.'];
+                continue;
+            }
+        }
+
+        // Per-user usage limit (only enforceable for logged-in users)
+        $perUserLimit = isset($coupon['per_user_limit']) ? (int)$coupon['per_user_limit'] : 0;
+        if ($perUserLimit > 0 && $userId !== null) {
+            $usageStmt = $pdo->prepare("SELECT COUNT(*) FROM coupon_usage WHERE coupon_id = ? AND user_id = ?");
+            $usageStmt->execute([$coupon['id'], $userId]);
+            if ((int)$usageStmt->fetchColumn() >= $perUserLimit) {
+                $rejected[] = ['code' => $code, 'reason' => 'You have already used "' . $code . '" the maximum number of times.'];
+                continue;
+            }
+        }
+
+        $isExclusive = !empty($coupon['exclusive']);
+
+        // Stacking rules (only relevant once at least one coupon is already applied)
+        if (!empty($applied)) {
+            if ($isExclusive) {
+                $rejected[] = ['code' => $code, 'reason' => '"' . $code . '" cannot be combined with other coupons.'];
+                continue;
+            }
+            foreach ($applied as $a) {
+                if (!empty($a['exclusive'])) {
+                    $rejected[] = ['code' => $code, 'reason' => '"' . $a['code'] . '" must be used on its own.'];
+                    continue 2;
+                }
+            }
+            if (count($applied) >= $maxCoupons) {
+                $rejected[] = ['code' => $code, 'reason' => 'You can apply at most ' . $maxCoupons . ' coupons per order.'];
+                continue;
+            }
+        }
+
+        // Discount for this coupon, computed on the original subtotal
+        if ($coupon['discount_type'] === 'percentage') {
+            $discount = ($subtotal * (float)$coupon['discount_value']) / 100.0;
+            if (!empty($coupon['max_discount_amount']) && $discount > (float)$coupon['max_discount_amount']) {
+                $discount = (float)$coupon['max_discount_amount'];
+            }
+        } else {
+            $discount = (float)$coupon['discount_value'];
+        }
+
+        // Cap so the combined discount never exceeds the subtotal
+        $remaining = $subtotal - $runningDiscount;
+        if ($remaining <= 0) {
+            $rejected[] = ['code' => $code, 'reason' => 'Your order is already fully discounted.'];
+            continue;
+        }
+        if ($discount > $remaining) {
+            $discount = $remaining;
+        }
+        $discount = round($discount, 2);
+        $runningDiscount = round($runningDiscount + $discount, 2);
+
+        $applied[] = [
+            'id' => (int)$coupon['id'],
+            'code' => $coupon['code'],
+            'description' => $coupon['description'] ?? '',
+            'discount_type' => $coupon['discount_type'],
+            'discount_value' => (float)$coupon['discount_value'],
+            'max_discount_amount' => $coupon['max_discount_amount'] !== null ? (float)$coupon['max_discount_amount'] : null,
+            'exclusive' => $isExclusive ? 1 : 0,
+            'discount' => $discount,
+        ];
+    }
+
+    return [
+        'applied' => $applied,
+        'rejected' => $rejected,
+        'total_discount' => round($runningDiscount, 2),
+        'subtotal' => round($subtotal, 2),
+    ];
+}

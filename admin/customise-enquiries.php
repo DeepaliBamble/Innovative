@@ -23,6 +23,25 @@ if (isset($_POST['action']) && $_POST['action'] === 'update_status' && isset($_P
 // Handle delete action
 if (isset($_POST['action']) && $_POST['action'] === 'delete' && isset($_POST['enquiry_id'])) {
     $enquiryId = (int)$_POST['enquiry_id'];
+
+    // Remove any attachment files belonging to this enquiry before deleting the row.
+    $attStmt = $pdo->prepare("SELECT attachments FROM customise_enquiries WHERE id = ?");
+    $attStmt->execute([$enquiryId]);
+    $attRow = $attStmt->fetchColumn();
+    if (!empty($attRow)) {
+        $paths = json_decode($attRow, true);
+        if (is_array($paths)) {
+            foreach ($paths as $rel) {
+                $abs = realpath(__DIR__ . '/../' . $rel);
+                $base = realpath(__DIR__ . '/../uploads/enquiries');
+                // Only unlink files that genuinely live inside the enquiries upload dir.
+                if ($abs && $base && strpos($abs, $base) === 0 && is_file($abs)) {
+                    @unlink($abs);
+                }
+            }
+        }
+    }
+
     $stmt = $pdo->prepare("DELETE FROM customise_enquiries WHERE id = ?");
     $stmt->execute([$enquiryId]);
     $success_message = "Enquiry deleted successfully!";
@@ -160,9 +179,30 @@ include 'includes/header.php';
                                             </p>
                                         <?php endif; ?>
                                         <?php if ($enquiry['budget']): ?>
-                                            <p class="mb-0">
+                                            <p class="mb-2">
                                                 <i class="bi bi-currency-rupee me-2"></i><strong>Budget:</strong> <?php echo htmlspecialchars($enquiry['budget']); ?>
                                             </p>
+                                        <?php endif; ?>
+                                        <?php
+                                        $attachments = !empty($enquiry['attachments']) ? json_decode($enquiry['attachments'], true) : [];
+                                        if (is_array($attachments) && count($attachments) > 0):
+                                        ?>
+                                            <p class="mb-1">
+                                                <i class="bi bi-paperclip me-2"></i><strong>Attachments (<?php echo count($attachments); ?>):</strong>
+                                            </p>
+                                            <div class="d-flex flex-wrap gap-2">
+                                                <?php foreach ($attachments as $att):
+                                                    $fileName = basename($att);
+                                                    $ext = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+                                                    $icon = $ext === 'pdf' ? 'bi-file-earmark-pdf' : 'bi-file-earmark-image';
+                                                ?>
+                                                    <a href="<?php echo SITE_URL . '/' . htmlspecialchars($att); ?>"
+                                                       target="_blank" rel="noopener"
+                                                       class="btn btn-outline-secondary btn-sm">
+                                                        <i class="bi <?php echo $icon; ?> me-1"></i><?php echo htmlspecialchars($fileName); ?>
+                                                    </a>
+                                                <?php endforeach; ?>
+                                            </div>
                                         <?php endif; ?>
                                     </div>
                                 </div>

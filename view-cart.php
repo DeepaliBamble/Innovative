@@ -65,7 +65,17 @@ try {
 
     $shipping = 0; // Always free shipping
     $tax = 0; // Add tax calculation if needed
-    $total = $subtotal; // Total is just subtotal since shipping and tax are 0
+
+    // Evaluate any coupons already applied so the cart reflects the discount on load
+    // (also prunes coupons that are no longer valid for the current cart).
+    $cartUserId = isLoggedIn() ? getCurrentUserId() : null;
+    $cartCouponCodes = isset($_SESSION['applied_coupons']) && is_array($_SESSION['applied_coupons'])
+        ? $_SESSION['applied_coupons'] : [];
+    $cartCouponState = evaluateCoupons($pdo, $cartCouponCodes, (float)$subtotal, $cartUserId);
+    $_SESSION['applied_coupons'] = array_column($cartCouponState['applied'], 'code');
+    $cartInitialDiscount = $cartCouponState['total_discount'];
+
+    $total = $subtotal - $cartInitialDiscount; // shipping and tax are 0
 
 } catch (Exception $e) {
     error_log('Cart page error: ' . $e->getMessage());
@@ -74,6 +84,8 @@ try {
     $shipping = 0;
     $tax = 0;
     $total = 0;
+    $cartCouponState = ['applied' => [], 'rejected' => [], 'total_discount' => 0, 'subtotal' => 0];
+    $cartInitialDiscount = 0;
 }
 ?>
 <!DOCTYPE html>
@@ -256,16 +268,15 @@ try {
                             <!-- Coupon Code (Optional) -->
                             <?php if (!empty($cartItems)): ?>
                             <div class="wrap-coupon mt-4 p-3" style="background:#f8f8f8;border-radius:6px;">
-                                <h6 class="mb-2">Have a coupon? <span class="text-primary">Enter your code</span></h6>
+                                <h6 class="mb-1">Have a coupon? <span class="text-primary">Enter your code</span></h6>
+                                <p class="text-muted small mb-2">You can stack up to <?= MAX_STACKED_COUPONS ?> coupons.</p>
                                 <div class="d-flex" style="gap:8px;">
                                     <input type="text" id="cart-coupon-code-input" class="form-control" placeholder="Enter coupon code" style="max-width:260px;text-transform:uppercase;">
                                     <button class="tf-btn animate-btn" type="button" id="cart-apply-coupon-btn">
                                         Apply
                                     </button>
-                                    <button class="tf-btn btn-white animate-btn" type="button" id="cart-remove-coupon-btn" style="display:none;">
-                                        Remove
-                                    </button>
                                 </div>
+                                <div id="cart-applied-coupons" class="mt-2 d-flex flex-wrap" style="gap:8px;"></div>
                                 <div id="cart-coupon-message" class="mt-2 small"></div>
                                 <?php $promoCoupons = getActivePromoCoupons($pdo); ?>
                                 <?php if (!empty($promoCoupons)): ?>
@@ -297,7 +308,7 @@ try {
                                     <h6 class="fw-bold">Subtotal</h6>
                                     <span class="total cart-subtotal" data-subtotal="<?php echo (float)$subtotal; ?>">₹<?php echo number_format($subtotal, 0); ?></span>
                                 </div>
-                                <div class="d-flex justify-content-between align-items-center" id="cart-discount-row" style="display:none !important;">
+                                <div class="d-flex justify-content-between align-items-center mt-2" id="cart-discount-row" style="display:none !important;">
                                     <h6 class="fw-bold mb-0">Discount <span id="cart-discount-code" class="text-success small fw-normal"></span></h6>
                                     <span class="text-success" id="cart-discount-amount">-₹0</span>
                                 </div>
@@ -316,7 +327,7 @@ try {
                                 </div>
                                 <h5 class="total-order d-flex justify-content-between align-items-center">
                                     <span>Total</span>
-                                    <span class="total each-total-price cart-total" id="cart-total-amount" data-base-total="<?php echo (float)$total; ?>"><?php echo '₹' . number_format($total, 0); ?></span>
+                                    <span class="total each-total-price cart-total" id="cart-total-amount" data-base-total="<?php echo (float)$subtotal; ?>"><?php echo '₹' . number_format($total, 0); ?></span>
                                 </h5>
                                 <?php endif; ?>
                                 <div class="list-ver">
@@ -656,16 +667,19 @@ try {
     <script>
     (function() {
         const applyBtn = document.getElementById('cart-apply-coupon-btn');
-        const removeBtn = document.getElementById('cart-remove-coupon-btn');
         const input = document.getElementById('cart-coupon-code-input');
         const messageEl = document.getElementById('cart-coupon-message');
         const discountRow = document.getElementById('cart-discount-row');
         const discountAmountEl = document.getElementById('cart-discount-amount');
         const discountCodeEl = document.getElementById('cart-discount-code');
+        const appliedEl = document.getElementById('cart-applied-coupons');
         const totalEl = document.getElementById('cart-total-amount');
         const csrfEl = document.getElementById('csrf_token');
 
         if (!applyBtn) return;
+
+        const MAX_COUPONS = <?= (int)MAX_STACKED_COUPONS ?>;
+        let appliedCodes = <?= json_encode(array_values(array_column($cartCouponState['applied'], 'code'))) ?>;
 
         function getBaseTotal() {
             return parseFloat(totalEl.getAttribute('data-base-total')) || 0;
@@ -675,29 +689,64 @@ try {
             return '₹' + Number(Math.round(n)).toLocaleString('en-IN');
         }
 
-        function setDiscount(code, discount) {
-            discountRow.style.cssText = 'display:flex !important;';
-            discountCodeEl.textContent = code ? '(' + code + ')' : '';
-            discountAmountEl.textContent = '-' + formatINR(discount);
+        // Render applied-coupon chips + discount row from a server response state
+        function renderCouponState(state) {
+            const applied = (state && state.applied) ? state.applied : [];
+            const discount = (state && typeof state.discount_amount !== 'undefined') ? parseFloat(state.discount_amount) : 0;
+            appliedCodes = applied.map(c => c.code);
+
+            if (appliedEl) {
+                appliedEl.innerHTML = applied.map(c =>
+                    `<span class="badge d-inline-flex align-items-center" style="background:#eafaf1;color:#198754;border:1px solid #198754;padding:6px 10px;font-size:.8rem;">
+                        <i class="fas fa-tag me-1"></i>${c.code} (-${formatINR(c.discount)})
+                        <a href="javascript:void(0);" class="cart-remove-coupon ms-2 text-danger" data-code="${c.code}" title="Remove" style="text-decoration:none;font-weight:700;">&times;</a>
+                    </span>`
+                ).join('');
+            }
+
+            if (discount > 0) {
+                discountRow.style.cssText = 'display:flex !important;';
+                discountCodeEl.textContent = '';
+                discountAmountEl.textContent = '-' + formatINR(discount);
+            } else {
+                discountRow.style.cssText = 'display:none !important;';
+                discountAmountEl.textContent = '-₹0';
+            }
+
             const newTotal = Math.max(0, getBaseTotal() - discount);
             totalEl.textContent = formatINR(newTotal);
             totalEl.setAttribute('data-applied-discount', discount);
-            if (removeBtn) removeBtn.style.display = '';
+
+            bindRemoveButtons();
         }
 
-        function clearDiscount() {
-            discountRow.style.cssText = 'display:none !important;';
-            discountCodeEl.textContent = '';
-            discountAmountEl.textContent = '-₹0';
-            totalEl.textContent = formatINR(getBaseTotal());
-            totalEl.removeAttribute('data-applied-discount');
-            if (removeBtn) removeBtn.style.display = 'none';
+        function bindRemoveButtons() {
+            document.querySelectorAll('#cart-applied-coupons .cart-remove-coupon').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    const fd = new FormData();
+                    fd.append('coupon_code', this.getAttribute('data-code'));
+                    fd.append('csrf_token', csrfEl ? csrfEl.value : '');
+                    fetch('ajax/remove-coupon.php', { method: 'POST', body: fd })
+                        .then(r => r.json())
+                        .then(data => {
+                            if (data.success) {
+                                messageEl.innerHTML = '';
+                                renderCouponState(data);
+                            }
+                        })
+                        .catch(() => {});
+                });
+            });
         }
 
         applyBtn.addEventListener('click', function() {
             const code = (input.value || '').trim().toUpperCase();
             if (!code) {
                 messageEl.innerHTML = '<span class="text-danger">Please enter a coupon code.</span>';
+                return;
+            }
+            if (appliedCodes.length >= MAX_COUPONS) {
+                messageEl.innerHTML = '<span class="text-danger">You can apply at most ' + MAX_COUPONS + ' coupons.</span>';
                 return;
             }
 
@@ -717,12 +766,10 @@ try {
                     applyBtn.innerHTML = original;
                     if (data.success) {
                         messageEl.innerHTML = '<span class="text-success">' + data.message + '</span>';
-                        setDiscount(data.coupon.code, data.discount_amount);
-                        input.value = data.coupon.code;
-                        input.readOnly = true;
+                        input.value = '';
+                        renderCouponState(data);
                     } else {
                         messageEl.innerHTML = '<span class="text-danger">' + (data.message || 'Could not apply coupon.') + '</span>';
-                        clearDiscount();
                     }
                 })
                 .catch(() => {
@@ -732,22 +779,18 @@ try {
                 });
         });
 
-        if (removeBtn) {
-            removeBtn.addEventListener('click', function() {
-                input.value = '';
-                input.readOnly = false;
-                messageEl.innerHTML = '';
-                clearDiscount();
-            });
-        }
-
         // One-click apply for promoted coupon codes
         document.querySelectorAll('.apply-promo-code').forEach(function(link) {
             link.addEventListener('click', function() {
-                input.readOnly = false;
                 input.value = this.getAttribute('data-code');
                 applyBtn.click();
             });
+        });
+
+        // Render any coupons already applied on page load
+        renderCouponState({
+            applied: <?= json_encode(array_values($cartCouponState['applied'])) ?>,
+            discount_amount: <?= json_encode(round((float)$cartInitialDiscount, 2)) ?>
         });
     })();
     </script>

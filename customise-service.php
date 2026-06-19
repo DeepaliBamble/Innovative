@@ -1063,7 +1063,7 @@ require_once __DIR__ . '/includes/init.php';
 
                             <div id="customiseMessage" style="display: none;" class="alert mb-4"></div>
 
-                            <form id="customiseEnquiryForm" method="POST">
+                            <form id="customiseEnquiryForm" method="POST" enctype="multipart/form-data">
                                 <div class="row g-3">
                                     <div class="col-md-6">
                                         <label class="form-label fw-semibold" style="color: var(--black);">Your Name
@@ -1128,12 +1128,23 @@ require_once __DIR__ . '/includes/init.php';
                                         <select name="budget" class="form-select"
                                             style="padding: 12px 15px; border: 1px solid var(--line);">
                                             <option value="">Select budget range</option>
-                                            <option value="Under ₹25,000"> Under 50,000</option>
-                                            <option value="₹25,000 - ₹50,000">₹50,000 - ₹1,00,000</option>
+                                            <option value="Below ₹50,000">Below ₹50,000</option>
                                             <option value="₹50,000 - ₹1,00,000">₹50,000 - ₹1,00,000</option>
-                                            <option value="Above ₹1,00,000">Above ₹1,00,000</option>
+                                            <option value="₹1,00,000 - ₹1,50,000">₹1,00,000 - ₹1,50,000</option>
+                                            <option value="Above ₹1,50,000">Above ₹1,50,000</option>
                                             <option value="Not decided yet">Not decided yet</option>
                                         </select>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label fw-semibold" style="color: var(--black);">Attach
+                                            Reference Files</label>
+                                        <input type="file" name="attachments[]" id="attachments"
+                                            class="form-control" multiple
+                                            accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
+                                            style="padding: 12px 15px; border: 1px solid var(--line);">
+                                        <small class="text-muted">Optional. Upload reference photos or a PDF (design,
+                                            dimensions, inspiration). Up to 3 files, max 5&nbsp;MB each. Allowed: PDF,
+                                            JPG, PNG.</small>
                                     </div>
                                     <div class="col-12">
                                         <button type="submit" class="tf-btn w-100 animate-btn" id="submitBtn"
@@ -1164,6 +1175,39 @@ require_once __DIR__ . '/includes/init.php';
             const submitBtn = document.getElementById('submitBtn');
             const btnText = document.getElementById('btnText');
             const messageDiv = document.getElementById('customiseMessage');
+
+            // Client-side attachment validation (server re-validates)
+            const fileInput = document.getElementById('attachments');
+            if (fileInput && fileInput.files.length > 0) {
+                const maxFiles = 3;
+                const maxSize = 5 * 1024 * 1024; // 5 MB
+                const allowed = ['application/pdf', 'image/jpeg', 'image/png'];
+                let fileError = '';
+
+                if (fileInput.files.length > maxFiles) {
+                    fileError = 'You can upload a maximum of ' + maxFiles + ' files.';
+                } else {
+                    for (const f of fileInput.files) {
+                        if (f.size > maxSize) {
+                            fileError = '"' + f.name + '" is larger than 5 MB.';
+                            break;
+                        }
+                        const ext = f.name.split('.').pop().toLowerCase();
+                        if (!allowed.includes(f.type) && !['pdf', 'jpg', 'jpeg', 'png'].includes(ext)) {
+                            fileError = '"' + f.name + '" is not a PDF, JPG or PNG file.';
+                            break;
+                        }
+                    }
+                }
+
+                if (fileError) {
+                    messageDiv.className = 'alert alert-danger mb-4';
+                    messageDiv.innerHTML = '<i class="fa-solid fa-circle-exclamation me-2"></i>' + fileError;
+                    messageDiv.style.display = 'block';
+                    messageDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    return;
+                }
+            }
 
             // Disable button and show loading
             submitBtn.disabled = true;

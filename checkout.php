@@ -37,7 +37,18 @@ foreach ($cartItems as $item) {
 
 $shippingCost = 0; // Free shipping by default
 $taxAmount = 0; // No tax for now
-$total = $subtotal + $shippingCost + $taxAmount;
+
+// Pre-evaluate any coupons already applied (e.g. from the cart page) so the
+// checkout summary reflects the discount on first load. Also prunes any coupon
+// that is no longer valid for the current cart.
+$initialUserId = isLoggedIn() ? getCurrentUserId() : null;
+$initialCouponCodes = isset($_SESSION['applied_coupons']) && is_array($_SESSION['applied_coupons'])
+    ? $_SESSION['applied_coupons'] : [];
+$initialCouponState = evaluateCoupons($pdo, $initialCouponCodes, (float)$subtotal, $initialUserId);
+$_SESSION['applied_coupons'] = array_column($initialCouponState['applied'], 'code');
+$initialDiscount = $initialCouponState['total_discount'];
+
+$total = $subtotal + $shippingCost + $taxAmount - $initialDiscount;
 
 // Get user details if logged in
 $userData = null;
@@ -250,12 +261,14 @@ $razorpayConfig = getRazorpayConfig();
                             <!-- Coupon Code (Optional) -->
                             <div class="wrap-coupon mb-4">
                                 <h5 class="mb-12">Have a coupon? <span class="text-primary">Enter your code</span></h5>
+                                <p class="text-muted mb-2" style="font-size:.85rem;">You can stack up to <?= MAX_STACKED_COUPONS ?> coupons.</p>
                                 <div class="ip-discount-code mb-0">
                                     <input type="text" id="coupon-code-input" placeholder="Enter your code">
                                     <button class="tf-btn animate-btn" type="button" id="apply-coupon-btn">
                                         Apply Code
                                     </button>
                                 </div>
+                                <div id="applied-coupons" class="mt-2 d-flex flex-wrap gap-2"></div>
                                 <div id="coupon-message" class="mt-2"></div>
                                 <?php $promoCoupons = getActivePromoCoupons($pdo); ?>
                                 <?php if (!empty($promoCoupons)): ?>
@@ -598,80 +611,118 @@ $razorpayConfig = getRazorpayConfig();
 
             let subtotal = <?= $subtotal ?>;
             let shippingCost = 0;
-            let discountAmount = 0;
-            let couponCode = '';
+            let discountAmount = <?= json_encode(round((float)$initialDiscount, 2)) ?>;
+            let appliedCodes = <?= json_encode(array_values(array_column($initialCouponState['applied'], 'code'))) ?>;
+            const MAX_COUPONS = <?= (int)MAX_STACKED_COUPONS ?>;
+            const csrfTokenVal = document.getElementById('csrf_token') ? document.getElementById('csrf_token').value : '';
+
+            const appliedContainer = document.getElementById('applied-coupons');
+            const couponMessageEl = document.getElementById('coupon-message');
+
+            function formatMoney(n) {
+                return '₹' + (Math.round(n * 100) / 100).toFixed(2);
+            }
+
+            // Render applied-coupon chips + discount row from a server response state
+            function renderCouponState(state) {
+                const applied = (state && state.applied) ? state.applied : [];
+                appliedCodes = applied.map(c => c.code);
+                discountAmount = (state && typeof state.discount_amount !== 'undefined') ? parseFloat(state.discount_amount) : 0;
+
+                if (appliedContainer) {
+                    appliedContainer.innerHTML = applied.map(c =>
+                        `<span class="badge d-inline-flex align-items-center" style="background:#eafaf1;color:#198754;border:1px solid #198754;padding:6px 10px;font-size:.8rem;">
+                            <i class="fas fa-tag me-1"></i>${c.code} (-${formatMoney(c.discount)})
+                            <a href="javascript:void(0);" class="remove-coupon ms-2 text-danger" data-code="${c.code}" title="Remove" style="text-decoration:none;font-weight:700;">&times;</a>
+                        </span>`
+                    ).join('');
+                }
+
+                const discountRow = document.getElementById('discount-row');
+                if (discountRow) {
+                    if (discountAmount > 0) {
+                        discountRow.style.display = 'flex';
+                        document.getElementById('order-discount').textContent = '-' + formatMoney(discountAmount);
+                    } else {
+                        discountRow.style.display = 'none';
+                    }
+                }
+
+                bindRemoveButtons();
+                updateTotal();
+            }
+
+            function bindRemoveButtons() {
+                document.querySelectorAll('#applied-coupons .remove-coupon').forEach(function(btn) {
+                    btn.addEventListener('click', function() {
+                        const fd = new FormData();
+                        fd.append('coupon_code', this.getAttribute('data-code'));
+                        fd.append('csrf_token', csrfTokenVal);
+                        fetch('ajax/remove-coupon.php', { method: 'POST', body: fd })
+                            .then(r => r.json())
+                            .then(data => {
+                                if (data.success) {
+                                    if (couponMessageEl) couponMessageEl.innerHTML = '';
+                                    renderCouponState(data);
+                                }
+                            })
+                            .catch(err => console.error('Error removing coupon:', err));
+                    });
+                });
+            }
 
             // Apply coupon handler
             const applyCouponBtn = document.getElementById('apply-coupon-btn');
             if (applyCouponBtn) {
                 applyCouponBtn.addEventListener('click', function() {
-                    const code = document.getElementById('coupon-code-input').value.trim();
-                    const messageEl = document.getElementById('coupon-message');
-                    
+                    const input = document.getElementById('coupon-code-input');
+                    const code = input.value.trim();
+
                     if (!code) {
-                        messageEl.innerHTML = '<span class="text-danger">Please enter a coupon code.</span>';
+                        couponMessageEl.innerHTML = '<span class="text-danger">Please enter a coupon code.</span>';
                         return;
                     }
-                    
+                    if (appliedCodes.length >= MAX_COUPONS) {
+                        couponMessageEl.innerHTML = `<span class="text-danger">You can apply at most ${MAX_COUPONS} coupons.</span>`;
+                        return;
+                    }
+
                     const btnOriginalText = this.innerHTML;
                     this.disabled = true;
                     this.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-                    
+
                     const formData = new FormData();
                     formData.append('coupon_code', code);
-                    formData.append('csrf_token', document.getElementById('csrf_token') ? document.getElementById('csrf_token').value : '');
+                    formData.append('csrf_token', csrfTokenVal);
 
-                    fetch('ajax/validate-coupon.php', {
-                        method: 'POST',
-                        body: formData
-                    })
+                    fetch('ajax/validate-coupon.php', { method: 'POST', body: formData })
                     .then(response => response.json())
                     .then(data => {
                         this.disabled = false;
                         this.innerHTML = btnOriginalText;
-                        
+
                         if (data.success) {
-                            couponCode = data.coupon.code;
-                            
-                            // Calculate discount based on subtotal
-                            if (data.coupon.discount_type === 'percentage') {
-                                discountAmount = (subtotal * data.coupon.discount_value) / 100;
-                                if (data.coupon.max_discount_amount && discountAmount > data.coupon.max_discount_amount) {
-                                    discountAmount = data.coupon.max_discount_amount;
-                                }
-                            } else {
-                                discountAmount = parseFloat(data.coupon.discount_value);
-                            }
-                            
-                            messageEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-1"></i> ${data.message}</span>`;
-                            
-                            // Show discount row
-                            const discountRow = document.getElementById('discount-row');
-                            if (discountRow) {
-                                discountRow.style.display = 'flex';
-                                document.getElementById('order-discount').textContent = '-₹' + discountAmount.toFixed(2);
-                            }
-                            
-                            updateTotal();
+                            input.value = '';
+                            couponMessageEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-1"></i> ${data.message}</span>`;
+                            renderCouponState(data);
                         } else {
-                            couponCode = '';
-                            discountAmount = 0;
-                            messageEl.innerHTML = `<span class="text-danger"><i class="fas fa-exclamation-circle me-1"></i> ${data.message}</span>`;
-                            
-                            const discountRow = document.getElementById('discount-row');
-                            if (discountRow) discountRow.style.display = 'none';
-                            
-                            updateTotal();
+                            couponMessageEl.innerHTML = `<span class="text-danger"><i class="fas fa-exclamation-circle me-1"></i> ${data.message}</span>`;
                         }
                     })
                     .catch(err => {
                         console.error('Error applying coupon:', err);
                         this.disabled = false;
                         this.innerHTML = btnOriginalText;
-                        messageEl.innerHTML = '<span class="text-danger">Failed to validate coupon.</span>';
+                        couponMessageEl.innerHTML = '<span class="text-danger">Failed to validate coupon.</span>';
                     });
                 });
             }
+
+            // Render any coupons already carried over from the cart
+            renderCouponState({
+                applied: <?= json_encode(array_values($initialCouponState['applied'])) ?>,
+                discount_amount: <?= json_encode(round((float)$initialDiscount, 2)) ?>
+            });
 
             // One-click apply for promoted coupon codes
             document.querySelectorAll('.apply-promo-code').forEach(function(link) {
@@ -844,7 +895,7 @@ $razorpayConfig = getRazorpayConfig();
 
                 // Get form data
                 const formData = new FormData(checkoutForm);
-                formData.append('coupon_code', couponCode);
+                formData.append('coupon_code', appliedCodes.join(','));
                 formData.append('csrf_token', document.getElementById('csrf_token') ? document.getElementById('csrf_token').value : '');
 
                 // Create order

@@ -20,9 +20,10 @@ use PHPMailer\PHPMailer\Exception;
  * @param string $toName Recipient name (optional)
  * @param string $replyTo Reply-to email (optional)
  * @param string $replyToName Reply-to name (optional)
+ * @param array  $attachments Absolute file paths to attach (optional)
  * @return array ['success' => bool, 'message' => string]
  */
-function sendEmail($to, $subject, $body, $toName = '', $replyTo = null, $replyToName = null) {
+function sendEmail($to, $subject, $body, $toName = '', $replyTo = null, $replyToName = null, $attachments = []) {
     $mail = new PHPMailer(true);
 
     try {
@@ -55,6 +56,15 @@ function sendEmail($to, $subject, $body, $toName = '', $replyTo = null, $replyTo
             $mail->addReplyTo(MAIL_FROM_EMAIL, MAIL_FROM_NAME);
         }
 
+        // Attachments
+        if (!empty($attachments) && is_array($attachments)) {
+            foreach ($attachments as $path) {
+                if (is_string($path) && is_file($path)) {
+                    $mail->addAttachment($path);
+                }
+            }
+        }
+
         // Content
         $mail->isHTML(true);
         $mail->Subject = $subject;
@@ -84,10 +94,27 @@ function sendEmail($to, $subject, $body, $toName = '', $replyTo = null, $replyTo
  *
  * @param array $data Enquiry data
  * @param int $enquiry_id Enquiry ID
+ * @param array $attachmentPaths Absolute paths of uploaded files to attach (optional)
  * @return array ['success' => bool, 'message' => string]
  */
-function sendCustomiseEnquiryToAdmin($data, $enquiry_id) {
+function sendCustomiseEnquiryToAdmin($data, $enquiry_id, $attachmentPaths = []) {
     $subject = 'New Customisation Enquiry - Innovative Homesi';
+
+    // Build an "Attachments" section listing the uploaded file names.
+    $attachmentsHtml = '';
+    if (!empty($data['attachments']) && is_array($data['attachments'])) {
+        $items = '';
+        foreach ($data['attachments'] as $relPath) {
+            $fileName = htmlspecialchars(basename($relPath));
+            $items .= "<li>{$fileName}</li>";
+        }
+        $count = count($data['attachments']);
+        $attachmentsHtml = "
+                <h2>Attachments ({$count}):</h2>
+                <div class='info-row'>The following files are attached to this email:
+                    <ul>{$items}</ul>
+                </div>";
+    }
 
     $message = "
     <html>
@@ -122,6 +149,7 @@ function sendCustomiseEnquiryToAdmin($data, $enquiry_id) {
                 <div style='background: white; padding: 15px; border-left: 4px solid #6366f1;'>
                     " . nl2br($data['requirements']) . "
                 </div>
+                {$attachmentsHtml}
 
                 <p style='margin-top: 20px;'><a href='" . SITE_URL . "/admin/customise-enquiries.php?id={$enquiry_id}' style='background: #6366f1; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;'>View in Admin Panel</a></p>
             </div>
@@ -133,7 +161,7 @@ function sendCustomiseEnquiryToAdmin($data, $enquiry_id) {
     </html>
     ";
 
-    return sendEmail(ADMIN_EMAIL, $subject, $message, ADMIN_NAME, $data['email'], $data['name']);
+    return sendEmail(ADMIN_EMAIL, $subject, $message, ADMIN_NAME, $data['email'], $data['name'], $attachmentPaths);
 }
 
 /**
