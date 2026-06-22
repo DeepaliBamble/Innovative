@@ -623,3 +623,54 @@ function evaluateCoupons(PDO $pdo, array $codes, float $subtotal, ?int $userId, 
         'subtotal' => round($subtotal, 2),
     ];
 }
+
+/**
+ * Has the user received this product — i.e. do they have a delivered order
+ * containing it? Used to gate product reviews to verified, post-delivery buyers.
+ *
+ * @param PDO $pdo
+ * @param int|null $userId
+ * @param int $productId
+ * @return bool
+ */
+function userHasReceivedProduct($pdo, $userId, $productId) {
+    if (empty($userId)) {
+        return false;
+    }
+    try {
+        $stmt = $pdo->prepare("
+            SELECT 1
+            FROM orders o
+            INNER JOIN order_items oi ON oi.order_id = o.id
+            WHERE o.user_id = ? AND oi.product_id = ? AND o.order_status = 'delivered'
+            LIMIT 1
+        ");
+        $stmt->execute([$userId, $productId]);
+        return (bool) $stmt->fetchColumn();
+    } catch (PDOException $e) {
+        error_log('userHasReceivedProduct error: ' . $e->getMessage());
+        return false;
+    }
+}
+
+/**
+ * Return the user's existing review for a product, or null.
+ *
+ * @param PDO $pdo
+ * @param int|null $userId
+ * @param int $productId
+ * @return array|null
+ */
+function getUserReview($pdo, $userId, $productId) {
+    if (empty($userId)) {
+        return null;
+    }
+    try {
+        $stmt = $pdo->prepare("SELECT id, rating, title, comment, is_approved FROM reviews WHERE user_id = ? AND product_id = ? LIMIT 1");
+        $stmt->execute([$userId, $productId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    } catch (PDOException $e) {
+        error_log('getUserReview error: ' . $e->getMessage());
+        return null;
+    }
+}
