@@ -71,11 +71,94 @@ try {
         exit;
     }
 
+    // Optional photo uploads (max 4 images, 5 MB each, JPG/PNG/WEBP)
+    $MAX_REVIEW_IMAGES = 4;
+    $MAX_IMG_SIZE = 5 * 1024 * 1024;
+    $ALLOWED_IMG = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
+    $savedRel = [];
+    $savedAbs = [];
+
+    if (!empty($_FILES['review_images']) && is_array($_FILES['review_images']['name'])) {
+        $files = [];
+        foreach ($_FILES['review_images']['name'] as $i => $name) {
+            if (($_FILES['review_images']['error'][$i] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
+                continue;
+            }
+            $files[] = [
+                'tmp_name' => $_FILES['review_images']['tmp_name'][$i] ?? '',
+                'error'    => $_FILES['review_images']['error'][$i] ?? UPLOAD_ERR_NO_FILE,
+                'size'     => $_FILES['review_images']['size'][$i] ?? 0,
+            ];
+        }
+
+        if (count($files) > $MAX_REVIEW_IMAGES) {
+            echo json_encode(['success' => false, 'message' => "You can upload up to {$MAX_REVIEW_IMAGES} photos."]);
+            exit;
+        }
+
+        if ($files) {
+            $uploadDir = __DIR__ . '/../uploads/reviews';
+            if (!is_dir($uploadDir)) {
+                @mkdir($uploadDir, 0755, true);
+            }
+            if (!is_dir($uploadDir) || !is_writable($uploadDir)) {
+                error_log('Review upload dir not writable: ' . $uploadDir);
+                echo json_encode(['success' => false, 'message' => 'Unable to store the uploaded photos. Please try again.']);
+                exit;
+            }
+            $htaccess = $uploadDir . '/.htaccess';
+            if (!file_exists($htaccess)) {
+                @file_put_contents($htaccess, "php_flag engine off\nRemoveHandler .php .phtml .php3 .php4 .php5 .php7 .phps\nRemoveType .php .phtml .php3 .php4 .php5 .php7 .phps\n");
+            }
+            $finfo = function_exists('finfo_open') ? finfo_open(FILEINFO_MIME_TYPE) : null;
+
+            foreach ($files as $file) {
+                $abort = function ($msg) use (&$savedAbs, $finfo) {
+                    foreach ($savedAbs as $p) {
+                        @unlink($p);
+                    }
+                    if ($finfo) {
+                        finfo_close($finfo);
+                    }
+                    echo json_encode(['success' => false, 'message' => $msg]);
+                    exit;
+                };
+                if ($file['error'] !== UPLOAD_ERR_OK) {
+                    $abort('One of the photos could not be uploaded. Please try again.');
+                }
+                if ($file['size'] <= 0 || $file['size'] > $MAX_IMG_SIZE) {
+                    $abort('Each photo must be 5 MB or smaller.');
+                }
+                if (!is_uploaded_file($file['tmp_name'])) {
+                    $abort('Invalid file upload.');
+                }
+                $mime = $finfo ? finfo_file($finfo, $file['tmp_name']) : '';
+                if (!isset($ALLOWED_IMG[$mime])) {
+                    $abort('Only JPG, PNG and WEBP images are allowed.');
+                }
+                $ext = $ALLOWED_IMG[$mime];
+                $basename = bin2hex(random_bytes(8)) . '_' . time() . '.' . $ext;
+                $destAbs = $uploadDir . '/' . $basename;
+                if (!move_uploaded_file($file['tmp_name'], $destAbs)) {
+                    $abort('Failed to save a photo. Please try again.');
+                }
+                @chmod($destAbs, 0644);
+                $savedAbs[] = $destAbs;
+                $savedRel[] = 'uploads/reviews/' . $basename;
+            }
+            if ($finfo) {
+                finfo_close($finfo);
+            }
+        }
+    }
+
+    $imagesJson = !empty($savedRel) ? json_encode($savedRel) : null;
+
     $stmt = $pdo->prepare("
-        INSERT INTO reviews (product_id, user_id, rating, title, comment, is_approved, created_at)
-        VALUES (?, ?, ?, ?, ?, 0, NOW())
+        INSERT INTO reviews (product_id, user_id, rating, title, comment, images, is_approved, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, 0, NOW())
     ");
-    $stmt->execute([$productId, $userId, $rating, ($title !== '' ? $title : null), $comment]);
+    $stmt->execute([$productId, $userId, $rating, ($title !== '' ? $title : null), $comment, $imagesJson]);
 
     echo json_encode([
         'success' => true,

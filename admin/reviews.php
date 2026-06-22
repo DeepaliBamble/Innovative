@@ -163,6 +163,18 @@ include 'includes/header.php';
                                             <?php echo htmlspecialchars(substr($review['comment'], 0, 100)); ?>
                                             <?php echo strlen($review['comment']) > 100 ? '...' : ''; ?>
                                         </small>
+                                        <?php
+                                        $revImgs = !empty($review['images']) ? json_decode($review['images'], true) : [];
+                                        if (!empty($revImgs) && is_array($revImgs)): ?>
+                                            <div class="d-flex flex-wrap gap-1 mt-2">
+                                                <?php foreach ($revImgs as $imgPath): ?>
+                                                    <?php $imgUrl = rtrim(SITE_URL, '/') . '/' . htmlspecialchars($imgPath); ?>
+                                                    <a href="<?php echo $imgUrl; ?>" target="_blank" rel="noopener">
+                                                        <img src="<?php echo $imgUrl; ?>" alt="Review photo" style="width:48px;height:48px;object-fit:cover;border-radius:4px;border:1px solid #ddd;">
+                                                    </a>
+                                                <?php endforeach; ?>
+                                            </div>
+                                        <?php endif; ?>
                                     </td>
                                     <td>
                                         <small><?php echo date('M d, Y', strtotime($review['created_at'])); ?></small>

@@ -193,7 +193,7 @@ try {
 
     // Approved reviews to display
     $rlStmt = $pdo->prepare("
-        SELECT r.rating, r.title, r.comment, r.created_at, u.name
+        SELECT r.rating, r.title, r.comment, r.images, r.created_at, u.name
         FROM reviews r
         INNER JOIN users u ON u.id = r.user_id
         WHERE r.product_id = ? AND r.is_approved = 1
@@ -725,6 +725,17 @@ $page_title = htmlspecialchars($product['name']) . ' - Innovative Homesi';
                                             <?php if (!empty($rv['comment'])): ?>
                                                 <p class="review-comment mb-1"><?php echo nl2br(htmlspecialchars($rv['comment'])); ?></p>
                                             <?php endif; ?>
+                                            <?php
+                                            $rvImages = !empty($rv['images']) ? json_decode($rv['images'], true) : [];
+                                            if (!empty($rvImages) && is_array($rvImages)): ?>
+                                                <div class="review-photos mb-2">
+                                                    <?php foreach ($rvImages as $imgPath): ?>
+                                                        <a href="<?php echo htmlspecialchars($imgPath); ?>" target="_blank" rel="noopener">
+                                                            <img src="<?php echo htmlspecialchars($imgPath); ?>" alt="Customer photo" loading="lazy">
+                                                        </a>
+                                                    <?php endforeach; ?>
+                                                </div>
+                                            <?php endif; ?>
                                             <small class="text-muted">
                                                 <?php echo htmlspecialchars($rv['name']); ?> ·
                                                 <?php echo date('M j, Y', strtotime($rv['created_at'])); ?> ·
@@ -764,8 +775,13 @@ $page_title = htmlspecialchars($product['name']) . ' - Innovative Homesi';
                                         <div class="mb-2">
                                             <input type="text" name="title" class="form-control" maxlength="255" placeholder="Title (optional)">
                                         </div>
-                                        <div class="mb-3">
+                                        <div class="mb-2">
                                             <textarea name="comment" class="form-control" rows="4" maxlength="2000" placeholder="Share your experience with this product *" required></textarea>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label d-block mb-1">Add photos (optional)</label>
+                                            <input type="file" name="review_images[]" class="form-control" accept="image/jpeg,image/png,image/webp" multiple>
+                                            <small class="text-muted">Up to 4 images (JPG, PNG or WEBP), max 5&nbsp;MB each.</small>
                                         </div>
                                         <button type="submit" class="tf-btn animate-btn" id="review-submit">Submit Review</button>
                                     </form>
@@ -800,6 +816,11 @@ $page_title = htmlspecialchars($product['name']) . ' - Innovative Homesi';
                 padding: 20px;
             }
             .product-reviews .rating-input i { transition: color .15s ease; margin-right: 2px; }
+            .product-reviews .review-photos { display: flex; flex-wrap: wrap; gap: 8px; }
+            .product-reviews .review-photos img {
+                width: 78px; height: 78px; object-fit: cover;
+                border-radius: 8px; border: 1px solid #eee;
+            }
         </style>
         <script>
             (function () {

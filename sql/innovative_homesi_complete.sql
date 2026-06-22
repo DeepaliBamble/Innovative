@@ -219,6 +219,7 @@ CREATE TABLE `reviews` (
   `rating` int(11) NOT NULL CHECK (`rating` >= 1 and `rating` <= 5),
   `title` varchar(255) DEFAULT NULL,
   `comment` text DEFAULT NULL,
+  `images` text DEFAULT NULL,
   `is_approved` tinyint(1) DEFAULT 0,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
