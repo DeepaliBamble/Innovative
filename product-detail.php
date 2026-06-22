@@ -639,10 +639,6 @@ $page_title = htmlspecialchars($product['name']) . ' - Innovative Homesi';
                                 <button class="nav-link" data-bs-toggle="tab" data-bs-target="#returnsPolicy"
                                     type="button" role="tab">Refund & Returns</button>
                             </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#reviews"
-                                    type="button" role="tab" id="reviews-tab">Reviews (<?php echo $review_count; ?>)</button>
-                            </li>
                         </ul>
                         <div class="tab-content">
                             <!-- Specifications Tab -->
@@ -696,81 +692,89 @@ $page_title = htmlspecialchars($product['name']) . ' - Innovative Homesi';
                                 </div>
                             </div>
 
-                            <!-- Reviews Tab -->
-                            <div class="tab-pane fade" id="reviews" role="tabpanel">
-                                <div class="product-reviews">
-                                    <div class="reviews-summary mb-4">
-                                        <span class="h4 fw-bold" style="color:#9e6747;"><?php echo $avg_rating; ?></span>
-                                        <span class="text-muted">out of 5 · <?php echo $review_count; ?> <?php echo $review_count === 1 ? 'review' : 'reviews'; ?></span>
-                                    </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-                                    <?php if (!empty($reviews)): ?>
-                                        <div class="reviews-list mb-4">
-                                            <?php foreach ($reviews as $rv): ?>
-                                                <div class="review-item">
-                                                    <div class="stars" style="color:#e8a838;">
-                                                        <?php for ($i = 1; $i <= 5; $i++): ?>
-                                                            <i class="<?php echo $i <= (int)$rv['rating'] ? 'fas' : 'far'; ?> fa-star"></i>
-                                                        <?php endfor; ?>
-                                                    </div>
-                                                    <?php if (!empty($rv['title'])): ?>
-                                                        <h6 class="review-title mb-1"><?php echo htmlspecialchars($rv['title']); ?></h6>
-                                                    <?php endif; ?>
-                                                    <?php if (!empty($rv['comment'])): ?>
-                                                        <p class="review-comment mb-1"><?php echo nl2br(htmlspecialchars($rv['comment'])); ?></p>
-                                                    <?php endif; ?>
-                                                    <small class="text-muted">
-                                                        <?php echo htmlspecialchars($rv['name']); ?> ·
-                                                        <?php echo date('M j, Y', strtotime($rv['created_at'])); ?> ·
-                                                        <span style="color:#1a7d3c;"><i class="fas fa-check-circle"></i> Verified Purchase</span>
-                                                    </small>
-                                                </div>
-                                            <?php endforeach; ?>
-                                        </div>
-                                    <?php else: ?>
-                                        <p class="text-muted mb-4">No reviews yet. Be the first to review this product after you receive it.</p>
-                                    <?php endif; ?>
+        <!-- Customer Reviews -->
+        <section class="flat-spacing-2 pt-0" id="product-reviews-section">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        <h2 class="h3 mb-4" style="color:#9e6747;">Customer Reviews</h2>
+                        <div class="product-reviews">
+                            <div class="reviews-summary mb-4">
+                                <span class="h4 fw-bold" style="color:#9e6747;"><?php echo $avg_rating; ?></span>
+                                <span class="text-muted">out of 5 · <?php echo $review_count; ?> <?php echo $review_count === 1 ? 'review' : 'reviews'; ?></span>
+                            </div>
 
-                                    <?php if ($userReview): ?>
-                                        <div class="review-notice">
-                                            <?php if ($userReview['is_approved']): ?>
-                                                <i class="fas fa-check-circle" style="color:#1a7d3c;"></i> You have reviewed this product. Thank you!
-                                            <?php else: ?>
-                                                <i class="fas fa-clock" style="color:#9e6747;"></i> Thanks! Your review has been submitted and is awaiting approval.
+                            <?php if (!empty($reviews)): ?>
+                                <div class="reviews-list mb-4">
+                                    <?php foreach ($reviews as $rv): ?>
+                                        <div class="review-item">
+                                            <div class="stars" style="color:#e8a838;">
+                                                <?php for ($i = 1; $i <= 5; $i++): ?>
+                                                    <i class="<?php echo $i <= (int)$rv['rating'] ? 'fas' : 'far'; ?> fa-star"></i>
+                                                <?php endfor; ?>
+                                            </div>
+                                            <?php if (!empty($rv['title'])): ?>
+                                                <h6 class="review-title mb-1"><?php echo htmlspecialchars($rv['title']); ?></h6>
                                             <?php endif; ?>
+                                            <?php if (!empty($rv['comment'])): ?>
+                                                <p class="review-comment mb-1"><?php echo nl2br(htmlspecialchars($rv['comment'])); ?></p>
+                                            <?php endif; ?>
+                                            <small class="text-muted">
+                                                <?php echo htmlspecialchars($rv['name']); ?> ·
+                                                <?php echo date('M j, Y', strtotime($rv['created_at'])); ?> ·
+                                                <span style="color:#1a7d3c;"><i class="fas fa-check-circle"></i> Verified Purchase</span>
+                                            </small>
                                         </div>
-                                    <?php elseif ($canReview): ?>
-                                        <div class="write-review">
-                                            <h5 class="mb-3">Write a review</h5>
-                                            <div id="review-alert"></div>
-                                            <form id="review-form">
-                                                <input type="hidden" id="review_csrf" value="<?php echo htmlspecialchars(generateCsrfToken()); ?>">
-                                                <input type="hidden" name="product_id" value="<?php echo (int)$product_id; ?>">
-                                                <input type="hidden" name="rating" id="review-rating" value="0">
-                                                <div class="mb-2">
-                                                    <label class="form-label d-block mb-1">Your rating</label>
-                                                    <span class="rating-input" style="font-size:1.5rem;color:#e8a838;cursor:pointer;">
-                                                        <?php for ($i = 1; $i <= 5; $i++): ?>
-                                                            <i class="far fa-star" data-val="<?php echo $i; ?>"></i>
-                                                        <?php endfor; ?>
-                                                    </span>
-                                                </div>
-                                                <div class="mb-2">
-                                                    <input type="text" name="title" class="form-control" maxlength="255" placeholder="Title (optional)">
-                                                </div>
-                                                <div class="mb-3">
-                                                    <textarea name="comment" class="form-control" rows="4" maxlength="2000" placeholder="Share your experience with this product *" required></textarea>
-                                                </div>
-                                                <button type="submit" class="tf-btn animate-btn" id="review-submit">Submit Review</button>
-                                            </form>
-                                        </div>
-                                    <?php elseif (!$currentUserId): ?>
-                                        <p class="text-muted"><a href="login.php" class="link" style="color:#9e6747;">Log in</a> to write a review. Reviews can be submitted once your order for this product has been delivered.</p>
+                                    <?php endforeach; ?>
+                                </div>
+                            <?php else: ?>
+                                <p class="text-muted mb-4">No reviews yet. Be the first to review this product after you receive it.</p>
+                            <?php endif; ?>
+
+                            <?php if ($userReview): ?>
+                                <div class="review-notice">
+                                    <?php if ($userReview['is_approved']): ?>
+                                        <i class="fas fa-check-circle" style="color:#1a7d3c;"></i> You have reviewed this product. Thank you!
                                     <?php else: ?>
-                                        <p class="text-muted">You can write a review once your order for this product has been delivered.</p>
+                                        <i class="fas fa-clock" style="color:#9e6747;"></i> Thanks! Your review has been submitted and is awaiting approval.
                                     <?php endif; ?>
                                 </div>
-                            </div>
+                            <?php elseif ($canReview): ?>
+                                <div class="write-review">
+                                    <h5 class="mb-3">Write a review</h5>
+                                    <div id="review-alert"></div>
+                                    <form id="review-form">
+                                        <input type="hidden" id="review_csrf" value="<?php echo htmlspecialchars(generateCsrfToken()); ?>">
+                                        <input type="hidden" name="product_id" value="<?php echo (int)$product_id; ?>">
+                                        <input type="hidden" name="rating" id="review-rating" value="0">
+                                        <div class="mb-2">
+                                            <label class="form-label d-block mb-1">Your rating</label>
+                                            <span class="rating-input" style="font-size:1.5rem;color:#e8a838;cursor:pointer;">
+                                                <?php for ($i = 1; $i <= 5; $i++): ?>
+                                                    <i class="far fa-star" data-val="<?php echo $i; ?>"></i>
+                                                <?php endfor; ?>
+                                            </span>
+                                        </div>
+                                        <div class="mb-2">
+                                            <input type="text" name="title" class="form-control" maxlength="255" placeholder="Title (optional)">
+                                        </div>
+                                        <div class="mb-3">
+                                            <textarea name="comment" class="form-control" rows="4" maxlength="2000" placeholder="Share your experience with this product *" required></textarea>
+                                        </div>
+                                        <button type="submit" class="tf-btn animate-btn" id="review-submit">Submit Review</button>
+                                    </form>
+                                </div>
+                            <?php elseif (!$currentUserId): ?>
+                                <p class="text-muted"><a href="login.php" class="link" style="color:#9e6747;">Log in</a> to write a review. Reviews can be submitted once your order for this product has been delivered.</p>
+                            <?php else: ?>
+                                <p class="text-muted">You can write a review once your order for this product has been delivered.</p>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
@@ -955,17 +959,13 @@ $page_title = htmlspecialchars($product['name']) . ' - Innovative Homesi';
                 });
             }
 
-            // "Write a review / Read reviews" link: open the Reviews tab and scroll to it
+            // "Write a review / Read reviews" link: scroll to the reviews section
             document.querySelectorAll('.js-open-reviews').forEach(function (link) {
                 link.addEventListener('click', function (e) {
                     e.preventDefault();
-                    const tabBtn = document.getElementById('reviews-tab');
-                    const tabsSection = document.getElementById('product-tabs');
-                    if (tabBtn && window.bootstrap && bootstrap.Tab) {
-                        bootstrap.Tab.getOrCreateInstance(tabBtn).show();
-                    }
-                    if (tabsSection) {
-                        tabsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    const section = document.getElementById('product-reviews-section');
+                    if (section) {
+                        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     }
                 });
             });
