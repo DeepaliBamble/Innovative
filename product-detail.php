@@ -7,29 +7,43 @@
 // Include initialization (database, session, functions)
 require_once __DIR__ . '/includes/init.php';
 
-// Get product ID from URL
+// Get product from URL — supports either ?id= or ?slug=
 $product_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+$product_slug = isset($_GET['slug']) ? trim($_GET['slug']) : '';
 
-if ($product_id <= 0) {
+if ($product_id <= 0 && $product_slug === '') {
     header('Location: shop.php');
     exit;
 }
 
 try {
-    // Fetch product details
-    $stmt = $pdo->prepare("
-        SELECT p.*, c.name as category_name, c.slug as category_slug
-        FROM products p
-        LEFT JOIN categories c ON p.category_id = c.id
-        WHERE p.id = ? AND p.is_active = 1
-    ");
-    $stmt->execute([$product_id]);
+    // Fetch product details (by id when given, otherwise by slug)
+    if ($product_id > 0) {
+        $stmt = $pdo->prepare("
+            SELECT p.*, c.name as category_name, c.slug as category_slug
+            FROM products p
+            LEFT JOIN categories c ON p.category_id = c.id
+            WHERE p.id = ? AND p.is_active = 1
+        ");
+        $stmt->execute([$product_id]);
+    } else {
+        $stmt = $pdo->prepare("
+            SELECT p.*, c.name as category_name, c.slug as category_slug
+            FROM products p
+            LEFT JOIN categories c ON p.category_id = c.id
+            WHERE p.slug = ? AND p.is_active = 1
+        ");
+        $stmt->execute([$product_slug]);
+    }
     $product = $stmt->fetch();
 
     if (!$product) {
         header('Location: shop.php');
         exit;
     }
+
+    // Normalise the id so every downstream query works regardless of how we arrived
+    $product_id = (int)$product['id'];
 
     // Fetch product images
     $stmt = $pdo->prepare("

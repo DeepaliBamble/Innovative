@@ -34,7 +34,7 @@ $pagination = paginate($totalOrders, $ordersPerPage, $page);
 $ordersStmt = $pdo->prepare('
     SELECT o.id, o.order_number, o.total_amount, o.order_status, o.created_at,
            o.payment_status, o.payment_type, o.balance_due,
-           oi.product_name, oi.quantity,
+           oi.product_name, oi.quantity, oi.product_id,
            p.image_path, c.name as category_name
     FROM orders o
     LEFT JOIN order_items oi ON o.id = oi.order_id
@@ -460,18 +460,19 @@ $orders = $ordersStmt->fetchAll();
                                             }
                                             $statusLabel = ucfirst($order['order_status']);
                                             $imagePath = isset($order['image_path']) ? $order['image_path'] : 'images/products/placeholder.jpg';
+                                            $productLink = !empty($order['product_id']) ? 'product-detail.php?id=' . (int)$order['product_id'] : 'shop.php';
                                         ?>
                                         <tr class="tb-order-item">
                                             <td class="tb-order_code">#<?php echo htmlspecialchars($order['order_number']); ?></td>
                                             <td>
                                                 <div class="tb-order_product">
-                                                    <a href="product-detail.php" class="img-prd">
+                                                    <a href="<?php echo $productLink; ?>" class="img-prd">
                                                         <img class="lazyload" src="<?php echo htmlspecialchars($imagePath); ?>"
                                                             data-src="<?php echo htmlspecialchars($imagePath); ?>" alt="Product">
                                                     </a>
                                                     <div class="infor-prd">
                                                         <h6>
-                                                            <a href="product-detail.php" class="prd_name link">
+                                                            <a href="<?php echo $productLink; ?>" class="prd_name link">
                                                                 <?php echo htmlspecialchars($order['product_name'] ?? 'Product'); ?>
                                                             </a>
                                                         </h6>

@@ -340,7 +340,8 @@ if ($order['address_line1']) {
                                                         data-src="<?php echo htmlspecialchars($itemImage); ?>" alt="Product">
                                                 </div>
                                                 <div class="info_detail">
-                                                    <a href="product-detail.php" class="link info-name h4"><?php echo htmlspecialchars($item['product_name']); ?></a>
+                                                    <?php $itemLink = !empty($item['product_id']) ? 'product-detail.php?id=' . (int)$item['product_id'] : 'shop.php'; ?>
+                                                    <a href="<?php echo $itemLink; ?>" class="link info-name h4"><?php echo htmlspecialchars($item['product_name']); ?></a>
                                                     <p class="info-price">Price: <span class="fw-semibold h6 text-black"><?php echo formatPrice($item['price']); ?></span></p>
                                                     <p class="info-variant">Quantity: <span class="fw-semibold h6 text-black"><?php echo (int)$item['quantity']; ?></span></p>
                                                     <p class="info-variant">Subtotal: <span class="fw-semibold h6 text-black"><?php echo formatPrice($item['subtotal']); ?></span></p>
