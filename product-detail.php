@@ -388,6 +388,9 @@ $page_title = htmlspecialchars($product['name']) . ' - Innovative Homesi';
                                             </div>
                                             <span class="rating-value fw-semibold"><?php echo $avg_rating; ?></span>
                                             <span class="text-muted">(<?php echo $review_count; ?> <?php echo $review_count === 1 ? 'review' : 'reviews'; ?>)</span>
+                                            <a href="javascript:void(0);" class="js-open-reviews ms-1" style="color:#9e6747;font-weight:500;white-space:nowrap;">
+                                                <?php echo $canReview ? '<i class="fas fa-pen"></i> Write a review' : 'Read reviews'; ?>
+                                            </a>
                                         </div>
                                     </div>
 
@@ -638,7 +641,7 @@ $page_title = htmlspecialchars($product['name']) . ' - Innovative Homesi';
                             </li>
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link" data-bs-toggle="tab" data-bs-target="#reviews"
-                                    type="button" role="tab">Reviews (<?php echo $review_count; ?>)</button>
+                                    type="button" role="tab" id="reviews-tab">Reviews (<?php echo $review_count; ?>)</button>
                             </li>
                         </ul>
                         <div class="tab-content">
@@ -951,6 +954,21 @@ $page_title = htmlspecialchars($product['name']) . ' - Innovative Homesi';
                     }
                 });
             }
+
+            // "Write a review / Read reviews" link: open the Reviews tab and scroll to it
+            document.querySelectorAll('.js-open-reviews').forEach(function (link) {
+                link.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const tabBtn = document.getElementById('reviews-tab');
+                    const tabsSection = document.getElementById('product-tabs');
+                    if (tabBtn && window.bootstrap && bootstrap.Tab) {
+                        bootstrap.Tab.getOrCreateInstance(tabBtn).show();
+                    }
+                    if (tabsSection) {
+                        tabsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                });
+            });
 
             // Quantity controls with stopImmediatePropagation to prevent main.js handlers
             if (decreaseBtn && increaseBtn && quantityInput) {
