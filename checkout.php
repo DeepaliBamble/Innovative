@@ -614,6 +614,10 @@ $razorpayConfig = getRazorpayConfig();
             let discountAmount = <?= json_encode(round((float)$initialDiscount, 2)) ?>;
             let appliedCodes = <?= json_encode(array_values(array_column($initialCouponState['applied'], 'code'))) ?>;
             const MAX_COUPONS = <?= (int)MAX_STACKED_COUPONS ?>;
+            // 50% partial payment is only offered when the order total exceeds this.
+            // Declared up here (before init calls updateTotal/updatePaymentOption) to
+            // avoid a temporal-dead-zone ReferenceError that broke the submit handler.
+            const PARTIAL_MIN_TOTAL = 10000;
             const csrfTokenVal = document.getElementById('csrf_token') ? document.getElementById('csrf_token').value : '';
 
             const appliedContainer = document.getElementById('applied-coupons');
@@ -772,9 +776,6 @@ $razorpayConfig = getRazorpayConfig();
                 document.getElementById('order-total').textContent = '₹' + total.toFixed(2);
                 updatePaymentOption();
             }
-
-            // 50% partial payment is only offered when the order total exceeds this.
-            const PARTIAL_MIN_TOTAL = 10000;
 
             function currentTotal() {
                 return subtotal + shippingCost - discountAmount;
