@@ -320,8 +320,8 @@ $page_title = htmlspecialchars($product['name']) . ' - Innovative Homesi';
                                             <div class="swiper-wrapper">
                                                 <?php foreach ($product_images as $index => $image): ?>
                                                 <div class="swiper-slide">
-                                                    <a href="<?php echo htmlspecialchars($image['image_path']); ?>" target="_blank" class="item" data-pswp-width="770px"
-                                                        data-pswp-height="1075px">
+                                                    <a href="<?php echo htmlspecialchars($image['image_path']); ?>" class="item" data-pswp-width="1200"
+                                                        data-pswp-height="1200">
                                                         <img class="tf-image-zoom lazyload" data-zoom="<?php echo htmlspecialchars($image['image_path']); ?>"
                                                             data-src="<?php echo htmlspecialchars($image['image_path']); ?>"
                                                             src="<?php echo htmlspecialchars($image['image_path']); ?>"
@@ -954,6 +954,8 @@ $page_title = htmlspecialchars($product['name']) . ' - Innovative Homesi';
 
     <!-- Javascript -->
     <?php include 'includes/scripts.php'; ?>
+    <script src="js/photoswipe.umd.min.js"></script>
+    <script src="js/photoswipe-lightbox.umd.min.js"></script>
 
     <script>
         // Quantity controls
@@ -1236,6 +1238,41 @@ $page_title = htmlspecialchars($product['name']) . ' - Innovative Homesi';
                     }
                     counterDiv.innerHTML = `<i class="fas fa-images"></i> ${swiper.activeIndex + 1} / ${totalImages}`;
                 }
+            }
+
+            // Lightbox: clicking the main image opens a fullscreen popup with
+            // prev/next arrows, keyboard navigation and swipe on touch devices.
+            function readNaturalSize(itemData) {
+                const img = itemData.element ? itemData.element.querySelector('img') : null;
+                if (img && img.naturalWidth) {
+                    itemData.width = img.naturalWidth;
+                    itemData.height = img.naturalHeight;
+                }
+                return itemData;
+            }
+
+            if (typeof PhotoSwipeLightbox !== 'undefined' && typeof PhotoSwipe !== 'undefined') {
+                const productLightbox = new PhotoSwipeLightbox({
+                    gallery: '#gallery-swiper-started',
+                    children: 'a.item',
+                    pswpModule: PhotoSwipe,
+                    showHideAnimationType: 'zoom',
+                    wheelToZoom: true
+                });
+                productLightbox.addFilter('itemData', readNaturalSize);
+                productLightbox.on('change', function() {
+                    galleryMain.slideTo(productLightbox.pswp.currIndex, 0);
+                });
+                productLightbox.init();
+
+                const reviewLightbox = new PhotoSwipeLightbox({
+                    gallery: '.review-photos',
+                    children: 'a',
+                    pswpModule: PhotoSwipe,
+                    showHideAnimationType: 'zoom'
+                });
+                reviewLightbox.addFilter('itemData', readNaturalSize);
+                reviewLightbox.init();
             }
 
 
