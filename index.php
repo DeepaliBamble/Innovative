@@ -236,6 +236,7 @@ try {
     <link rel="stylesheet" href="css/animate.css">
     <link rel="stylesheet" type="text/css" href="css/styles.css">
     <link rel="stylesheet" type="text/css" href="css/modern-typography.css">
+    <link rel="stylesheet" type="text/css" href="css/home-animations.css">
 
     <!-- Favicon and Touch Icons  -->
     <link rel="shortcut icon" href="images/logo/favicon.svg">
@@ -550,7 +551,7 @@ try {
         <!-- Info Banner -->
         <section class="flat-spacing pt-0">
             <div class="container">
-                <a href="customise-service.php"
+                <a href="customise-service.php" class="info-banner-link wow fadeInUp"
                     aria-label="Turn your design into reality — talk to our expert about custom furniture">
                     <img class="lazyload w-100" src="images/section/info.jpeg" data-src="images/section/info.jpeg"
                         alt="Turn your design into reality — custom furniture made exactly the way you envision"
@@ -666,7 +667,7 @@ try {
         <section class="themesFlat">
             <div class="container-full-2">
                 <div class="tf-grid-layout lg-col-2 gap-0">
-                    <div class="box-image_V04 hover-img">
+                    <div class="box-image_V04 hover-img wow fadeInLeft">
                         <a href="shop.php?category=extendable-sofa" class="box-image_image img-style">
                             <img src="images/section/sample.webp" data-src="images/section/sample.webp" alt=""
                                 class="lazyload">
@@ -685,7 +686,7 @@ try {
                             </a>
                         </div>
                     </div>
-                    <div class="box-image_V04 hover-img">
+                    <div class="box-image_V04 hover-img wow fadeInRight">
                         <a href="shop.php?category=tables-storage" class="box-image_image img-style">
                             <img src="images/section/box-image-7.jpg" data-src="images/section/box-image-7.jpg" alt=""
                                 class="lazyload">
@@ -2089,6 +2090,13 @@ try {
         <script src="js/parallaxie.js"></script>
         <script src="js/main.js"></script>
         <script src="js/lookbook.js"></script>
+        <script>
+            // Scroll-reveal animations: wow.min.js is loaded above but was
+            // never initialized, so every .wow element on this page was inert
+            if (typeof WOW === 'function' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                new WOW({ offset: 60, mobile: true, live: false }).init();
+            }
+        </script>
 
         <!-- Product Action Handlers -->
         <script>

@@ -1,0 +1,274 @@
+/* ============================================================
+   Home page animation & styling enhancements
+   Brand: #9e6747 | Works with WOW.js + animate.css (v3 classes)
+   Loaded only on index.php
+   ============================================================ */
+
+/* ---------- Section titles: gradient underline that draws in ---------- */
+.sect-title .title,
+.sect-title .s-title,
+h1.sect-title {
+    position: relative;
+    display: inline-block;
+    padding-bottom: 16px;
+}
+
+.sect-title .title::after,
+.sect-title .s-title::after,
+h1.sect-title::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 4px;
+    width: 64px;
+    height: 3px;
+    border-radius: 3px;
+    background: linear-gradient(90deg, #d4a882, #9e6747, #d4a882);
+    transform: translateX(-50%);
+}
+
+.sect-title.animated .title::after,
+.sect-title.animated .s-title::after,
+.animated h1.sect-title::after {
+    animation: ih-underline-grow 0.9s 0.25s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+@keyframes ih-underline-grow {
+    from { width: 0; opacity: 0; }
+    to   { width: 64px; opacity: 1; }
+}
+
+/* ---------- Staggered card entrances ----------
+   WOW.js adds .animated to the swiper container when it scrolls
+   into view; slides then rise in one after another. Without JS the
+   .animated class never appears and slides stay fully visible. */
+.swiper.animated .swiper-slide {
+    opacity: 0;
+    animation: ih-card-rise 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.swiper.animated .swiper-slide:nth-child(1) { animation-delay: 0.05s; }
+.swiper.animated .swiper-slide:nth-child(2) { animation-delay: 0.15s; }
+.swiper.animated .swiper-slide:nth-child(3) { animation-delay: 0.25s; }
+.swiper.animated .swiper-slide:nth-child(4) { animation-delay: 0.35s; }
+.swiper.animated .swiper-slide:nth-child(5) { animation-delay: 0.45s; }
+.swiper.animated .swiper-slide:nth-child(6) { animation-delay: 0.55s; }
+.swiper.animated .swiper-slide:nth-child(n+7) { animation-delay: 0.65s; }
+
+@keyframes ih-card-rise {
+    from { opacity: 0; transform: translateY(28px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- Category circles: lift + brand ring on hover ---------- */
+.widget-collection.style-circle .collection_image {
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s ease;
+    border-radius: 50%;
+}
+
+.widget-collection.style-circle:hover .collection_image {
+    transform: translateY(-8px);
+    box-shadow: 0 14px 30px rgba(158, 103, 71, 0.28), 0 0 0 4px rgba(158, 103, 71, 0.15);
+}
+
+.widget-collection.style-circle .collection_name {
+    transition: color 0.3s ease, letter-spacing 0.3s ease;
+}
+
+.widget-collection.style-circle:hover .collection_name {
+    color: #9e6747;
+}
+
+/* ---------- Product cards: lift with warm shadow ---------- */
+.new-products-section .card-product {
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.new-products-section .card-product .card-product_wrapper {
+    border-radius: 12px;
+    overflow: hidden;
+    transition: box-shadow 0.4s ease;
+}
+
+.new-products-section .card-product:hover {
+    transform: translateY(-8px);
+}
+
+.new-products-section .card-product:hover .card-product_wrapper {
+    box-shadow: 0 18px 40px rgba(158, 103, 71, 0.22);
+}
+
+.new-products-section .card-product .name-product {
+    transition: color 0.3s ease;
+}
+
+.new-products-section .card-product:hover .name-product {
+    color: #9e6747;
+}
+
+/* ---------- Info banner: gentle zoom + shadow on hover ---------- */
+.info-banner-link {
+    display: block;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.45s ease;
+}
+
+.info-banner-link:hover {
+    transform: translateY(-6px) scale(1.01);
+    box-shadow: 0 20px 44px rgba(158, 103, 71, 0.25);
+}
+
+/* ---------- Flexible payment banner: shimmer sweep + badge pulse ---------- */
+.flex-pay-banner {
+    position: relative;
+    overflow: hidden;
+}
+
+.flex-pay-banner::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -80%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(105deg, transparent 20%, rgba(255, 255, 255, 0.22) 50%, transparent 80%);
+    transform: skewX(-18deg);
+    animation: ih-shimmer 4.5s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes ih-shimmer {
+    0%       { left: -80%; }
+    45%, 100% { left: 130%; }
+}
+
+.flex-pay-badge {
+    animation: ih-badge-pulse 2.6s ease-in-out infinite;
+}
+
+@keyframes ih-badge-pulse {
+    0%, 100% { transform: scale(1);    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.35); }
+    50%      { transform: scale(1.06); box-shadow: 0 0 0 12px rgba(255, 255, 255, 0); }
+}
+
+/* ---------- Buttons: arrow nudges forward on hover ---------- */
+.tf-btn .icon-arrow-right {
+    transition: transform 0.3s ease;
+}
+
+.tf-btn:hover .icon-arrow-right {
+    transform: translateX(5px);
+}
+
+/* ---------- Testimonials: card float + quote pulse ---------- */
+.testimonial-swiper .testimonial-card {
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s ease;
+}
+
+.testimonial-swiper .testimonial-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 50px rgba(158, 103, 71, 0.18) !important;
+}
+
+.testimonial-swiper .testimonial-card:hover .quote-icon {
+    animation: ih-quote-pop 0.5s ease;
+}
+
+@keyframes ih-quote-pop {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.18) rotate(-6deg); }
+    100% { transform: scale(1); }
+}
+
+/* ---------- Service box icons: icon swings on hover ---------- */
+.box-icon_V01 .icon {
+    transition: transform 0.3s ease, color 0.3s ease;
+    display: inline-flex;
+}
+
+.box-icon_V01:hover .icon {
+    animation: ih-icon-swing 0.6s ease;
+    color: #9e6747;
+}
+
+@keyframes ih-icon-swing {
+    0%   { transform: rotate(0); }
+    25%  { transform: rotate(-10deg) scale(1.12); }
+    60%  { transform: rotate(8deg) scale(1.12); }
+    100% { transform: rotate(0) scale(1); }
+}
+
+/* ---------- Blog cards: lift + image zoom ---------- */
+.article-blog {
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.article-blog:hover {
+    transform: translateY(-6px);
+}
+
+.article-blog .entry_image {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.article-blog .entry_image img {
+    transition: transform 0.6s ease;
+}
+
+.article-blog:hover .entry_image img {
+    transform: scale(1.06);
+}
+
+/* ---------- Hero slider: dots & nav polish ---------- */
+.tf-slideshow .sw-dot-default .swiper-pagination-bullet-active {
+    animation: ih-dot-glow 1.8s ease-in-out infinite;
+}
+
+@keyframes ih-dot-glow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(158, 103, 71, 0.45); }
+    50%      { box-shadow: 0 0 0 6px rgba(158, 103, 71, 0); }
+}
+
+.tf-slideshow .tf-sw-nav {
+    transition: transform 0.3s ease, background 0.3s ease;
+}
+
+.tf-slideshow .tf-sw-nav:hover {
+    transform: scale(1.12);
+}
+
+/* ---------- Featured collection cards: CTA arrow slide ---------- */
+.collection-card .collection-card_cta i {
+    transition: transform 0.3s ease;
+}
+
+.collection-card:hover .collection-card_cta i {
+    transform: translateX(6px);
+}
+
+/* ---------- Accessibility: honor reduced-motion preference ---------- */
+@media (prefers-reduced-motion: reduce) {
+    .sect-title .title::after,
+    .sect-title .s-title::after,
+    h1.sect-title::after,
+    .swiper.animated .swiper-slide,
+    .flex-pay-banner::before,
+    .flex-pay-badge,
+    .tf-slideshow .sw-dot-default .swiper-pagination-bullet-active {
+        animation: none !important;
+    }
+
+    .swiper.animated .swiper-slide {
+        opacity: 1;
+    }
+
+    .widget-collection.style-circle .collection_image,
+    .new-products-section .card-product,
+    .info-banner-link,
+    .testimonial-swiper .testimonial-card,
+    .article-blog {
+        transition: none;
+    }
+}
