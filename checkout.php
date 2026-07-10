@@ -214,6 +214,7 @@ $razorpayConfig = getRazorpayConfig();
             to   { transform: scale(1); }
         }
     </style>
+    <link rel="stylesheet" href="css/modern-ui.css">
 </head>
 
 <body>

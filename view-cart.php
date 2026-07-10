@@ -120,6 +120,7 @@ try {
     <link rel="shortcut icon" href="images/logo/favicon.svg">
     <link rel="apple-touch-icon-precomposed" href="images/logo/favicon.svg">
 
+    <link rel="stylesheet" href="css/modern-ui.css">
 </head>
 
 <body>

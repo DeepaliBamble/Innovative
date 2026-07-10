@@ -175,6 +175,7 @@ require_once __DIR__ . '/includes/init.php';
         }
     </style>
 
+    <link rel="stylesheet" href="css/modern-ui.css">
 </head>
 
 <body>

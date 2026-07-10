@@ -1,5 +1,5 @@
 <!-- Footer -->
-<footer class="tf-footer"  style="background-color: #faf1e5;">
+<footer class="tf-footer">
     <div class="footer-body">
         <div class="container">
             <div class="row">

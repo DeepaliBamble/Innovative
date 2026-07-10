@@ -100,6 +100,7 @@ require_once __DIR__ . '/includes/init.php';
             border-color: #d4a574;
         }
     </style>
+    <link rel="stylesheet" href="css/modern-ui.css">
 </head>
 
 <body>

@@ -1,0 +1,346 @@
+/* ============================================================
+   Modern UI layer — site-wide design refresh
+   Loaded last in <head> on every public page.
+
+   Type:   Fraunces (display) + Jost (UI/body) — replaces the
+           all-Merriweather look that read as dated.
+   Color:  warm paper surfaces, ink text, terracotta brand #9e6747
+   ============================================================ */
+
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=Jost:ital,wght@0,300..700;1,400&display=swap");
+
+:root {
+    --mu-ink: #28211b;
+    --mu-ink-soft: #6b5f55;
+    --mu-paper: #fdfbf8;
+    --mu-cream: #f6efe7;
+    --mu-brand: #9e6747;
+    --mu-brand-deep: #7e4f33;
+    --mu-line: #eadfd4;
+    --mu-display: "Fraunces", Georgia, serif;
+    --mu-sans: "Jost", "Segoe UI", system-ui, sans-serif;
+
+    /* Re-point modern-typography.css: its 35 !important font rules all
+       read these variables, so redefining them here re-fonts the site */
+    --font-primary: "Jost", "Segoe UI", system-ui, sans-serif;
+    --font-heading: "Fraunces", Georgia, serif;
+}
+
+/* ---------- Base typography ---------- */
+body,
+p, a, li, span, label, button, input, select, textarea,
+.h5, .h6, h5, h6,
+.tf-btn, .btn, .link, .text, .price-wrap, .s-subtitle {
+    font-family: var(--mu-sans);
+}
+
+body {
+    background-color: var(--mu-paper);
+    color: var(--mu-ink);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, .h1, .h2, .h3,
+.title, .s-title, .text-display, .sect-title, .title_sld,
+.heading, .main-title, .main-title-2 {
+    font-family: var(--mu-display);
+    font-weight: 550;
+    letter-spacing: -0.02em;
+    color: var(--mu-ink);
+}
+
+h4, .h4, h5, .h5, h6, .h6 {
+    font-family: var(--mu-sans) !important;
+    letter-spacing: 0.01em;
+}
+
+h4, .h4 {
+    font-weight: 600;
+    letter-spacing: -0.01em;
+}
+
+p, .text {
+    color: var(--mu-ink-soft);
+    line-height: 1.65;
+}
+
+.s-subtitle {
+    color: var(--mu-ink-soft) !important;
+    font-weight: 400;
+    letter-spacing: 0.01em;
+}
+
+::selection {
+    background: var(--mu-brand);
+    color: #fff;
+}
+
+/* ---------- Header: glass / frosted sticky bar ---------- */
+.tf-header {
+    background: rgba(253, 251, 248, 0.86) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(1.5);
+    backdrop-filter: blur(16px) saturate(1.5);
+    border-bottom: 1px solid var(--mu-line);
+    box-shadow: 0 2px 24px rgba(122, 82, 58, 0.06);
+}
+
+.tf-header .item-link {
+    font-family: var(--mu-sans);
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    position: relative;
+    transition: color 0.25s ease;
+}
+
+.tf-header .item-link::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -6px;
+    width: 100%;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--mu-brand);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.tf-header .menu-item:hover .item-link {
+    color: var(--mu-brand);
+}
+
+.tf-header .menu-item:hover .item-link::after {
+    transform: scaleX(1);
+}
+
+.tf-header .nav-icon-item {
+    width: 42px;
+    height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background 0.25s ease, color 0.25s ease, transform 0.25s ease;
+}
+
+.tf-header .nav-icon-item:hover {
+    background: var(--mu-cream);
+    color: var(--mu-brand);
+    transform: translateY(-2px);
+}
+
+.tf-header .count-box {
+    background: var(--mu-brand) !important;
+    font-family: var(--mu-sans);
+}
+
+/* ---------- Buttons ---------- */
+.tf-btn {
+    font-family: var(--mu-sans);
+    font-size: 16px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    padding: 14px 34px;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease;
+}
+
+.tf-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(158, 103, 71, 0.32);
+}
+
+.tf-btn-line {
+    font-family: var(--mu-sans);
+    font-weight: 500;
+    letter-spacing: 0.03em;
+}
+
+/* ---------- Product cards & prices ---------- */
+.card-product .card-product_wrapper {
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.card-product .name-product {
+    font-family: var(--mu-sans);
+    font-size: 16px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+}
+
+.price-wrap .price-new {
+    font-family: var(--mu-sans);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--mu-ink);
+}
+
+.price-wrap .price-old {
+    font-family: var(--mu-sans);
+    color: #b3a597;
+}
+
+.card-product .product-action_list .box-icon {
+    border-radius: 50%;
+    transition: background 0.25s ease, color 0.25s ease, transform 0.25s ease;
+}
+
+.card-product .product-action_list .box-icon:hover {
+    background: var(--mu-brand);
+    color: #fff;
+    transform: scale(1.08);
+}
+
+/* ---------- Forms ---------- */
+input[type="text"], input[type="email"], input[type="password"],
+input[type="tel"], input[type="number"], input[type="search"],
+select, textarea {
+    font-family: var(--mu-sans);
+    border-radius: 10px;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus,
+input[type="tel"]:focus, input[type="number"]:focus, input[type="search"]:focus,
+select:focus, textarea:focus {
+    border-color: var(--mu-brand) !important;
+    box-shadow: 0 0 0 4px rgba(158, 103, 71, 0.14);
+    outline: none;
+}
+
+/* ---------- Footer: premium dark ---------- */
+.tf-footer {
+    background: linear-gradient(180deg, #2d2119 0%, #241a13 100%) !important;
+    color: rgba(255, 248, 240, 0.78);
+}
+
+.tf-footer h1, .tf-footer h2, .tf-footer h3, .tf-footer h4,
+.tf-footer .h5, .tf-footer .h6, .tf-footer h5, .tf-footer h6,
+.tf-footer .footer-heading, .tf-footer .title {
+    color: #fdf6ee;
+}
+
+.tf-footer p, .tf-footer .text, .tf-footer li, .tf-footer span {
+    color: rgba(255, 248, 240, 0.72);
+}
+
+.tf-footer a {
+    color: rgba(255, 248, 240, 0.78);
+    transition: color 0.25s ease, padding-left 0.25s ease;
+}
+
+.tf-footer a:hover {
+    color: #e8b892;
+}
+
+.tf-footer .footer-menu-list a:hover {
+    padding-left: 6px;
+}
+
+.tf-footer .br-line {
+    background: rgba(255, 248, 240, 0.14) !important;
+}
+
+.tf-footer input[type="text"], .tf-footer input[type="email"] {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: #fdf6ee;
+    border-radius: 999px;
+}
+
+.tf-footer input::placeholder {
+    color: rgba(255, 248, 240, 0.45);
+}
+
+.tf-footer .icon, .tf-footer i {
+    color: #e8b892;
+}
+
+.tf-footer button[type="submit"],
+.tf-footer .tf-btn {
+    background: var(--mu-brand);
+    color: #fff;
+    border-radius: 999px;
+}
+
+.tf-footer button[type="submit"]:hover,
+.tf-footer .tf-btn:hover {
+    background: var(--mu-brand-deep);
+}
+
+.tf-footer .footer-bottom,
+.tf-footer .footer-bottom p,
+.tf-footer .footer-bottom a {
+    color: rgba(255, 248, 240, 0.6);
+}
+
+.tf-footer .footer-bottom a {
+    color: #e8b892;
+}
+
+.tf-footer .footer-bottom a:hover {
+    color: #f6d3b6;
+}
+
+/* Neutral resting state on the dark footer (styles.css forces
+   per-network colors at (0,3,0)+!important — a.social-* outranks it);
+   the theme's branded hover fill is kept as-is */
+.tf-footer .tf-social-icon a.social-facebook,
+.tf-footer .tf-social-icon a.social-instagram,
+.tf-footer .tf-social-icon a.social-youtube,
+.tf-footer .tf-social-icon a.social-pinterest {
+    color: rgba(255, 248, 240, 0.85) !important;
+    border-color: rgba(255, 248, 240, 0.28) !important;
+    transition: border-color 0.25s ease, transform 0.25s ease;
+}
+
+.tf-footer .tf-social-icon a.social-facebook i,
+.tf-footer .tf-social-icon a.social-instagram i,
+.tf-footer .tf-social-icon a.social-youtube i,
+.tf-footer .tf-social-icon a.social-pinterest i {
+    color: rgba(255, 248, 240, 0.85) !important;
+}
+
+.tf-footer .tf-social-icon a:hover {
+    transform: translateY(-3px);
+}
+
+.tf-footer .tf-social-icon a.social-facebook:hover i,
+.tf-footer .tf-social-icon a.social-instagram:hover i,
+.tf-footer .tf-social-icon a.social-youtube:hover i,
+.tf-footer .tf-social-icon a.social-pinterest:hover i {
+    color: #fff !important;
+}
+
+/* ---------- Scrollbar (WebKit) ---------- */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--mu-cream);
+}
+
+::-webkit-scrollbar-thumb {
+    background: #d9c2ae;
+    border-radius: 6px;
+    border: 2px solid var(--mu-cream);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--mu-brand);
+}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+    .tf-header .item-link::after,
+    .tf-header .nav-icon-item,
+    .tf-btn,
+    .card-product .product-action_list .box-icon,
+    .tf-footer a {
+        transition: none;
+    }
+}
