@@ -1245,10 +1245,21 @@ $page_title = htmlspecialchars($product['name']) . ' - Innovative Homesi';
             function readNaturalSize(itemData) {
                 const img = itemData.element ? itemData.element.querySelector('img') : null;
                 if (img && img.naturalWidth) {
-                    itemData.width = img.naturalWidth;
-                    itemData.height = img.naturalHeight;
+                    // w/h take precedence over width/height inside PhotoSwipe,
+                    // so both pairs must be overwritten
+                    itemData.width = itemData.w = img.naturalWidth;
+                    itemData.height = itemData.h = img.naturalHeight;
                 }
                 return itemData;
+            }
+
+            // Show the popup image inside a bounded box (max 900x600) instead
+            // of stretching to the full screen height. On small screens the
+            // viewport (minus padding) is the limit; never upscale past 100%.
+            function boxedZoomLevel(zoomLevels) {
+                const boxW = Math.min(900, zoomLevels.panAreaSize.x);
+                const boxH = Math.min(600, zoomLevels.panAreaSize.y);
+                return Math.min(1, boxW / zoomLevels.elementSize.x, boxH / zoomLevels.elementSize.y);
             }
 
             if (typeof PhotoSwipeLightbox !== 'undefined' && typeof PhotoSwipe !== 'undefined') {
@@ -1257,7 +1268,9 @@ $page_title = htmlspecialchars($product['name']) . ' - Innovative Homesi';
                     children: 'a.item',
                     pswpModule: PhotoSwipe,
                     showHideAnimationType: 'zoom',
-                    wheelToZoom: true
+                    wheelToZoom: true,
+                    padding: { top: 40, bottom: 40, left: 40, right: 40 },
+                    initialZoomLevel: boxedZoomLevel
                 });
                 productLightbox.addFilter('itemData', readNaturalSize);
                 productLightbox.on('change', function() {
@@ -1269,7 +1282,9 @@ $page_title = htmlspecialchars($product['name']) . ' - Innovative Homesi';
                     gallery: '.review-photos',
                     children: 'a',
                     pswpModule: PhotoSwipe,
-                    showHideAnimationType: 'zoom'
+                    showHideAnimationType: 'zoom',
+                    padding: { top: 40, bottom: 40, left: 40, right: 40 },
+                    initialZoomLevel: boxedZoomLevel
                 });
                 reviewLightbox.addFilter('itemData', readNaturalSize);
                 reviewLightbox.init();
